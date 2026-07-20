@@ -105,11 +105,11 @@
                                         بوابتك الخاصة</label>
                                     <!-- إضافة name -->
                                     <select class="form-select bg-light" id="login-role" name="role">
-                                        <option value="sponsor" {{ old('role') == 'sponsor' ? 'selected' : '' }}>بوابة
+                                        <option value="sponsor">بوابة
                                             الكافل (Sponsor)</option>
-                                        <option value="guardian" {{ old('role') == 'guardian' ? 'selected' : '' }}>
+                                        <option value="guardian">
                                             بوابة الوصي أو عائلة اليتيم (Guardian)</option>
-                                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>لوحة كنف
+                                        <option value="admin">لوحة كنف
                                             الإدارية الكاملة (Admin Manager)</option>
                                     </select>
                                 </div>

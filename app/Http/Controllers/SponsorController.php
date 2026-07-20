@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use App\Models\Sponsor;
 use App\Models\Sponsorship;
@@ -9,6 +10,7 @@ use App\Models\Orphan;
 use App\Models\Document;
 use App\Models\documents;
 use App\Models\Housing;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule; // تأكد من وجود هذا السطر في أعلى ملف الكنترولر
@@ -19,8 +21,12 @@ class SponsorController extends Controller
     public function dashboard_sponsor()
     {
         $user = Auth::user();
+
         // جلب بيانات الكفيل المرتبطة بالمستخدم الحالي
         $sponsor = Sponsor::where('user_id', $user->id)->first();
+        if (!$sponsor) {
+            return redirect()->route('login');
+        }
 
         // جلب كفالات هذا الكفيل مع بيانات الأيتام
         $sponsorships = Sponsorship::with('orphan')
@@ -36,6 +42,9 @@ class SponsorController extends Controller
         $user = Auth::user();
 
         $sponsor = Sponsor::where('user_id', Auth::id())->first();
+        if (!$sponsor) {
+            return redirect()->route('login');
+        }
 
         $sponsorships = Sponsorship::with('orphan')
             ->where('sponsor_id', $sponsor->id)
@@ -50,6 +59,9 @@ class SponsorController extends Controller
         $user = Auth::user();
 
         $sponsor = Sponsor::where('user_id', Auth::id())->first();
+        if (!$sponsor) {
+            return redirect()->route('login');
+        }
 
         // التأكد من أن الكفالة تخص الكفيل الحالي لحماية البيانات
         $sponsorship = Sponsorship::with(['orphan', 'orphan.documents'])
@@ -66,6 +78,9 @@ class SponsorController extends Controller
         $user = Auth::user();
 
         $sponsor = Sponsor::where('user_id', Auth::id())->first();
+        if (!$sponsor) {
+            return redirect()->route('login');
+        }
 
         $payments = Sponsorship::where('sponsor_id', $sponsor->id)
             ->select('id', 'orphan_id', 'amount_paid', 'last_batch', 'payment_method', 'payment_status')
@@ -80,6 +95,9 @@ class SponsorController extends Controller
         $user = Auth::user();
 
         $sponsor = Sponsor::where('user_id', Auth::id())->first();
+        if (!$sponsor) {
+            return redirect()->route('login');
+        }
 
         // جلب معرفات الأيتام المكفولين من قبل هذا الكفيل
         $orphanIds = Sponsorship::where('sponsor_id', $sponsor->id)->pluck('orphan_id');
@@ -92,23 +110,35 @@ class SponsorController extends Controller
         return view('sponsor.documentation', compact('user', 'documents'));
     }
 
-    // عرض الإشعارات والرسائل
-    public function notifications()
+    // عرض صفحة الإشعارات للكافل
+    public function sponsorIndex()
     {
+        /** @var User $user */
         $user = Auth::user();
 
-        // جلب إشعارات المستخدم الحالية (باستخدام نظام إشعارات لارافيل الافتراضي أو المخصص)
-        // $notifications = Auth::user()->notifications;
+        // جلب إشعارات الكافل
+        $notifications = $user->notifications()->paginate(10);
 
-        return view('sponsor.notifications', compact('user'));
+        return view('sponsor.notifications', compact('user', 'notifications'));
+    }
+    // تحديد كل الإشعارات كمقروءة للكافل
+    public function markAllRead()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $user->unreadNotifications->markAsRead();
+
+        return response()->json(['status' => 'success']);
     }
 
     // عرض وتعديل الملف الشخصي للكفيل
     public function profile_sponser()
     {
         $user = Auth::user();
-
-        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
         return view('sponsor.profile', compact('user'));
     }
@@ -197,6 +227,12 @@ class SponsorController extends Controller
             $user->sponsor->country = $request->country;
 
             $user->sponsor->save();
+
+            AuditLog::create([
+                'user_id' => auth()->id(), // معرف الكفيل الذي قام بالتحديث
+                'action'  => 'تعديل بيانات كفيل',
+                'details' => 'قام الكفيل بتحديث بيانته الشخصية ',
+            ]);
         }
 
         return redirect()->back()->with('success', 'تم تحديث البيانات الشخصية بنجاح!');

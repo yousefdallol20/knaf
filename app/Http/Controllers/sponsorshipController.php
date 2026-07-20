@@ -16,6 +16,10 @@ class sponsorshipController extends Controller
         // جلب بيانات اليتيم للتأكد من وجوده وأنه متاح للكفالة
         $orphan = orphans::where('status', 'بانتظار الكفالة')->findOrFail($id);
 
+        if (!$orphan) {
+            return redirect()->route('login');
+        }
+
         return view('sponsorship.step1', compact('orphan'));
     }
 
@@ -26,7 +30,11 @@ class sponsorshipController extends Controller
         $orphanId = $request->query('orphan_id');
 
         // 2. جلب بيانات الكافل والمستخدم الحالي لمنع ظهور أخطاء أخرى في الصفحة
-        $user = auth()->user();
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
         $sponsor = Sponsor::where('user_id', $user->id)->first();
 
         // 3. تمرير كافة المتغيرات التي تتوقعها صفحة الـ Blade
@@ -62,7 +70,10 @@ class sponsorshipController extends Controller
 
         // جلب بيانات اليتيم والكفيل الحالي لـ View
         $orphan = orphans::findOrFail($orphanId);
-        $user = auth()->user();
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
         $sponsor = Sponsor::where('user_id', $user->id)->first();
 
         // تحديد قيمة الكفالة الافتراضية

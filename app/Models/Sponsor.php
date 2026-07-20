@@ -10,6 +10,11 @@ class Sponsor extends Model
     protected $guarded = [];
 
 
+    // العلاقة المباشرة مع جدول الكفالات لحساب الكفالات النشطة بدقة
+    public function sponsorships()
+    {
+        return $this->hasMany(Sponsorship::class, 'sponsor_id');
+    }
 
     public function orphans()
     {

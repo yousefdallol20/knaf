@@ -54,9 +54,14 @@ class User extends Authenticatable
         return $this->hasOne(guardian::class, 'user_id');
     }
 
-    
+
     public function sponsor()
     {
         return $this->hasOne(Sponsor::class, 'user_id');
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class, 'user_id');
     }
 }

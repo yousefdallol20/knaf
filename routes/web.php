@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\GuardiansController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\sponsorshipController;
@@ -30,7 +32,7 @@ Route::get('/orphans_details/{id}', [HomeController::class, 'orphans_details'])-
 // ===================================================
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])    ;
+    Route::post('/login', [LoginController::class, 'login']);
 
     Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
@@ -40,7 +42,7 @@ Route::middleware('guest')->group(function () {
 });
 
 // مسار تسجيل الخروج لكل مستخدمي النظام
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 
 // ===================================================
@@ -85,10 +87,81 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/payments', [SponsorController::class, 'payments'])->name('payments');
         Route::get('documentation', [SponsorController::class, 'documentation'])->name('documentation');
-        Route::get('notifications', [SponsorController::class, 'notifications'])->name('notifications');
+        Route::get('/notifications/sponsor', [SponsorController::class, 'sponsorIndex'])->name('notifications');
+        Route::post('/notifications/mark-all-read', [SponsorController::class, 'markAllRead'])->name('notifications.markAllRead');
         Route::get('profile_sponser', [SponsorController::class, 'profile_sponser'])->name('profile_sponser');
         Route::post('/update_Profile_Fields', [SponsorController::class, 'update_Profile_Fields'])->name('update_Profile_Fields');
         Route::post('/update_Password', [SponsorController::class, 'update_Password'])->name('update_Password');
+    });
 
+    // -------------------------------------------------
+    // -------------------- admin ----------------------
+    // -------------------------------------------------
+
+    Route::group([], function () {
+        Route::get('/dashboard_admin', [AdminController::class, 'dashboard_admin'])->name('dashboard_admin');
+        Route::get('/orphans_admin', [AdminController::class, 'orphans_admin'])
+            ->name('orphans_admin');
+
+        // مسار عرض التفاصيل الكاملة ليتيم محدد (حل مشكلة الارتباط وتمرير الـ ID)
+        Route::get('/Orphan_Details/{id}', [AdminController::class, 'Orphan_Details'])
+            ->name('Orphan_Details');
+
+        // مسار إرسال نموذج قبول واعتماد طلب اليتيم وتحديد مبلغ الكفالة
+        Route::post('/orphans/{id}/approve', [AdminController::class, 'approveOrphan'])
+            ->name('orphans.approve');
+
+        // مسار إرسال نموذج رفض الطلب وتحديد نوع الرفض والسبب
+        Route::post('/orphans/{id}/reject', [AdminController::class, 'rejectOrphan'])
+            ->name('orphans.reject');
+
+        Route::get('/families', [AdminController::class, 'families'])->name('families_admin');
+
+        // اعتماد ومصادقة الملف القانوني للعائلة
+        Route::post('families/{id}/approve-verification', [AdminController::class, 'approveVerification'])->name('family_approve_verification');
+
+        // شطب عائلة من الأرشيف
+        Route::delete('families/{id}/delete', [AdminController::class, 'destroy'])->name('family_destroy');
+        Route::get('/showSponsors', [AdminController::class, 'showSponsors'])->name('showSponsors');
+        // رابط صفحة إدارة عقود الكفالات في لوحة التحكم للآدمن
+        Route::get('/admin/sponsorships', [AdminController::class, 'sponsorships_admin'])->name('sponsorships_admin');
+
+        // مسارات إدارة المدفوعات والتدقيق المالي
+        Route::get('/admin/payments', [AdminController::class, 'payments_admin'])->name('payments_admin');
+        Route::post('/admin/payments/{id}/approve', [AdminController::class, 'approve_payment'])->name('payments_approve');
+        Route::delete('/admin/payments/{id}/delete', [AdminController::class, 'delete_payment'])->name('payments_delete');
+
+        // مسارات نظام مراجعة وتدقيق المستندات للآدمن
+        Route::get('/admin/documents', [AdminController::class, 'documents_admin'])->name('documents_admin');
+        Route::post('/admin/documents/{id}/approve', [AdminController::class, 'approve_document'])->name('documents_approve');
+        Route::post('/admin/documents/{id}/reject', [AdminController::class, 'reject_document'])->name('documents_reject');
+
+
+        Route::get('/admin/reports', [AdminController::class, 'reports_admin'])->name('reports_admin');
+        Route::post('/admin/reports/generate', [AdminController::class, 'generate_report'])->name('reports_generate');
+        Route::get('/admin/reports/download/{file}', [AdminController::class, 'download_ready_report'])->name('reports_download');
+
+        Route::get('/admin/audit-logs', [AdminController::class, 'audit_logs_admin'])->name('audit_admin');
+
+
+        Route::get('/notifications', [AdminController::class, 'adminIndex'])->name('admin.notifications.index');
+        Route::post('/notifications/send', [AdminController::class, 'sendBroadcast'])->name('admin.notifications.send');
+
+        // رابط عرض الصفحة والجدول الرئيسي
+        Route::get('/users', [AdminController::class, 'users_index'])->name('admin.users.index');
+
+        // رابط تغيير الحالة (تجميد أو تنشيط العضوية)
+        Route::post('/users/{id}/toggle-status', [AdminController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
+
+        Route::get('/permissions', [AdminController::class, 'permissions'])->name('admin.permissions.index');
+
+
+        Route::get('/settings', [AdminController::class, 'settings_index'])->name('admin.settings.index');
+
+        // تحديث إعدادات المفتاح والقيمة التابعة للأقسام
+        Route::post('/update', [AdminController::class, 'update'])->name('admin.settings.update');
+
+        // رفع شعار المنظمة بشكل منفصل
+        Route::post('/upload-logo', [AdminController::class, 'uploadLogo'])->name('admin.settings.uploadLogo');
     });
 });

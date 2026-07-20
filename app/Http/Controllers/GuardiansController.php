@@ -27,18 +27,9 @@ class GuardiansController extends Controller
 
         // 2. جلب الوصي المرتبط بهذا المستخدم
         $guardian = guardian::where('user_id', $user->id)->first();
-
-        // في حال كان الحساب جديداً ولم يتم ربطه ببيانات وصي بعد لتجنب الأخطاء
         if (!$guardian) {
-            return view('guardian.dashboard', [
-                'orphan'             => collect(),
-                'childrenCount'      => 0,
-                'activeSponsorships' => 0,
-                'requiredDocsCount'  => 0,
-                'user'               => $user // <--- أضف هذا السطر هنا لحل المشكلة
-            ]);
+            return redirect()->route('login');
         }
-
         // 3. جلب الأطفال التابعين لهذا الوصي فقط بناءً على هيكلية جداولك الحالية
         $orphan = orphans::where('id', $guardian->orphan_id)->get();
 
@@ -74,11 +65,7 @@ class GuardiansController extends Controller
 
         // في حال كان حساب الوصي جديداً ولم يربط بطفل بعد
         if (!$guardian) {
-            return view('guardian.children', [
-                'orphan'   => collect(),
-                'document' => collect(),
-                'user'     => $user
-            ]);
+            return redirect()->route('login');
         }
 
         // 2. جلب الطفل التابع لهذا الوصي فقط بدلاً من orphans::all()
@@ -97,6 +84,9 @@ class GuardiansController extends Controller
     public function child_form()
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
         return view('guardian.child-form', ['user' => $user]);
     }
 
@@ -104,6 +94,9 @@ class GuardiansController extends Controller
     public function edit(string $id)
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
         $orphan = orphans::with(['guardian', 'parents', 'housing', 'financial'])->findOrFail($id);
         $g = $orphan->guardian;
         $p = $orphan->parents;
@@ -173,6 +166,9 @@ class GuardiansController extends Controller
     public function update(ChildRequest $request, string $id)
     {
         $orphan = orphans::findOrFail($id);
+        if (!$orphan) {
+            return redirect()->route('login');
+        }
 
         DB::beginTransaction();
         try {
@@ -299,6 +295,9 @@ class GuardiansController extends Controller
     public function destroy(string $id)
     {
         $orphan = orphans::findOrFail($id);
+        if (!$orphan) {
+            return redirect()->route('login');
+        }
         $orphan->delete();
 
         return redirect()->route('children')->with('success', 'تم حذف اليتيم وكافة بياناته المرتبطة بنجاح.');
@@ -312,6 +311,9 @@ class GuardiansController extends Controller
     public function new_child_form(ChildRequest $request)
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
         // استخدام الـ Transaction لضمان حفظ كل الجداول معاً أو تراجع الكل في حال حدوث خطأ
         DB::beginTransaction();
 
@@ -493,10 +495,7 @@ class GuardiansController extends Controller
 
         // 2. في حال كان الحساب جديداً ولم يُربط بطفل بعد لتجنب الأخطاء
         if (!$guardian) {
-            return view('guardian.upload-docs', [
-                'orphan' => collect(),
-                'user'   => $user
-            ]);
+            return redirect()->route('login');
         }
 
         // 3. جلب الأطفال التابعين لهذا الوصي فقط بناءً على هيكلية جدولك
@@ -553,12 +552,18 @@ class GuardiansController extends Controller
     public function received_payments()
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
         return view('guardian.received-payments', ['user' => $user]);
     }
 
     public function profile()
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
         return view('guardian.profile', ['user' => $user]);
     }
     public function updateProfileFields(Request $request)

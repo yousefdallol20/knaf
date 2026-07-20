@@ -97,8 +97,9 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}" alt="رمز"
-                                class="rounded-circle" width="30" height="30" style="object-fit: cover;">
+                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
+                                alt="رمز" class="rounded-circle" width="30" height="30"
+                                style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
@@ -107,9 +108,12 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-small text-danger text-right"
-                                    href="{{ route('logout') }}"><i class="bi bi-box-arrow-right me-2"></i> خروج آمن</a>
-                            </li>
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit"
+                                    class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100"><i
+                                        class="bi bi-box-arrow-right me-2"></i> خروج آمن</button>
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -139,8 +143,8 @@
                         <!-- Left sidebar in detail workspace: Child core card -->
                         <div class="col-lg-4">
                             <div class="bg-white p-4 rounded-4 border shadow-sm text-center">
-                                <img src="{{ asset('Uploads/orphans/' . $sponsorship->orphan->personal_photo_path) }}" alt="أحمد محمد"
-                                    class="img-fluid rounded-4 mb-3 border shadow-xs"
+                                <img src="{{ asset('Uploads/orphans/' . $sponsorship->orphan->personal_photo_path) }}"
+                                    alt="أحمد محمد" class="img-fluid rounded-4 mb-3 border shadow-xs"
                                     style="max-height:250px;object-fit:cover;width:100%;">
                                 <h4 class="fw-bold text-dark mb-1">
                                     {{ $orphan->name }}

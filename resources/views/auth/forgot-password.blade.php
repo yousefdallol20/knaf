@@ -15,7 +15,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="../index.html">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('dashboard_admin') }}">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110"
                         id="nav-brand-logo" style="object-fit:contain;">
                 </a>
@@ -26,7 +26,7 @@
                 <div class="collapse navbar-collapse" id="navMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1" id="nav-menu-list">
                         <li class="nav-item">
-                            <a class="nav-link" href="../index.html">الرئيسية</a>
+                            <a class="nav-link" href="{{ route('dashboard_admin') }}">الرئيسية</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ asset('orphans') }}">قائمة الأيتام</a>
@@ -158,7 +158,7 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="../index.html" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
+                        <li><a href="{{ route('dashboard_admin') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
                         <li><a href="{{ asset('orphans.html') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
                         </li>
                         <li><a href="../sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء

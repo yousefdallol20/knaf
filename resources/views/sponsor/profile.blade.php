@@ -96,7 +96,8 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}" alt="رمز" class="rounded-circle" width="30" height="30"
+                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
+                                alt="رمز" class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
@@ -106,9 +107,12 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-small text-danger text-right"
-                                    href="{{ route('logout') }}"><i class="bi bi-box-arrow-right me-2"></i> خروج
-                                    آمن</a></li>
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit"
+                                    class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100"><i
+                                        class="bi bi-box-arrow-right me-2"></i> خروج آمن</button>
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -256,7 +260,8 @@
                                     <div class="col-md-12">
                                         <label class="form-label text-small fw-semibold text-muted">كلمة المرور القديمة
                                             الحالية</label>
-                                        <input type="password" class="form-control" placeholder="••••••••" required name="current_password">
+                                        <input type="password" class="form-control" placeholder="••••••••" required
+                                            name="current_password">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label text-small fw-semibold text-muted">كلمة المرور
@@ -268,7 +273,8 @@
                                         <label class="form-label text-small fw-semibold text-muted">تأكيد كلمة المرور
                                             الجديدة</label>
                                         <input type="password" id="confirm-password" class="form-control"
-                                            placeholder="تطابق كلمة المرور" minlength="6" required name="password_confirmation">
+                                            placeholder="تطابق كلمة المرور" minlength="6" required
+                                            name="password_confirmation">
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary mt-4 px-4 py-2 text-small">تعديل وتحديث
