@@ -26,7 +26,7 @@
                 </div>
 
                 <ul class="sidebar-menu flex-grow-1" id="dynamic-menu-list">
-                    <li class="menu-item " id="menu-dashboard">
+                    <li class="menu-item" id="menu-dashboard">
                         <a href="{{ route('dashboard') }}"><i class="bi bi-house-door-fill"></i> الرئيسية</a>
                     </li>
                     <li class="menu-item" id="menu-children">
@@ -38,6 +38,9 @@
                     </li>
                     <li class="menu-item" id="menu-payments">
                         <a href="{{ route('received_payments') }}"><i class="bi bi-cash-stack"></i> الدفعات الواردة</a>
+                    </li>
+                    <li class="menu-item" id="menu-notifications">
+                        <a href="{{ route('guardian.notifications') }}"><i class="bi bi-bell-fill"></i> الإشعارات</a>
                     </li>
                     <li class="menu-item active" id="menu-profile">
                         <a href="{{ route('profile') }}"><i class="bi bi-person-fill-gear"></i> الملف الشخصي للوصي</a>
@@ -68,8 +71,9 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}" alt=""
-                                class="rounded-circle" width="30" height="30" style="object-fit: cover;">
+                            <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                alt=" " class="rounded-circle" width="30" height="30"
+                                style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
@@ -78,9 +82,12 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-small text-danger text-right"
-                                    href="{{ route('logout') }}"><i class="bi bi-box-arrow-right me-2"></i> خروج
-                                    آمن</a></li>
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit"
+                                    class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100"><i
+                                        class="bi bi-box-arrow-right me-2"></i> خروج آمن</button>
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -102,7 +109,8 @@
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                            aria-label="Close"></button>
                     </div>
                 @endif
 
@@ -126,9 +134,9 @@
                                 <div class="position-relative profile-img-container" id="avatarDropdown"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
-                                        id="profile-avatar-preview" alt="الصورة الشخصية"
-                                        class="rounded-circle border border-3 border-success shadow-xs"
-                                        width="110" height="110" style="object-fit: cover;">
+                                        id="profile-avatar-preview" alt=""
+                                        class="rounded-circle border border-3 border-success shadow-xs" width="110"
+                                        height="110" style="object-fit: cover;">
                                 </div>
                                 <ul class="dropdown-menu dropdown-menu-center shadow border-0 avatar-dropdown-menu"
                                     aria-labelledby="avatarDropdown">
@@ -183,36 +191,35 @@
                             <h5 class="fw-bold text-dark mb-4 border-bottom pb-2"><i
                                     class="bi bi-person-fill text-primary-green me-1"></i> تعديل بيانات ملف الوصي</h5>
 
-                            <form id="guardian-edit-form" class="needs-validation" novalidate
+                            <form id="guardian-edit-form" class="needs-validation"
                                 action="{{ route('profile.update.fields') }}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
 
-                                <!-- حقل مخفي لرفع الصورة تم وضعه هنا ليكون داخل الفورم الرئيسي بشكل صحيح -->
+                                <!-- حقل رفع الصورة الشخصية -->
                                 <input type="file" id="avatar-file-input" name="profile_photo" accept="image/*"
                                     style="display: none;" onchange="previewSelectedAvatar(this)">
-
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label text-small fw-semibold text-muted">اسم الوصي
                                             بالكامل</label>
                                         <input type="text" name="name" id="p-guard-name" class="form-control"
-                                            value="{{ old('name', $user->name) }}" required>
+                                            value="{{ old('name', $user->name) }}">
                                     </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label text-small fw-semibold text-muted">رقم الهاتف
                                             الفعال</label>
                                         <input type="tel" name="phone" id="p-guard-phone"
                                             class="form-control font-monospace"
-                                            value="{{ old('phone', $user->phone) }}" required>
+                                            value="{{ old('phone', $user->phone) }}">
                                     </div>
-                                    <!-- حقول مكان السكن المربوطة بجدول housings -->
+
                                     <div class="col-md-6">
-                                        <label class="form-label text-small fw-semibold text-muted">البريد الإلكتروني </label>
+                                        <label class="form-label text-small fw-semibold text-muted">البريد
+                                            الإلكتروني</label>
                                         <input type="email" name="email" id="p-guard-original-city"
-                                            class="form-control"
-                                            value="{{ old('email', $user->email) }}"
-                                            required>
+                                            class="form-control" value="{{ old('email', $user->email) }}">
                                     </div>
 
                                     <div class="col-md-6">
@@ -220,8 +227,7 @@
                                             الحالية</label>
                                         <input type="text" name="current_displacement_destination"
                                             id="p-guard-displacement" class="form-control"
-                                            value="{{ old('current_displacement_destination', $user->guardian->housing->current_displacement_destination ?? '') }}"
-                                            required>
+                                            value="{{ old('current_displacement_destination', $user->guardian->housing->current_displacement_destination ?? '') }}">
                                     </div>
 
                                     <div class="col-md-12">
@@ -230,11 +236,11 @@
                                         <input type="text" name="health_status" id="p-guard-health"
                                             class="form-control"
                                             placeholder="اكتب الحالة الصحية الحالية أو أي التزامات طبية إن وجدت"
-                                            value="{{ old('health_status', $user->guardian->health_status ?? '') }}"
-                                            required>
+                                            value="{{ old('health_status', $user->guardian->health_status ?? '') }}">
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary mt-4 px-4 py-2 text-small">تحديث ومعاينة
+
+                                <button type="submit" class="btn btn-primary mt-4 px-4 py-2 text-small">تحديث
                                     البيانات</button>
                             </form>
                         </div>
@@ -289,8 +295,9 @@
                         class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow-none"
                         data-bs-dismiss="modal" aria-label="Close"></button>
                     <!-- تعديل مسار الصورة هنا ليعرض صورة المستخدم الحالية بدقة بدلاً من الصورة الاستاتيكية -->
-                    <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}" id="modal-full-image"
-                        class="img-fluid rounded-4 shadow" style="max-height: 80vh;" alt="صورة الملف الشخصي الكاملة">
+                    <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                        id="modal-full-image" class="img-fluid rounded-4 shadow" style="max-height: 80vh;"
+                        alt=" ">
                 </div>
             </div>
         </div>

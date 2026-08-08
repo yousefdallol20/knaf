@@ -90,7 +90,7 @@
 
                                 <div class="row align-items-center bg-light p-4 rounded-4 mb-4 g-4">
                                     <div class="col-md-3 text-center">
-                                        <img src="{{ asset('Uploads/orphans/' . $orphan->image) }}" alt="أحمد محمد"
+                                        <img src="{{ asset('Uploads/orphans/' . $orphan->image) }}" alt=" "
                                             class="img-fluid rounded-circle shadow-xs"
                                             style="width:120px;height:120px;object-fit:cover;">
                                     </div>
@@ -135,7 +135,7 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="fw-bold text-dark fs-5">المبلغ المطلوب شهرياً</span>
                                             <span class="fs-4 fw-bold text-success">
-                                                $50
+                                                $ {{ $orphan->required_amount }}
                                             </span>
                                         </div>
                                     </div>

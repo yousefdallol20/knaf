@@ -17,53 +17,57 @@
         <!-- Sidebar -->
         <div class="sidebar d-flex flex-column" id="kanaf-sidebar-wrapper">
             <div class="brand">
-                <!-- <img src="assets/images/logo.png" alt="كنف" height="35"> -->
+                <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="كنف" height="35"> -->
                 <h5 class="text-primary-green mb-0 fw-bold d-inline-block">لوحة تحكّم كَنَفْ</h5>
                 <button type="button" class="btn-close btn-close-white d-lg-none ms-auto" aria-label="إغلاق القائمة"
                     onclick="document.getElementById('kanaf-sidebar-wrapper').classList.remove('show'); document.getElementById('kanaf-sidebar-backdrop').classList.remove('show');"></button>
             </div>
 
             <ul class="sidebar-menu flex-grow-1" id="dynamic-menu-list">
-                <li class="menu-item active" id="menu-dashboard">
+                <li class="menu-item {{ Route::is('dashboard_admin') ? 'active' : '' }}" id="menu-dashboard">
                     <a href="{{ route('dashboard_admin') }}"><i class="bi bi-grid-1x2-fill"></i> لوحة التحكم الشاملة</a>
                 </li>
-                <li class="menu-item" id="menu-orphans">
+                <li class="menu-item {{ Route::is('orphans_admin') ? 'active' : '' }}" id="menu-orphans">
                     <a href="{{ route('orphans_admin') }}"><i class="bi bi-people-fill"></i> إدارة الأيتام</a>
                 </li>
-                <li class="menu-item" id="menu-families">
+                <li class="menu-item {{ Route::is('families_admin') || Route::is('families') ? 'active' : '' }}"
+                    id="menu-families">
                     <a href="{{ route('families_admin') }}"><i class="bi bi-house-fill"></i> إدارة العائلات والوصي</a>
                 </li>
-                <li class="menu-item" id="menu-sponsors">
+                <li class="menu-item {{ Route::is('showSponsors') ? 'active' : '' }}" id="menu-sponsors">
                     <a href="{{ route('showSponsors') }}"><i class="bi bi-heart-fill"></i> إدارة الكافلين</a>
                 </li>
                 <li class="menu-item {{ Route::is('sponsorships_admin') ? 'active' : '' }}" id="menu-sponsorships">
                     <a href="{{ route('sponsorships_admin') }}"><i class="bi bi-arrow-repeat"></i> الكفالات النشطة</a>
                 </li>
-                <li class="menu-item" id="menu-payments">
+                <li class="menu-item {{ Route::is('payments_admin') ? 'active' : '' }}" id="menu-payments">
                     <a href="{{ route('payments_admin') }}"><i class="bi bi-wallet2"></i> إدارة المدفوعات</a>
                 </li>
-                <li class="menu-item" id="menu-docs">
+                <li class="menu-item {{ Route::is('documents_admin') ? 'active' : '' }}" id="menu-docs">
                     <a href="{{ route('documents_admin') }}"><i class="bi bi-file-earmark-lock-fill"></i> مراجعة
                         التوثيق</a>
                 </li>
-                <li class="menu-item" id="menu-users">
+                <li class="menu-item {{ Route::is('admin.users.index') ? 'active' : '' }}" id="menu-users">
                     <a href="{{ route('admin.users.index') }}"><i class="bi bi-person-circle"></i> إدارة المستخدمين</a>
                 </li>
-                <li class="menu-item" id="menu-permissions">
-                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات والأدوار</a>
+                <li class="menu-item {{ Route::is('admin.permissions.index') || Route::is('permissions') ? 'active' : '' }}"
+                    id="menu-permissions">
+                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات
+                        والأدوار</a>
                 </li>
-                <li class="menu-item" id="menu-reports">
+                <li class="menu-item {{ Route::is('reports_admin') ? 'active' : '' }}" id="menu-reports">
                     <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير
                         والتحليلات</a>
                 </li>
-                <li class="menu-item" id="menu-notifications">
+                <li class="menu-item {{ Route::is('admin.notifications.index') || Route::is('adminIndex') ? 'active' : '' }}"
+                    id="menu-notifications">
                     <a href="{{ route('admin.notifications.index') }}"><i class="bi bi-send-fill"></i> الإرسال الجماعي
                         والإشعار</a>
                 </li>
-                <li class="menu-item" id="menu-audit">
+                <li class="menu-item {{ Route::is('audit_admin') ? 'active' : '' }}" id="menu-audit">
                     <a href="{{ route('audit_admin') }}"><i class="bi bi-journal-text"></i> سجل العمليات السري</a>
                 </li>
-                <li class="menu-item" id="menu-settings">
+                <li class="menu-item {{ Route::is('admin.settings.index') ? 'active' : '' }}" id="menu-settings">
                     <a href="{{ route('admin.settings.index') }}"><i class="bi bi-gear-fill"></i> الإعدادات</a>
                 </li>
             </ul>
@@ -98,12 +102,13 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="../assets/images/admin.jpg" alt="رمز" class="rounded-circle"
-                                width="30" height="30" style="object-fit: cover;">
-                            <span class="text-small fw-bold">أ. عبد الرحمن البكري</span>
+                            <img src="{{ auth()->user()->avatar ?? asset('assets/images/admin.jpg') }}" alt=" "
+                                class="rounded-circle" width="30" height="30" style="object-fit: cover;">
+                            <span
+                                class="text-small fw-bold">{{ auth()->user()->name ?? 'أ. عبد الرحمن البكري' }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item text-small text-right" href="profile.html"><i
+                            <li><a class="dropdown-item text-small text-right" href="#"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -135,7 +140,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="stats-card">
                             <div class="stats-card-info">
-                                <h3>245</h3>
+                                <h3>{{ number_format($totalOrphansCount) }}</h3>
                                 <p>إجمالي الأيتام المسجلين</p>
                             </div>
                             <div class="stats-card-icon bg-success-subtle text-success">
@@ -146,7 +151,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="stats-card">
                             <div class="stats-card-info">
-                                <h3>187</h3>
+                                <h3>{{ number_format($activeSponsorshipsCount) }}</h3>
                                 <p>كفالات سارية ونشطة</p>
                             </div>
                             <div class="stats-card-icon bg-info-subtle text-info">
@@ -157,8 +162,8 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="stats-card">
                             <div class="stats-card-info">
-                                <h3>$ 6,200</h3>
-                                <p>حوالات دفعات يونيو</p>
+                                <h3>$ {{ number_format($currentMonthPaymentsSum) }}</h3>
+                                <p>حوالات دفعات الشهر الحالية</p>
                             </div>
                             <div class="stats-card-icon bg-warning-subtle text-warning">
                                 <i class="bi bi-cash-stack"></i>
@@ -168,7 +173,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="stats-card">
                             <div class="stats-card-info">
-                                <h3>58</h3>
+                                <h3>{{ number_format($waitingOrphansCount) }}</h3>
                                 <p>أيتام بانتظار الكفلاء</p>
                             </div>
                             <div class="stats-card-icon bg-danger-subtle text-danger">
@@ -226,34 +231,28 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="font-monospace">LOG-801</td>
-                                            <td class="fw-semibold text-dark">أدمن النظام</td>
-                                            <td><span
-                                                    class="badge bg-light text-dark text-small px-2 py-1 border">اعتماد
-                                                    كفالة</span></td>
-                                            <td class="text-muted">اعتماد كفالة #303 لليتيم محمود أبو العوف</td>
-                                            <td>2026-06-07 08:30</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-monospace">LOG-802</td>
-                                            <td class="fw-semibold text-dark">عبد الرحمن البكري (كافل)</td>
-                                            <td><span
-                                                    class="badge bg-light text-dark text-small px-2 py-1 border">تسجيل
-                                                    دفعة</span></td>
-                                            <td class="text-muted">تسجيل دفعة كفالة لليتيم يوسف الكفارنة بقيمة 80 دولار
-                                            </td>
-                                            <td>2026-06-06 20:15</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-monospace">LOG-803</td>
-                                            <td class="fw-semibold text-dark">سلوى الكفارنة (وصي)</td>
-                                            <td><span
-                                                    class="badge bg-light text-dark text-small px-2 py-1 border">تحديث
-                                                    ملف طفل</span></td>
-                                            <td class="text-muted">تحديث تقرير المدرسة لليتيم يوسف الكفارنة</td>
-                                            <td>2026-06-05 14:22</td>
-                                        </tr>
+                                        @forelse($recentAuditLogs as $log)
+                                            <tr>
+                                                <td class="font-monospace">LOG-{{ $log->id }}</td>
+                                                <td class="fw-semibold text-dark">
+                                                    {{ $log->user->name ?? ($log->user_name ?? 'أدمن النظام') }}</td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark text-small px-2 py-1 border">
+                                                        {{ $log->action ?? ($log->event ?? 'عملية نظام') }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-muted">
+                                                    {{ $log->details ?? ($log->description ?? 'لا توجد تفاصيل إضافية') }}
+                                                </td>
+                                                <td>{{ $log->created_at ? $log->created_at->format('Y-m-d H:i') : '' }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-3">لا توجد سجلات
+                                                    عمليات مسجلة حالياً</td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -266,23 +265,27 @@
         </div>
     </div>
 
-    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             // Payments Chart
+            // admin-payments-chart
             const paymentsCtx = document.getElementById('admin-payments-chart').getContext('2d');
+
             new Chart(paymentsCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                    labels: {!! json_encode($monthsLabels) !!}, // الشهور الديناميكية من الداتا بيز
                     datasets: [{
                         label: 'الواردات ($)',
-                        data: [4200, 4800, 5100, 5600, 5900, 6200],
-                        backgroundColor: 'rgba(27, 107, 58, 0.7)',
-                        borderColor: '#1B6B3A',
+                        data: {!! json_encode($monthlyPaymentsData) !!}, // القيم والأرقام الديناميكية من الداتا بيز
+                        backgroundColor: '#588e6d', // اللون الأخضر المطابق للصورة الثانية
+                        borderColor: '#588e6d',
                         borderWidth: 1,
-                        borderRadius: 6
+                        borderRadius: 8, // حواف دائرية للأعمدة كالصورة الثانية
+                        borderSkipped: 'bottom',
+                        barThickness: 45 // عرض العمود ليطابق الشكل
                     }]
                 },
                 options: {
@@ -290,20 +293,52 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false
+                            display: false // إخفاء المربع التوضيحي العلوي
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' $' + context.raw;
+                                }
+                            }
                         }
                     },
                     scales: {
+                        x: {
+                            grid: {
+                                display: true,
+                                color: '#f0f0f0' // الخطوط العمودية الفاتحة
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'cairo, sans-serif',
+                                    size: 12
+                                },
+                                color: '#666'
+                            }
+                        },
                         y: {
                             beginAtZero: true,
+                            suggestedMax: 7000, // سقف الرسم البياني 7000 دولار
                             ticks: {
-                                callback: v => '$' + v
+                                stepSize: 1000, // التدرج كل 1000 دولار ($0, $1000, $2000, $3000...)
+                                callback: function(value) {
+                                    return '$' + value;
+                                },
+                                font: {
+                                    family: 'cairo, sans-serif',
+                                    size: 12
+                                },
+                                color: '#666'
+                            },
+                            grid: {
+                                color: '#e5e5e5'
                             }
                         }
                     }
                 }
             });
-
+            // Distribution Chart
             // Distribution Chart
             const distCtx = document.getElementById('admin-distribution-chart').getContext('2d');
             new Chart(distCtx, {
@@ -311,7 +346,7 @@
                 data: {
                     labels: ['كفالات نشطة', 'بانتظار كفيل', 'موقوفة'],
                     datasets: [{
-                        data: [187, 58, 0],
+                        data: {!! json_encode($distributionData) !!},
                         backgroundColor: ['#1B6B3A', '#F5A623', '#dc3545'],
                         borderWidth: 2
                     }]
@@ -321,7 +356,16 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8,
+                                padding: 15,
+                                font: {
+                                    family: 'cairo, sans-serif',
+                                    size: 12
+                                }
+                            }
                         }
                     }
                 }

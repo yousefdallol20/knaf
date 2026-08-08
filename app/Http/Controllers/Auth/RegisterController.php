@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\guardian;
 use App\Models\Sponsor;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,39 +20,60 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required|string|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
+            'phone'    => 'required|string|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:sponsor,guardian',
+            'role'     => 'required|in:sponsor,guardian',
         ]);
 
+        // 1️⃣ إنشاء المستخدم أولاً في جدول users
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'phone'    => $request->phone,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role'     => $request->role,
         ]);
 
-        // إنشاء السجل في جدول الداعمين تلقائياً إذا كان كافل
-        if ($user->role === 'sponsor') {
-            Sponsor::create([
-                'user_id'   => $user->id,
-                'name'      => $user->name,
-                'email'     => $user->email,
-                'phone'     => $user->phone,
-                'country'   => '-', // 👈 مرر قيمة افتراضية مؤقتة للدولة
-                'city'      => '-', // 👈 مرر قيمة افتراضية مؤقتة للمدينة
-                'orphan_id' => null,
+        // 2️⃣ في حال كان المسجل كافل (Sponsor)
+        if ($request->role === 'sponsor') {
+            $sponsor = Sponsor::create([
+                'user_id' => $user->id,
+                'name'    => $request->name,
+                'email'   => $request->email,
+                'phone'   => $request->phone,
+                'country' => '-',
+                'city'    => '-',
             ]);
-        }
-        Auth::login($user);
 
-        // 👇 السطر السحري لتحديث الجلسة ومنع التداخل والكاش القديم
+            // تحديث المفتاح الأجنبي في جدول users
+            $user->update(['sponsor_id' => $sponsor->id]);
+        }
+
+        // 3️⃣ في حال كان المسجل وصي (Guardian)
+        elseif ($request->role === 'guardian') {
+            $guardian = guardian::create([
+                'user_id'                      => $user->id,
+                'name'                         => $request->name,
+                'national_id'                  => $request->national_id ?? null,
+                'birth_date'                   => $request->birth_date ?? null,
+                'kinship_relation'             => $request->kinship_relation ?? null,
+                'marital_status'               => $request->marital_status ?? null,
+                'health_status'                => $request->health_status ?? null,
+                'guardian_id_image'            => 'default.jpg',
+                'legal_guardianship_document' => 'default.pdf',
+                'orphan_id'                    => null,
+            ]);
+
+            // تحديث المفتاح الأجنبي في جدول users
+            $user->update(['guardian_id' => $guardian->id]);
+        }
+
+        // 4️⃣ تسجيل الدخول والتوجيه
+        Auth::login($user);
         $request->session()->regenerate();
 
-        // التوجيه الصحيح والصارم
         if ($user->role === 'guardian') {
             return redirect()->to('/dashboard');
         } elseif ($user->role === 'sponsor') {

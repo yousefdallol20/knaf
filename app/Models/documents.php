@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class documents extends Model
 {
+    use HasFactory;
     protected $table = 'documents';
 
     protected $guarded = [];
@@ -59,5 +61,10 @@ class documents extends Model
         if ($bytes >= 1048576) return round($bytes / 1048576, 2) . ' MB';
         if ($bytes >= 1024) return round($bytes / 1024, 2) . ' KB';
         return $bytes . ' bytes';
+    }
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\DocumentFactory::new();
     }
 }

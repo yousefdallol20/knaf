@@ -42,6 +42,9 @@
                     <li class="menu-item" id="menu-payments">
                         <a href="{{ route('received_payments') }}"><i class="bi bi-cash-stack"></i> الدفعات الواردة</a>
                     </li>
+                    <li class="menu-item" id="menu-notifications">
+                        <a href="{{ route('guardian.notifications') }}"><i class="bi bi-bell-fill"></i> الإشعارات</a>
+                    </li>
                     <li class="menu-item" id="menu-profile">
                         <a href="{{ route('profile') }}"><i class="bi bi-person-fill-gear"></i> الملف الشخصي للوصي</a>
                     </li>
@@ -71,10 +74,10 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->guardian && $user->guardian->personal_photo_path ? asset('Uploads/guardians/' . $user->guardian->personal_photo_path) : asset('Uploads/guardians/default.png') }}"
-                                alt="" class="rounded-circle" width="30" height="30"
+                            <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
-                            <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
+                            <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="{{ route('profile') }}"><i
@@ -82,9 +85,12 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-small text-danger text-right"
-                                    href="{{ route('logout') }}"><i class="bi bi-box-arrow-right me-2"></i> خروج
-                                    آمن</a></li>
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit"
+                                    class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100"><i
+                                        class="bi bi-box-arrow-right me-2"></i> خروج آمن</button>
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -166,9 +172,25 @@
                                                 </td>
                                                 <td>{{ $info->age }} سنة</td>
                                                 <td>{{ $info->education_level }}</td>
-                                                <td class="fw-bold text-success">$ 100 /شهرياً</td>
+                                                <td class="fw-bold text-success">$ {{ $info->required_amount }}
+                                                    /شهرياً</td>
                                                 <td>
-                                                    <span class="badge-kanaf badge-pending">{{ $info->status }}</span>
+                                                    @if ($info->status == 'بانتظار القبول')
+                                                        <span class="badge bg-warning text-dark"><i
+                                                                class="bi bi-clock-history me-1"></i> بانتظار
+                                                            القبول</span>
+                                                    @elseif($info->status == 'مرفوض')
+                                                        <span class="badge bg-danger"><i
+                                                                class="bi bi-x-circle me-1"></i> تم الرفض</span>
+                                                    @elseif($info->status == 'مكفول')
+                                                        <span class="badge bg-success"><i
+                                                                class="bi bi-check-circle me-1"></i>
+                                                            {{ $info->status }}</span>
+                                                    @elseif($info->status == 'بانتظار الكفالة')
+                                                        <span class="badge-kanaf badge-pending"><i
+                                                                class="bi bi-check-circle me-1"></i>
+                                                            {{ $info->status }}</span>
+                                                    @endif
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-2 justify-content-center">
@@ -214,11 +236,27 @@
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="text-center mb-4">
-                                <div><img src="{{ asset('Uploads/orphans/' . $info->personal_photo_path) }}" alt=""
+                                <div><img src="{{ asset('Uploads/orphans/' . $info->personal_photo_path) }}"
                                         style="width:100px;height:100px;font-size:32px;border-radius: 100%">
                                 </div>
                                 <h4 class="fw-bold">{{ $info->name }}</h4>
-                                <span class="badge bg-warning text-dark">بانتظار كفيل</span>
+                                <span>
+                                    @if ($info->status == 'بانتظار القبول')
+                                        <span class="badge bg-warning text-dark"><i
+                                                class="bi bi-clock-history me-1"></i> بانتظار
+                                            القبول</span>
+                                    @elseif($info->status == 'مرفوض')
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> تم
+                                            الرفض</span>
+                                    @elseif($info->status == 'مكفول')
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>
+                                            {{ $info->status }}</span>
+                                    @elseif($info->status == 'بانتظار الكفالة')
+                                        <span class="badge-kanaf badge-pending"><i
+                                                class="bi bi-check-circle me-1"></i>
+                                            {{ $info->status }}</span>
+                                    @endif
+                                </span>
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -286,7 +324,7 @@
                                             <table class="table table-sm">
                                                 <tr>
                                                     <th width="25%">المبلغ الشهري</th>
-                                                    <td>$ 100</td>
+                                                    <td>$ {{ $info->required_amount }} </td>
                                                 </tr>
                                                 <tr>
                                                     <th>حالة الكفالة</th>
@@ -306,28 +344,192 @@
                                 </div>
 
                                 <!-- ===== قسم الشهادات والوثائق ===== -->
+                                <!-- ===== قسم الشهادات والوثائق ===== -->
                                 <div class="col-12">
                                     <div class="card border-0 shadow-sm">
                                         <div
                                             class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
                                             <span><i class="bi bi-folder2-open me-2 text-primary-green"></i>الشهادات
-                                                والوثائق المرفوعة</span>
-                                            <!-- رابط ديناميكي لصفحة الرفع -->
+                                                والوثائق الرسمية المرفوعة</span>
                                             <a href="{{ route('upload_docs', ['id' => $info->id]) }}"
                                                 class="btn btn-primary btn-sm">
-                                                <i class="bi bi-cloud-arrow-up me-1"></i> رفع شهادة جديدة
+                                                <i class="bi bi-cloud-arrow-up me-1"></i> رفع مستند جديد
                                             </a>
                                         </div>
                                         <div class="card-body">
                                             <div class="row g-3">
 
-                                                <!-- حلقة التكرار لعرض الوثائق الحقيقية ديناميكياً -->
+                                                {{-- 1. شهادة ميلاد الطفل --}}
+                                                @if ($info->birth_certificate_path)
+                                                    <div class="col-md-4">
+                                                        <div
+                                                            class="border rounded-3 p-3 bg-light d-flex flex-column gap-2">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="p-2 bg-info-subtle text-info rounded-2 d-flex align-items-center justify-content-center"
+                                                                    style="width: 40px; height: 40px;">
+                                                                    <i class="bi bi-file-earmark-person fs-5"></i>
+                                                                </div>
+                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                    <p class="fw-bold text-small mb-0 text-truncate">
+                                                                        شهادة ميلاد الطفل</p>
+                                                                    <span class="text-caption text-muted">مستند رسمي
+                                                                        أولي</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex gap-2 mt-auto">
+                                                                <a href="{{ asset('Uploads/certificates/' . $info->birth_certificate_path) }}"
+                                                                    target="_blank"
+                                                                    class="btn btn-outline-success btn-sm flex-grow-1">
+                                                                    <i class="bi bi-eye me-1"></i> عرض
+                                                                </a>
+                                                                <a href="{{ asset('Uploads/certificates/' . $info->birth_certificate_path) }}"
+                                                                    download
+                                                                    class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                                                    <i class="bi bi-download me-1"></i> تحميل
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- 2. صك الوصاية القانوني --}}
+                                                @if ($info->guardian && $info->guardian->legal_guardianship_document)
+                                                    <div class="col-md-4">
+                                                        <div
+                                                            class="border rounded-3 p-3 bg-light d-flex flex-column gap-2">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="p-2 bg-warning-subtle text-warning rounded-2 d-flex align-items-center justify-content-center"
+                                                                    style="width: 40px; height: 40px;">
+                                                                    <i class="bi bi-file-earmark-text fs-5"></i>
+                                                                </div>
+                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                    <p class="fw-bold text-small mb-0 text-truncate">صك
+                                                                        الوصاية الشرعي</p>
+                                                                    <span class="text-caption text-muted">مستند قانوني
+                                                                        للوصي</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex gap-2 mt-auto">
+                                                                <a href="{{ asset('Uploads/guardians/' . $info->guardian->legal_guardianship_document) }}"
+                                                                    target="_blank"
+                                                                    class="btn btn-outline-success btn-sm flex-grow-1">
+                                                                    <i class="bi bi-eye me-1"></i> عرض
+                                                                </a>
+                                                                <a href="{{ asset('Uploads/guardians/' . $info->guardian->legal_guardianship_document) }}"
+                                                                    download
+                                                                    class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                                                    <i class="bi bi-download me-1"></i> تحميل
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- 3. صورة هوية الوصي --}}
+                                                @if ($info->guardian && $info->guardian->guardian_id_image)
+                                                    <div class="col-md-4">
+                                                        <div
+                                                            class="border rounded-3 p-3 bg-light d-flex flex-column gap-2">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="p-2 bg-primary-subtle text-primary rounded-2 d-flex align-items-center justify-content-center"
+                                                                    style="width: 40px; height: 40px;">
+                                                                    <i class="bi bi-card-heading fs-5"></i>
+                                                                </div>
+                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                    <p class="fw-bold text-small mb-0 text-truncate">
+                                                                        بطاقة هوية الوصي</p>
+                                                                    <span class="text-caption text-muted">إثبات
+                                                                        شخصية</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex gap-2 mt-auto">
+                                                                <a href="{{ asset('Uploads/guardians/' . $info->guardian->guardian_id_image) }}"
+                                                                    target="_blank"
+                                                                    class="btn btn-outline-success btn-sm flex-grow-1">
+                                                                    <i class="bi bi-eye me-1"></i> عرض
+                                                                </a>
+                                                                <a href="{{ asset('Uploads/guardians/' . $info->guardian->guardian_id_image) }}"
+                                                                    download
+                                                                    class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                                                    <i class="bi bi-download me-1"></i> تحميل
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- 4. شهادة وفاة الأب --}}
+                                                @if ($info->parents && $info->parents->death_certificate)
+                                                    <div class="col-md-4">
+                                                        <div
+                                                            class="border rounded-3 p-3 bg-light d-flex flex-column gap-2">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="p-2 bg-danger-subtle text-danger rounded-2 d-flex align-items-center justify-content-center"
+                                                                    style="width: 40px; height: 40px;">
+                                                                    <i class="bi bi-file-earmark-x fs-5"></i>
+                                                                </div>
+                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                    <p class="fw-bold text-small mb-0 text-truncate">
+                                                                        شهادة وفاة الأب</p>
+                                                                    <span class="text-caption text-muted">مستند إثبات
+                                                                        اليتم</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex gap-2 mt-auto">
+                                                                <a href="{{ asset('Uploads/parents/' . $info->parents->death_certificate) }}"
+                                                                    target="_blank"
+                                                                    class="btn btn-outline-success btn-sm flex-grow-1">
+                                                                    <i class="bi bi-eye me-1"></i> عرض
+                                                                </a>
+                                                                <a href="{{ asset('Uploads/parents/' . $info->parents->death_certificate) }}"
+                                                                    download
+                                                                    class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                                                    <i class="bi bi-download me-1"></i> تحميل
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- 5. شهادة وفاة الأم (إن وجدت) --}}
+                                                @if ($info->parents && $info->parents->mother_death_certificate)
+                                                    <div class="col-md-4">
+                                                        <div
+                                                            class="border rounded-3 p-3 bg-light d-flex flex-column gap-2">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="p-2 bg-danger-subtle text-danger rounded-2 d-flex align-items-center justify-content-center"
+                                                                    style="width: 40px; height: 40px;">
+                                                                    <i class="bi bi-file-earmark-x fs-5"></i>
+                                                                </div>
+                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                    <p class="fw-bold text-small mb-0 text-truncate">
+                                                                        شهادة وفاة الأم</p>
+                                                                    <span class="text-caption text-muted">مستند إثبات
+                                                                        اليتم</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex gap-2 mt-auto">
+                                                                <a href="{{ asset('Uploads/parents/' . $info->parents->mother_death_certificate) }}"
+                                                                    target="_blank"
+                                                                    class="btn btn-outline-success btn-sm flex-grow-1">
+                                                                    <i class="bi bi-eye me-1"></i> عرض
+                                                                </a>
+                                                                <a href="{{ asset('Uploads/parents/' . $info->parents->mother_death_certificate) }}"
+                                                                    download
+                                                                    class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                                                    <i class="bi bi-download me-1"></i> تحميل
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- 6. التقارير والشهادات الإضافية من جدول documents --}}
                                                 @foreach ($document as $documents)
                                                     @if ($documents->orphan_id == $info->id)
                                                         @php
-                                                            // فحص نوع الملف لاختيار الأيقونة واللون المناسب (صورة أو ملف مستندات)
-                                                            $ext = strtolower($documents->file_extension);
-                                                            $isImage = in_array($ext, [
+                                                            $ext = pathinfo($documents->file_path, PATHINFO_EXTENSION);
+                                                            $isImage = in_array(strtolower($ext), [
                                                                 'png',
                                                                 'jpg',
                                                                 'jpeg',
@@ -335,54 +537,39 @@
                                                                 'webp',
                                                             ]);
                                                         @endphp
-
                                                         <div class="col-md-4">
                                                             <div
                                                                 class="border rounded-3 p-3 bg-light d-flex flex-column gap-2">
                                                                 <div class="d-flex align-items-center gap-2">
-
-                                                                    <!-- الأيقونة واللون يتغيران ديناميكياً حسب الامتداد الحقيقي للملف -->
                                                                     <div class="p-2 {{ $isImage ? 'bg-info-subtle text-info' : 'bg-success-subtle text-success' }} rounded-2 d-flex align-items-center justify-content-center"
                                                                         style="width: 40px; height: 40px;">
-                                                                        @if ($isImage)
-                                                                            <i
-                                                                                class="bi bi-file-earmark-image fs-5"></i>
-                                                                        @else
-                                                                            <i class="bi bi-file-earmark-pdf fs-5"></i>
-                                                                        @endif
+                                                                        <i
+                                                                            class="bi {{ $isImage ? 'bi-file-earmark-image' : 'bi-file-earmark-pdf' }} fs-5"></i>
                                                                     </div>
-
                                                                     <div class="flex-grow-1 overflow-hidden">
-                                                                        <!-- اسم الوثيقة/الشهادة -->
                                                                         <p class="fw-bold text-small mb-0 text-truncate"
                                                                             title="{{ $documents->title }}">
                                                                             {{ $documents->title }}
                                                                         </p>
-                                                                        <!-- الامتداد والحجم الحقيقي المقروء تلقائياً من الموديل -->
                                                                         <span
                                                                             class="text-caption text-muted text-uppercase">
-                                                                            {{ $documents->file_extension }} •
-                                                                            {{ $documents->readable_size }}
+                                                                            {{ $documents->doc_type }}
                                                                         </span>
                                                                     </div>
                                                                 </div>
-
-                                                                <!-- تاريخ الرفع الحقيقي -->
                                                                 <div
                                                                     class="d-flex gap-1 text-caption text-muted align-items-center">
-                                                                    <i class="bi bi-calendar2 me-1"></i> رُفعت:
+                                                                    <i class="bi bi-calendar2 me-1"></i>
                                                                     {{ $documents->date }}
                                                                 </div>
-
-                                                                <!-- أزرار المعاينة والتحميل الحقيقية -->
-                                                                <div class="d-flex gap-2">
-                                                                    <a href="{{ $documents->file_url }}"
+                                                                <div class="d-flex gap-2 mt-auto">
+                                                                    <a href="{{ asset($documents->file_path) }}"
                                                                         target="_blank"
                                                                         class="btn btn-outline-success btn-sm flex-grow-1">
                                                                         <i class="bi bi-eye me-1"></i> عرض
                                                                     </a>
-                                                                    <a href="{{ $documents->file_url }}"
-                                                                        download="{{ $documents->file_name }}"
+                                                                    <a href="{{ asset($documents->file_path) }}"
+                                                                        download
                                                                         class="btn btn-outline-secondary btn-sm flex-grow-1">
                                                                         <i class="bi bi-download me-1"></i> تحميل
                                                                     </a>
@@ -396,6 +583,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- ===== نهاية قسم الشهادات والوثائق ===== -->
                                 <!-- ===== نهاية قسم الشهادات ===== -->
 
                             </div>
@@ -403,7 +591,7 @@
 
                     </div>
                     <div class="modal-footer">
-                        <a href="child-form.html?id=3" class="btn btn-outline-primary btn-sm"><i
+                        <a href="{{ route('children.edit', $info->id) }}" class="btn btn-outline-primary btn-sm"><i
                                 class="bi bi-pencil-square me-1"></i>
                             تعديل البيانات</a>
                         <button type="button" class="btn btn-outline-secondary btn-sm"

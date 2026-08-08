@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class orphans extends Model
 {
+    use HasFactory;
     protected $table = 'orphans';
 
     protected $guarded = [];
@@ -26,7 +28,7 @@ class orphans extends Model
         return $this->hasOne(Housing::class, 'orphan_id');
     }
 
-    public function financial()
+    public function financial_data()
     {
         return $this->hasOne(financial_data::class, 'orphan_id');
     }
@@ -45,4 +47,10 @@ class orphans extends Model
     {
         return $this->hasOne(sponsorship::class, 'orphan_id');
     }
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\OrphanFactory::new();
+    }
+
 }

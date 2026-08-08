@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
+
+    <!-- مكتبة التنبيهات SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -41,19 +44,23 @@
                     <a href="{{ route('payments_admin') }}"><i class="bi bi-wallet2"></i> إدارة المدفوعات</a>
                 </li>
                 <li class="menu-item" id="menu-docs">
-                    <a href="{{ route('documents_admin') }}"><i class="bi bi-file-earmark-lock-fill"></i> مراجعة التوثيق</a>
+                    <a href="{{ route('documents_admin') }}"><i class="bi bi-file-earmark-lock-fill"></i> مراجعة
+                        التوثيق</a>
                 </li>
                 <li class="menu-item" id="menu-users">
                     <a href="{{ route('admin.users.index') }}"><i class="bi bi-person-circle"></i> إدارة المستخدمين</a>
                 </li>
                 <li class="menu-item" id="menu-permissions">
-                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات والأدوار</a>
+                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات
+                        والأدوار</a>
                 </li>
                 <li class="menu-item" id="menu-reports">
-                    <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير والتحليلات</a>
+                    <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير
+                        والتحليلات</a>
                 </li>
                 <li class="menu-item" id="menu-notifications">
-                    <a href="{{ route('admin.notifications.index') }}"><i class="bi bi-send-fill"></i> الإرسال الجماعي والإشعار</a>
+                    <a href="{{ route('admin.notifications.index') }}"><i class="bi bi-send-fill"></i> الإرسال الجماعي
+                        والإشعار</a>
                 </li>
                 <li class="menu-item" id="menu-audit">
                     <a href="{{ route('audit_admin') }}"><i class="bi bi-journal-text"></i> سجل العمليات السري</a>
@@ -85,9 +92,9 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ asset('assets/images/admin.jpg') }}" alt="رمز" class="rounded-circle"
+                            <img src="{{ asset('assets/images/admin.jpg') }}" alt="" class="rounded-circle"
                                 width="30" height="30" style="object-fit: cover;">
-                            <span class="text-small fw-bold">{{ Auth::user()->name ?? 'المدير العام' }}</span>
+                            <span class="text-small fw-bold">{{ Auth::user()->name ?? 'أ. عبد الرحمن البكري' }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="#"><i
@@ -112,7 +119,7 @@
                 <div class="mb-4">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="#"
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard_admin') }}"
                                     class="text-primary-green text-decoration-none">الرئيسية</a></li>
                             <li class="breadcrumb-item active" aria-current="page">عقود كفالات منصة كنف</li>
                         </ol>
@@ -131,7 +138,7 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table text-right text-small">
+                                <table class="table text-right text-small align-middle">
                                     <thead>
                                         <tr>
                                             <th>رقم العقد الدقيق</th>
@@ -144,64 +151,196 @@
                                         </tr>
                                     </thead>
                                     <tbody id="admin-sponsorships-tbody">
-                                        @forelse ($sponsorships as $sponsorship)
+                                        @foreach ($sponsorships as $sponsorship)
+                                            @php
+                                                // 1️⃣ جلب المبلغ المستحق الصحيح
+                                                $requiredAmount =
+                                                    $sponsorship->required_amount ??
+                                                    ($sponsorship->monthly_amount ??
+                                                        ($sponsorship->orphan->required_amount ?? 50));
+
+                                                // 2️⃣ جلب اسم الملف للصورة الشخصية من قاعدة البيانات
+                                                $photoName =
+                                                    $sponsorship->orphan->personal_photo_path ??
+                                                    ($sponsorship->orphan->photo ?? null);
+
+                                                // 3️⃣ تحديد المسار الحقيقي داخل public/Uploads/orphans
+                                                if ($photoName && Str::startsWith($photoName, 'http')) {
+                                                    $photoUrl = $photoName;
+                                                } elseif (
+                                                    $photoName &&
+                                                    !empty($photoName) &&
+                                                    $photoName !== 'default.png'
+                                                ) {
+                                                    $photoUrl = asset('Uploads/orphans/' . $photoName);
+                                                } else {
+                                                    // صورة افتراضية عند غياب الصورة
+                                                    $photoUrl = asset('assets/images/orphan-1.png');
+                                                }
+                                            @endphp
                                             <tr>
-                                                <!-- توليد رقم العقد الدقيق متناسق بناءً على الـ ID -->
                                                 <td class="font-monospace">CONT-{{ 300 + $sponsorship->id }}</td>
+
+                                                <!-- صورة واسم اليتيم الصحيح -->
                                                 <td>
                                                     <div class="d-flex align-items-center gap-2">
-                                                        <!-- جلب صورة اليتيم الشخصية من قاعدة البيانات وإذا لم تتوفر نضع صورة افتراضية -->
-                                                        <img src="{{ $sponsorship->orphan->personal_photo_path ? asset('Uploads/orphans/' . $sponsorship->orphan->personal_photo_path) : asset('assets/images/orphan-1.png') }}"
-                                                            alt="" class="rounded-circle shadow-xs"
-                                                            width="30" height="30" style="object-fit: cover;">
-                                                        <!-- جلب الاسم الكامل لليتيم -->
-                                                        <strong
-                                                            class="text-dark text-small">{{ $sponsorship->orphan->name ?? $sponsorship->orphan->first_name }}</strong>
+                                                        <img src="{{ $photoUrl }}"
+                                                            alt="{{ $sponsorship->orphan->name ?? 'صورة اليتيم' }}"
+                                                            class="rounded-circle shadow-xs" width="35"
+                                                            height="35" style="object-fit: cover;"
+                                                            onerror="this.onerror=null;this.src='{{ asset('assets/images/orphan-1.png') }}';">
+
+                                                        <strong class="text-dark text-small">
+                                                            {{ $sponsorship->orphan->name ?? $sponsorship->orphan->first_name . ' ' . $sponsorship->orphan->last_name }}
+                                                        </strong>
                                                     </div>
                                                 </td>
+
+                                                <!-- بيانات الكفيل -->
                                                 <td>
-                                                    <!-- جلب بيانات الكفيل المرتبط بالعقد -->
                                                     <strong
-                                                        class="text-dark text-small d-block">{{ $sponsorship->sponsor->name ?? 'غير محدد' }}</strong>
+                                                        class="text-dark text-small d-block">{{ $sponsorship->sponsor->name ?? 'الكفيل' }}</strong>
                                                     <span
-                                                        class="text-caption text-muted">{{ $sponsorship->sponsor->email ?? '' }}</span>
+                                                        class="text-caption text-muted">{{ $sponsorship->sponsor->user->email ?? ($sponsorship->sponsor->email ?? '') }}</span>
                                                 </td>
-                                                <!-- تاريخ بدء العقد -->
-                                                <td>{{ $sponsorship->start_date }}</td>
-                                                <!-- عرض القيمة المالية المدفوعة والمطلوبة شهرياً -->
-                                                <td><strong class="text-success">$
-                                                        {{ number_format($sponsorship->amount_paid, 0) }}</strong>/شهرياً
+
+                                                <!-- تاريخ العقد -->
+                                                <td>{{ $sponsorship->created_at ? $sponsorship->created_at->format('Y-m-d') : now()->format('Y-m-d') }}
                                                 </td>
+
+                                                <!-- المبلغ والالتزام الشهري -->
                                                 <td>
-                                                    <!-- فحص حالة الدفع أو الكفالة لعرض اللون المناسب -->
-                                                    @if ($sponsorship->payment_status == 'paid')
+                                                    <strong class="text-success">$
+                                                        {{ number_format($requiredAmount, 2) }}</strong> / شهرياً
+                                                </td>
+
+                                                <!-- الحالة السكنية والعقدية -->
+                                                <td>
+                                                    @if ($sponsorship->status == 'نشط' || $sponsorship->status == 'ساري' || empty($sponsorship->status))
                                                         <span class="badge-kanaf badge-active">عقد نشط ساري</span>
                                                     @else
-                                                        <span class="badge-kanaf badge-stopped">ملغى / موقوف
-                                                            مؤقت</span>
+                                                        <span class="badge-kanaf badge-stopped">موقوف / تدقيق
+                                                            أمني</span>
                                                     @endif
                                                 </td>
+
+                                                <!-- إجراءات التحكم -->
                                                 <td>
                                                     <div class="d-flex gap-2 justify-content-center">
-                                                        @if ($sponsorship->payment_status == 'paid')
-                                                            <button class="btn btn-outline-danger btn-sm"><i
-                                                                    class="bi bi-slash-circle"></i> تعليق
-                                                                العقد</button>
+                                                        @if ($sponsorship->status == 'معلق' || $sponsorship->status == 'موقوف')
+                                                            <form
+                                                                action="{{ route('admin.sponsors.toggleStatus', $sponsorship->id) }}"
+                                                                method="POST" class="d-inline">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit" class="btn btn-success btn-sm">
+                                                                    <i class="bi bi-play-circle"></i> تفعيل العقد
+                                                                </button>
+                                                            </form>
                                                         @else
-                                                            <button class="btn btn-success btn-sm"><i
-                                                                    class="bi bi-play-circle"></i> تفعيل العقد</button>
+                                                            <form id="suspend-form-{{ $sponsorship->id }}"
+                                                                action="{{ route('admin.sponsors.toggleStatus', $sponsorship->id) }}"
+                                                                method="POST" class="d-inline">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <input type="hidden" name="reason"
+                                                                    id="reason-input-{{ $sponsorship->id }}">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-danger btn-sm"
+                                                                    onclick="suspendContract({{ $sponsorship->id }})">
+                                                                    <i class="bi bi-slash-circle"></i> تعليق العقد
+                                                                </button>
+                                                            </form>
                                                         @endif
                                                     </div>
                                                 </td>
                                             </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="7" class="text-center text-muted py-4">لا توجد عقود
-                                                    كفالات نشطة مسجلة بالنظام حالياً.</td>
-                                            </tr>
-                                        @endforelse
+                                        @endforeach
                                     </tbody>
                                 </table>
+                                <!-- شريط التنقل بين الصفحات أسفل مساحة الجدول التابع للبوتستراب وللارافيل -->
+                                <div class="d-flex justify-content-between align-items-center p-3 border-top bg-white"
+                                    style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+
+                                    <!-- النص التوضيحي باللغة العربية -->
+                                    <div class="text-secondary text-small fw-semibold">
+                                        عرض
+                                        <span class="badge px-2 py-1 mx-1"
+                                            style="background-color: #e8f5e9; color: #0f5b38; border: 1px solid #a3d9a5;">{{ $sponsorships->firstItem() ?? 0 }}</span>
+                                        إلى
+                                        <span class="badge px-2 py-1 mx-1"
+                                            style="background-color: #e8f5e9; color: #0f5b38; border: 1px solid #a3d9a5;">{{ $sponsorships->lastItem() ?? 0 }}</span>
+                                        من أصل
+                                        <span class="fw-bold text-dark mx-1">{{ $sponsorships->total() }}</span>
+                                        عقد كفالة
+                                    </div>
+
+                                    <!-- أزرار الصفحات بالاتجاه الصحيح (RTL) -->
+                                    @if ($sponsorships->hasPages())
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination mb-0 gap-1" style="direction: rtl;">
+
+                                                {{-- زر الصفحة السابقة (السهم الأيمن في الواجهة العربية) --}}
+                                                @if ($sponsorships->onFirstPage())
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link"
+                                                            style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="bi bi-chevron-right"></i>
+                                                        </span>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item">
+                                                        <a class="page-link shadow-none"
+                                                            href="{{ $sponsorships->previousPageUrl() }}"
+                                                            style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="bi bi-chevron-right"></i>
+                                                        </a>
+                                                    </li>
+                                                @endif
+
+                                                {{-- أرقام الصفحات بالترتيب الصحيح (1, 2, 3...) --}}
+                                                @foreach ($sponsorships->getUrlRange(1, $sponsorships->lastPage()) as $page => $url)
+                                                    @if ($page == $sponsorships->currentPage())
+                                                        <li class="page-item active">
+                                                            <span class="page-link shadow-none"
+                                                                style="background-color: #0f5b38; border-color: #0f5b38; color: #ffffff; border-radius: 8px; font-weight: bold; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                {{ $page }}
+                                                            </span>
+                                                        </li>
+                                                    @else
+                                                        <li class="page-item">
+                                                            <a class="page-link shadow-none"
+                                                                href="{{ $url }}"
+                                                                style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; font-weight: 600; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                {{ $page }}
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+
+                                                {{-- زر الصفحة التالية (السهم الأيسر في الواجهة العربية) --}}
+                                                @if ($sponsorships->hasMorePages())
+                                                    <li class="page-item">
+                                                        <a class="page-link shadow-none"
+                                                            href="{{ $sponsorships->nextPageUrl() }}"
+                                                            style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="bi bi-chevron-left"></i>
+                                                        </a>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link"
+                                                            style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="bi bi-chevron-left"></i>
+                                                        </span>
+                                                    </li>
+                                                @endif
+
+                                            </ul>
+                                        </nav>
+                                    @endif
+
+                                </div>
                             </div>
 
                         </div>
@@ -212,6 +351,50 @@
     </div>
 
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        // تنبيه تعليق العقد بإدخال السبب
+        function suspendContract(id) {
+            Swal.fire({
+                title: 'تعليق عقد الكفالة',
+                text: 'أدخل سبب التعليق الذي سيتم إرساله في إشعار للكفيل:',
+                input: 'text',
+                inputValue: 'دواعٍ أمنية وتدقيق في إجراءات التوثيق الدورية',
+                inputPlaceholder: 'اكتب سبب التعليق هنا...',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-shield-slash me-1"></i> تأكيد التعليق والإشعار',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    popup: 'rounded-4 shadow'
+                },
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'يرجى كتابة السبب أو ترك السبب الافتراضي!'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('reason-input-' + id).value = result.value;
+                    document.getElementById('suspend-form-' + id).submit();
+                }
+            });
+        }
+
+        // تنبيه الفلاش في حال نجاح التحديث من لارافيل
+        @if (session('success'))
+            Swal.fire({
+                title: 'تمت العملية بنجاح!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                    popup: 'rounded-4 shadow'
+                }
+            });
+        @endif
+    </script>
 </body>
 
 </html>

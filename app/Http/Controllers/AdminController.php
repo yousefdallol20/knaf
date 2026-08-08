@@ -13,124 +13,404 @@ use Illuminate\Support\Facades\Response;
 use App\Models\User;
 use App\Notifications\BroadcastAnnouncement;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\DB; // تم تعديل مسار الـ DB هنا بشكل صحيح
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
     // عرض لوحة التحكم العامة للآدمن
     public function dashboard_admin()
     {
-        return view('admin.dashboard');
+        // 1️⃣ الكروت الإحصائية
+        $totalOrphansCount = orphans::count();
+        $activeSponsorshipsCount = Sponsorship::whereIn('status', ['نشط', 'ساري', 'مكفول'])->count();
+
+        // حوالات الشهر الحالي
+        $currentMonthPaymentsSum = Sponsorship::where('payment_status', 'paid')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('amount_paid');
+
+        $waitingOrphansCount = orphans::whereIn('status', ['بانتظار الكفالة', 'بانتظار كفيل', 'جديد'])->count();
+
+        // 2️⃣ بيانات الرسم البياني للواردات الشهرية (آخر 6 أشهر)[cite: 18]
+        $monthsLabels = [];
+        $monthlyPaymentsData = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            // استخدام اسم الشهر باللغة العربية[cite: 18]
+            $monthsLabels[] = $date->locale('ar')->translatedFormat('F');
+
+            $sum = Sponsorship::where('payment_status', 'paid')
+                ->whereMonth('created_at', $date->month)
+                ->whereYear('created_at', $date->year)
+                ->sum('amount_paid');
+
+            $monthlyPaymentsData[] = (float) $sum;
+        }
+
+        // 3️⃣ حساب الأيتام/الكفالات (الموقوفة أو المرفوضة)
+        // نبحث في جدول الكفالات وجدول الأيتام لتغطية كافة الحالات المرفوضة والموقوفة
+        $pausedOrphansCount = orphans::whereIn('status', ['موقوف', 'موقوفة', 'مرفوض', 'مرفوضة'])->count();
+        $pausedSponsorshipsCount = Sponsorship::whereIn('status', ['موقوف', 'موقوفة', 'مرفوض', 'مرفوضة'])->count();
+
+        // إجمالي غير النشطين/المرفوضين/الموقوفين
+        $inactiveTotal = max($pausedOrphansCount, $pausedSponsorshipsCount);
+
+        // الترتيب: [كفالات نشطة, بانتظار كفيل, موقوفة / مرفوضة]
+        $distributionData = [
+            $activeSponsorshipsCount,
+            $waitingOrphansCount,
+            $inactiveTotal
+        ];
+
+        // 4️⃣ آخر العمليات والسجلات
+        $recentAuditLogs = AuditLog::with('user')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+
+        return view('admin.dashboard', compact(
+            'totalOrphansCount',
+            'activeSponsorshipsCount',
+            'currentMonthPaymentsSum',
+            'waitingOrphansCount',
+            'monthsLabels',
+            'monthlyPaymentsData',
+            'distributionData',
+            'recentAuditLogs'
+        ));
     }
 
-    // عرض قائمة الأيتام بالكامل في لوحة التحكم
+    // عرض قائمة الأيتام بالكامل
     public function orphans_admin()
     {
-        $data = orphans::all();
+        $data = orphans::paginate(10);
         return view('admin.orphans', compact('data'));
     }
 
-    // عرض التفاصيل الكاملة ليتيم محدد مع كافة بيانات عائلته وسكنه والوثائق
+    // تفاصيل اليتيم
     public function Orphan_Details(string $id)
     {
-        // جلب اليتيم مع العلاقات المحددة في الموديل
-        $orphan = orphans::with(['guardian', 'parents', 'housing', 'financial', 'documents'])->findOrFail($id);
-
+        $orphan = orphans::with(['guardian', 'parents', 'housing', 'financial_data', 'documents'])->findOrFail($id);
         return view('admin.orphan_details', compact('orphan'));
     }
 
-    // إجراء قبول واعتماد طلب اليتيم وتحديد مبلغ الكفالة
+    // 1️⃣ قبول الطفل وتحديد مبلغ الكفالة وإشعار الوصي
     public function approveOrphan(Request $request, string $id)
     {
-        // جلب اليتيم أو إظهار 404 إذا لم يكن موجوداً
+        $request->validate([
+            'required_amount' => 'required|numeric|min:10',
+        ]);
+
         $orphan = orphans::findOrFail($id);
-
-        // تغيير الحالة إلى "غير مكفول / بانتظار كفيل" ليظهر في الجدول
-        $orphan->status = 'approved_unsponsored';
-
-        // إذا كنت تريد حفظ مبلغ الكفالة الذي تم تحديده في الفورم
-        if ($request->has('sponsorship_amount')) {
-            $orphan->sponsorship_amount = $request->input('sponsorship_amount');
-        }
-
+        $orphan->status = 'بانتظار الكفالة'; // أو approved_unsponsored
+        $orphan->required_amount = $request->required_amount;
         $orphan->save();
 
-        return redirect()->route('orphans_admin')->with('success', 'تم اعتماد طلب اليتيم بنجاح وهو الآن بانتظار كفيل.');
+        // 🔍 جلب الوصي المرتبط بالطفل بأكثر من طريقة لضمان الوصول للـ user_id الصحيح
+        $guardian = guardian::where('orphan_id', $orphan->id)
+            ->orWhere('id', $orphan->guardian_id)
+            ->first();
+
+        if ($guardian) {
+            // العثور على حساب المستخدم (User)
+            $user = User::find($guardian->user_id);
+
+            if (!$user && !empty($guardian->email)) {
+                $user = User::where('email', $guardian->email)->first();
+            }
+
+            // إرسال الإشعار فوراً
+            if ($user) {
+                $user->notify(new BroadcastAnnouncement(
+                    'تم قبول طلب إضافة الطفل',
+                    'توثيق',
+                    "تمت الموافقة على طلب تسجيل الطفل ({$orphan->name}). مبلغ الكفالة المحدد هو: {$request->required_amount} $"
+                ));
+            }
+        }
+
+        return redirect()->back()->with('success', 'تم قبول الطلب وإرسال الإشعار للوصي.');
     }
 
-    // إجراء رفض الطلب (سواء رفض مؤقت للتعديل أو رفض نهائي للأرشفة)
+    // 2️⃣ رفض الطفل وإشعار الوصي
     public function rejectOrphan(Request $request, string $id)
     {
+        // 1. التحقق من سبب الرفض
+        $request->validate([
+            'reject_reason' => 'required|string|max:500',
+        ]);
+
+        // 2. تحديث حالة اليتيم إلى مرفوض
         $orphan = orphans::findOrFail($id);
-
-        // تغيير الحالة إلى "rejected" لكي يختفي تلقائياً من الجدول بناءً على الشرط الذي وضعناه
-        $orphan->status = 'rejected';
-
-        // إذا كنت تريد حفظ سبب الرفض في قاعدة البيانات
-        if ($request->has('rejection_reason')) {
-            $orphan->rejection_reason = $request->input('rejection_reason');
-        }
-
+        $orphan->status = 'مرفوض';
         $orphan->save();
 
-        return redirect()->route('orphans_admin')->with('error', 'تم رفض الطلب بنجاح وإلغاؤه من القائمة.');
+        // 🔍 جلب الوصي المرتبط بالطفل بأكثر من طريقة لضمان الوصول للـ user_id الصحيح
+        $guardian = guardian::where('orphan_id', $orphan->id)
+            ->orWhere('id', $orphan->guardian_id)
+            ->first();
+
+        if ($guardian) {
+            // العثور على حساب المستخدم (User)
+            $user = User::find($guardian->user_id);
+
+            if (!$user && !empty($guardian->email)) {
+                $user = User::where('email', $guardian->email)->first();
+            }
+
+            // إرسال الإشعار فوراً
+            if ($user) {
+                $user->notify(new BroadcastAnnouncement(
+                    'رفض طلب تسجيل طفل',
+                    'تنبيه',
+                    "تم رفض طلب إضافة الطفل ({$orphan->name}). السبب: " . ($request->reject_reason ?? 'عدم استيفاء الشروط المحددة.')
+                ));
+            }
+        }
+
+        return redirect()->back()->with('success', 'تم رفض الطلب وإرسال الإشعار للوصي.');
     }
 
     public function families()
     {
-        // جلب الأوصياء مع حساب عدد الأيتام التابعين لكل وصي عبر علاقة orphans
-        $families = guardian::withCount('orphans')->get();
+        $families = guardian::withCount('orphans')
+            ->with(['user', 'housing'])
+            ->paginate(10);
 
         return view('admin.families', compact('families'));
     }
 
+    // 3️⃣ المصادقة على العائلة وإشعار الوصي
+    public function approveFamily(string $id)
+    {
+        $guardian = guardian::findOrFail($id);
+        $guardian->status = 'مصدق';
+        $guardian->save();
+
+        // 🔍 جلب حساب المستخدم المرتبط بالوصي مباشرةً بنفس النمط
+        $user = User::find($guardian->user_id);
+        if (!$user && !empty($guardian->email)) {
+            $user = User::where('email', $guardian->email)->first();
+        }
+
+        if ($user) {
+            $user->notify(new BroadcastAnnouncement(
+                'توثيق حساب العائلة',
+                'توثيق',
+                "تمت المصادقة على ملف العائلة الخاص بكم بنجاح (FAM-" . (100 + $guardian->id) . ")، ويمكنكم الآن استخدام كافة صلاحيات المنصة وإضافة الأيتام."
+            ));
+        }
+
+        return redirect()->back()->with('success', 'تمت المصادقة على العائلة وإرسال إشعار للوصي بنجاح.');
+    }
+
+    // 4️⃣ رفض العائلة وإشعار الوصي
+    public function rejectFamily(string $id)
+    {
+        $guardian = guardian::findOrFail($id);
+        $guardian->status = 'مرفوض';
+        $guardian->save();
+
+        // 🔍 جلب حساب المستخدم المرتبط بالوصي مباشرةً بنفس النمط
+        $user = User::find($guardian->user_id);
+        if (!$user && !empty($guardian->email)) {
+            $user = User::where('email', $guardian->email)->first();
+        }
+
+        if ($user) {
+            $user->notify(new BroadcastAnnouncement(
+                'رفض طلب توثيق العائلة',
+                'توثيق',
+                "للأسف، تعذر قبول ملف العائلة الخاص بكم (FAM-" . (100 + $guardian->id) . "). يرجى مراجعة البيانات المرفقة أو التواصل مع الإدارة."
+            ));
+        }
+
+        return redirect()->back()->with('success', 'تم شطب/رفض الطلب وإشعار الوصي بالنتيجة.');
+    }
+
     public function showSponsors()
     {
-        // جلب جميع الكفلاء مع حساب عدد الكفالات النشطة المرتبطة بهم
-        // تفترض وجود علاقة باسم orphans أو sponsorships في موديل Sponsor لحساب عدد الكفالات
-        $sponsors = Sponsor::withCount('sponsorships')->get();
+        $sponsors = Sponsor::withCount('sponsorships')->paginate(10);
         return view('admin.sponsors', compact('sponsors'));
+    }
+
+    public function updateSponsor(Request $request, string $id)
+    {
+        $sponsor = Sponsor::findOrFail($id);
+
+        $request->validate([
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email|unique:sponsors,email,' . $id,
+            'phone'   => 'required|string|unique:sponsors,phone,' . $id,
+            'country' => 'nullable|string|max:255',
+            'city'    => 'nullable|string|max:255',
+        ]);
+
+        $sponsor->update([
+            'name'    => $request->name,
+            'email'   => $request->email,
+            'phone'   => $request->phone,
+            'country' => $request->country ?? $sponsor->country,
+            'city'    => $request->city ?? $sponsor->city,
+        ]);
+
+        return redirect()->back()->with('success', 'تم تحديث بيانات الكافل بنجاح.');
+    }
+
+    // 5️⃣ تجميد/تفعيل حساب الكافل وإرسال إشعار له وللوصي
+    public function toggleSponsorStatus(Request $request, string $id)
+    {
+        $sponsorship = Sponsorship::with(['orphan', 'sponsor'])->findOrFail($id);
+
+        if ($sponsorship->status == 'نشط' || $sponsorship->status == 'ساري' || empty($sponsorship->status)) {
+            $sponsorship->status = 'موقوف';
+            $reason = $request->input('reason', 'تم تعليق العقد من قبل الإدارة');
+            $sponsorship->notes = $reason;
+            $message = 'تم تعليق عقد الكفالة بنجاح.';
+
+            // 🔍 إشعار الكافل بنفس الآلية المباشرة
+            if ($sponsorship->sponsor) {
+                $sponsorUser = User::find($sponsorship->sponsor->user_id);
+                if (!$sponsorUser && !empty($sponsorship->sponsor->email)) {
+                    $sponsorUser = User::where('email', $sponsorship->sponsor->email)->first();
+                }
+                if ($sponsorUser) {
+                    $sponsorUser->notify(new BroadcastAnnouncement(
+                        'تعليق عقد الكفالة',
+                        'تنبيه',
+                        "تم تعليق عقد الكفالة الخاص بالطفل ({$sponsorship->orphan->name}). السبب: {$reason}"
+                    ));
+                }
+            }
+
+            // 🔍 إشعار الوصي بنفس الآلية المباشرة
+            if ($sponsorship->orphan) {
+                $guardian = guardian::where('orphan_id', $sponsorship->orphan->id)
+                    ->orWhere('id', $sponsorship->orphan->guardian_id)
+                    ->first();
+
+                if ($guardian) {
+                    $guardianUser = User::find($guardian->user_id);
+                    if (!$guardianUser && !empty($guardian->email)) {
+                        $guardianUser = User::where('email', $guardian->email)->first();
+                    }
+                    if ($guardianUser) {
+                        $guardianUser->notify(new BroadcastAnnouncement(
+                            'إيقاف/تجميد الكفالة',
+                            'تنبيه',
+                            "تم تعليق عقد الكفالة للطفل ({$sponsorship->orphan->name})."
+                        ));
+                    }
+                }
+            }
+        } else {
+            $sponsorship->status = 'نشط';
+            $message = 'تم إعادة تفعيل عقد الكفالة بنجاح.';
+
+            // 🔍 إشعار الكافل
+            if ($sponsorship->sponsor) {
+                $sponsorUser = User::find($sponsorship->sponsor->user_id);
+                if (!$sponsorUser && !empty($sponsorship->sponsor->email)) {
+                    $sponsorUser = User::where('email', $sponsorship->sponsor->email)->first();
+                }
+                if ($sponsorUser) {
+                    $sponsorUser->notify(new BroadcastAnnouncement(
+                        'إعادة تفعيل الكفالة',
+                        'تحديث',
+                        "تمت إعادة تفعيل عقد الكفالة للطفل ({$sponsorship->orphan->name}) بنجاح."
+                    ));
+                }
+            }
+        }
+
+        $sponsorship->save();
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function sponsorships_admin()
     {
-        // جلب الكفالات مع بيانات اليتيم وبيانات الكفيل المرتبطة بكل عقد
-        $sponsorships = Sponsorship::with(['orphan', 'sponsor'])->get();
+        // 1️⃣ جلب أحدث ID لكل يتيم
+        $latestIds = Sponsorship::select(DB::raw('MAX(id) as id'))
+            ->groupBy('orphan_id')
+            ->pluck('id');
+
+        // 2️⃣ جلب الكفالات واستعمال paginate مباشرة للحفاظ على الـ Paginator Object
+        $sponsorships = Sponsorship::with(['orphan', 'sponsor.user'])
+            ->whereIn('id', $latestIds)
+            ->latest()
+            ->paginate(10);
 
         return view('admin.sponsorships', compact('sponsorships'));
     }
 
-    // 1. دالة عرض صفحة الحسابات والمدفوعات
     public function payments_admin()
     {
-        // جلب جميع السجلات مع علاقة اليتيم والكفيل
-        $payments = Sponsorship::with(['orphan', 'sponsor'])->get();
-
-        // حساب إجمالي التحصيلات المقبوضة (فقط المدفوعة paid)
+        $payments = Sponsorship::with(['orphan', 'sponsor'])->paginate(10);
         $total_amount = Sponsorship::where('payment_status', 'paid')->sum('amount_paid');
-
-        // حساب عدد الحوالات أو الدفعات الإجمالية المرصودة بالمنظومة
         $payments_count = Sponsorship::count();
 
         return view('admin.payments', compact('payments', 'total_amount', 'payments_count'));
     }
 
-    // 2. دالة الموافقة وتفويض الدفعة (تغيير الحالة من pending إلى paid)
-    public function approve_payment(string $id)
+    // 6️⃣ اعتماد وتفويض الدفعة المالية وإرسال إشعار للكافل وللوصي
+    public function approve_payment(Request $request, string $id)
     {
-        $payment = Sponsorship::findOrFail($id);
+        $payment = Sponsorship::with(['orphan.guardian', 'sponsor.user'])->findOrFail($id);
+
         $payment->update([
             'payment_status' => 'paid',
-            'last_batch' => now() // تحديث تاريخ آخر دفعة تم التحقق منها
+            'last_batch' => now()
         ]);
 
-        return redirect()->back()->with('success', 'تم تفعيل وتفويض الدفعة المالية بنجاح.');
+        $orphanName = $payment->orphan->name ?? 'الطفل';
+
+        // 🔍 إشعار الكافل
+        if ($payment->sponsor) {
+            $sponsorUser = User::find($payment->sponsor->user_id);
+            if (!$sponsorUser && !empty($payment->sponsor->email)) {
+                $sponsorUser = User::where('email', $payment->sponsor->email)->first();
+            }
+            if ($sponsorUser) {
+                $sponsorUser->notify(new BroadcastAnnouncement(
+                    'تأكيد الدفعة المالية',
+                    'مالية',
+                    "تم تأكيد واعتماد دفعتكم المالية بنجاح لصالح كفالة الطفل ({$orphanName})."
+                ));
+            }
+        }
+
+        // 🔍 إشعار الوصي بنفس الآلية المباشرة
+        if ($payment->orphan) {
+            $guardian = guardian::where('orphan_id', $payment->orphan->id)
+                ->orWhere('id', $payment->orphan->guardian_id)
+                ->first();
+
+            if ($guardian) {
+                $guardianUser = User::find($guardian->user_id);
+                if (!$guardianUser && !empty($guardian->email)) {
+                    $guardianUser = User::where('email', $guardian->email)->first();
+                }
+                if ($guardianUser) {
+                    $guardianUser->notify(new BroadcastAnnouncement(
+                        'استلام مستحقات كفالة',
+                        'مالية',
+                        "تم اعتماد وإيداع الدفعة المالية الخاصة بكفالة الطفل ({$orphanName})."
+                    ));
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'تم تفعيل وتفويض الدفعة المالية وإشعار الأطراف بنجاح.');
     }
 
-    // 3. دالة شطب/حذف المعاملة المالية
     public function delete_payment(string $id)
     {
         $payment = Sponsorship::findOrFail($id);
@@ -141,32 +421,99 @@ class AdminController extends Controller
 
     public function documents_admin()
     {
-        // جلب الوثائق مع بيانات الطفل المكفول المرتبط بها
         $documents = documents::with('orphan')->get();
-
         return view('admin.documentation', compact('documents'));
     }
 
-    // 2. اعتماد وتفويض المستند المرفوع
+    // 7️⃣ اعتماد وتفويض المستند وإرسال إشعار للوصي مباشرة
     public function approve_document(string $id)
     {
-        $document = documents::findOrFail($id);
-        $document->update([
-            'status' => 'مقبول' // تحويل الحالة إلى مقبول بناءً على خيارات الـ Enum في الـ Migration
-        ]);
+        $document = documents::with('orphan')->findOrFail($id);
+        $document->update(['status' => 'مقبول']);
 
-        return redirect()->back()->with('success', 'تم اعتماد وصياغة المستند بنجاح.');
+        $orphanName = $document->orphan->name ?? 'الطفل';
+        $docTitle = $document->title ?? 'مستند جديد';
+
+        if ($document->orphan) {
+            // 1️⃣ إرسال إشعار للوصي
+            $guardian = guardian::where('orphan_id', $document->orphan->id)
+                ->orWhere('id', $document->orphan->guardian_id)
+                ->first();
+
+            if ($guardian) {
+                $user = User::find($guardian->user_id);
+                if (!$user && !empty($guardian->email)) {
+                    $user = User::where('email', $guardian->email)->first();
+                }
+
+                if ($user) {
+                    $user->notify(new BroadcastAnnouncement(
+                        'تم قبول واستيعاب الوثيقة',
+                        'توثيق',
+                        "تمت الموافقة والاعتماد النهائي على مستند ({$docTitle}) المرفق للطفل ({$orphanName})."
+                    ));
+                }
+            }
+
+            // 2️⃣ إرسال إشعار لكافل اليتيم (في حال وجود كفالة نشطة أو مرتبطة)
+            $sponsorship = Sponsorship::with('sponsor')
+                ->where('orphan_id', $document->orphan->id)
+                ->first();
+
+            if ($sponsorship && $sponsorship->sponsor) {
+                $sponsorUser = User::find($sponsorship->sponsor->user_id);
+                if (!$sponsorUser && !empty($sponsorship->sponsor->email)) {
+                    $sponsorUser = User::where('email', $sponsorship->sponsor->email)->first();
+                }
+
+                if ($sponsorUser) {
+                    $sponsorUser->notify(new BroadcastAnnouncement(
+                        'إضافة مستند جديد للمكفول',
+                        'تحديث',
+                        "تمت إضافة واعتمد ملف جديد من نوع ({$docTitle}) للطفل المكفول ({$orphanName})."
+                    ));
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'تم اعتماد المستند وإشعار الوصي والكافل بنجاح.');
     }
 
-    // 3. رفض المستند المرفوع
-    public function reject_document(string $id)
+    // 8️⃣ رفض المستند المرفوع وإرسال الإشعار للوصي مباشرة
+    public function reject_document(Request $request, string $id)
     {
-        $document = documents::findOrFail($id);
-        $document->update([
-            'status' => 'مرفوض' // تحويل الحالة إلى مرفوض بناءً على خيارات الـ Enum في الـ Migration
+        $request->validate([
+            'rejection_reason' => 'nullable|string|max:500'
         ]);
 
-        return redirect()->back()->with('danger', 'تم رفض المستند وإشعار الوصي لتعديله.');
+        $document = documents::with('orphan')->findOrFail($id);
+        $reason = $request->input('rejection_reason') ?? 'عدم وضوح المستند أو وجود خطأ في البيانات المرفقة';
+        $document->update(['status' => 'مرفوض']);
+
+        $orphanName = $document->orphan->name ?? 'الطفل';
+
+        if ($document->orphan) {
+            $guardian = guardian::where('orphan_id', $document->orphan->id)
+                ->orWhere('id', $document->orphan->guardian_id)
+                ->first();
+
+            if ($guardian) {
+                $user = User::find($guardian->user_id);
+                if (!$user && !empty($guardian->email)) {
+                    $user = User::where('email', $guardian->email)->first();
+                }
+
+                if ($user) {
+                    $user->notify(new BroadcastAnnouncement(
+                        'تم رفض المستند المرفوع',
+                        'تنبيه توثيق',
+                        "تعذر قبول مستند ({$document->title}) للطفل ({$orphanName}). سبب الرفض: ({$reason}). يرجى إعادة رفعه."
+                    ));
+                }
+            }
+        }
+
+        return redirect()->back()->with('danger', 'تم رفض المستند وإرسال الإشعار للوصي بالتفاصيل.');
     }
 
     public function reports_admin()
@@ -174,16 +521,12 @@ class AdminController extends Controller
         return view('admin.reports');
     }
 
-    // 1. زر "معالجة وتوليد التقرير الحيوي" (توليد ملف CSV/Excel ديناميكي تلقائي)
     public function generate_report(Request $request)
     {
         $type = $request->input('report_type');
         $period = $request->input('report_period');
-
-        // اسم الملف الذي سيتم تحميله للمستخدم
         $fileName = 'kanaf_report_' . time() . '.csv';
 
-        // تجهيز الترويسة والعناوين الخاصة بملف الاكسل
         $headers = [
             "Content-type"        => "text/csv; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=$fileName",
@@ -192,29 +535,23 @@ class AdminController extends Controller
             "Expires"             => "0"
         ];
 
-        // بناء دالة التوليد وكتابة البيانات والتلخيصات بداخل الملف
         $callback = function () use ($type, $period) {
             $file = fopen('php://output', 'w');
-
-            // لإجبار إكسل على قراءة اللغة العربية بشكل صحيح (BOM)
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-            // سطر العنوان الرئيسي في الاكسل
             fputcsv($file, ['مركز كنف لإصدار التقارير الحيوية والمالية']);
             fputcsv($file, ['نوع التقرير المطلق:', $type]);
             fputcsv($file, ['النطاق الزمني للمعالجة:', $period]);
             fputcsv($file, ['تاريخ التوليد الفوري:', now()->toDateTimeString()]);
-            fputcsv($file, []); // سطر فارغ للترتيب
+            fputcsv($file, []);
 
-            // بناء التلخيصات وإحصائيات النظام ديناميكياً
             fputcsv($file, ['--- ملخص وإحصائيات المنظومة الشاملة ---']);
             fputcsv($file, ['إجمالي عدد الأيتام المسجلين بالمنظومة', orphans::count() . ' طفل']);
             fputcsv($file, ['إجمالي المستندات والتقارير المرفوعة', documents::count() . ' مستند']);
             fputcsv($file, ['إجمالي الحوالات والمدفوعات المالية المرصودة', Sponsorship::count() . ' حوالة']);
             fputcsv($file, ['إجمالي المبالغ والتحصيلات الخيرية المقبوضة', Sponsorship::where('payment_status', 'paid')->sum('amount_paid') . ' دولار']);
-            fputcsv($file, []); // سطر فارغ
+            fputcsv($file, []);
 
-            // إذا طلب المستخدم كشف الواردات المالي، ندرج له جدول تفصيلي بالعمليات المالية
             if ($type == 'كشف الواردات والصافي المالي المركزي') {
                 fputcsv($file, ['سجل الدفعات والتحصيلات المركزية المدققة']);
                 fputcsv($file, ['معرف المعاملة', 'المبلغ المودع', 'الحالة', 'التاريخ']);
@@ -229,7 +566,6 @@ class AdminController extends Controller
                     ]);
                 }
             } else {
-                // تقرير الأيتام أو كفاءة الدفعات (جدول افتراضي للأيتام الجدد)
                 fputcsv($file, ['قائمة الأيتام المدرجين حديثاً للرقابة والمتابعة']);
                 fputcsv($file, ['رقم الطفل', 'اسم اليتيم', 'تاريخ التسجيل']);
 
@@ -246,14 +582,11 @@ class AdminController extends Controller
             fclose($file);
         };
 
-        // إرجاع الملف فوراً للمتصفح ليبدأ التحميل التلقائي للاكسل
         return Response::stream($callback, 200, $headers);
     }
 
-    // 2. أزرار "التحميل السريع الجاهز" (التقرير السنوي الشامل والتحليل المالي)
-    public function download_ready_report($file)
+    public function download_ready_report(string $file)
     {
-        // توليد تلخيص فوري سريع للتقارير السنوية الجاهزة للتنزيل بصيغة ملف نصي/PDF ذكي
         $title = $file == 'annual_report_2025.pdf' ? 'التقرير السنوي الشامل لجمعية كنف لعام 2025' : 'التحليل المالي السريع لملخص التحصيلات Q1';
 
         $content = "==================================================\n";
@@ -272,7 +605,6 @@ class AdminController extends Controller
         $content .= "--------------------------------------------------\n";
         $content .= "تم إصدار هذا الملخص بشكل مؤمن وتلقائي من خوادم النظام لتأكيد التماسك الإداري للجمعية.\n";
 
-        // اسم الملف الراجع للمستخدم عند الضغط
         $downloadName = $file == 'annual_report_2025.pdf' ? 'Kanaf-Annual-Report-2025.txt' : 'Kanaf-Financial-Analysis-Q1.txt';
 
         return response($content)
@@ -280,14 +612,8 @@ class AdminController extends Controller
             ->header('Content-Disposition', 'attachment; filename="' . $downloadName . '"');
     }
 
-
-
-
-
-    // عرض صفحة الإدارة وسجل الإشعارات المرسلة (بدون تكرار)
     public function adminIndex()
     {
-        // جلب الإشعارات وتجميعها لمنع التكرار البصري في لوحة الإدارة
         $broadcasts = DB::table('notifications')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -298,17 +624,14 @@ class AdminController extends Controller
                     'notifiable_type' => $item->notifiable_type
                 ];
             })
-            // التصفية بناءً على العنوان ونص الرسالة الفريدين
             ->unique(function ($item) {
                 return ($item['data']['title'] ?? '') . ($item['data']['body'] ?? '');
             })
-            // أخذ آخر 10 إعلانات فريدة فقط لعرضها
             ->take(10);
 
         return view('admin.notifications', compact('broadcasts'));
     }
 
-    // إرسال الإشعار الجماعي من الأدمن
     public function sendBroadcast(Request $request)
     {
         $request->validate([
@@ -318,49 +641,59 @@ class AdminController extends Controller
             'body' => 'required|string',
         ]);
 
-        // تحديد الفئة المستهدفة بناءً على الخيار
         $users = User::where('role', $request->user_type)->get();
+        if ($request->user_type === 'all') {
+            $users = User::all();
+        }
 
-        // إرسال الإشعار لجميع المستخدمين المستهدفين دفعة واحدة
         Notification::send($users, new BroadcastAnnouncement($request->title, $request->type, $request->body));
 
-        return redirect()->back()->with('success', 'تم إطلاق التنبيه بنجاح في البوابة كافة!');
+        return redirect()->back()->with('success', 'تم إطلاق التنبيه بنجاح!');
     }
 
-    // عرض صفحة المستخدمين
     public function users_index()
     {
         $users = User::orderBy('created_at', 'asc')->paginate(10);
-
         return view('admin.users', compact('users'));
     }
 
-    // تجميد أو تنشيط حساب العضو
-    public function toggleStatus(string $id)
+    public function toggleStatus(Request $request, string $id)
     {
         $user = User::findOrFail($id);
 
-        // التبديل بين الحالتين active و suspended
-        if ($user->status === 'active') {
-            $user->status = 'suspended';
+        if (($user->status ?? 'active') === 'active') {
+            $user->status = 'inactive';
+            $message = 'تم تجميد حساب المستخدم بنجاح.';
+
+            // إرسال إشعار التجميد للمستخدم المعني
+            $user->notify(new BroadcastAnnouncement(
+                'تجميد الحساب',
+                'تنبيه',
+                'تم تجميد حسابك على المنصة. يرجى مراجعة إدارة المنصة لمعرفة التفاصيل والتفعيل.'
+            ));
         } else {
             $user->status = 'active';
+            $message = 'تم تنشيط حساب المستخدم بنجاح.';
+
+            // إرسال إشعار إعادة التنشيط للمستخدم المعني
+            $user->notify(new BroadcastAnnouncement(
+                'تنشيط الحساب',
+                'تحديث',
+                'تم إعادة تنشيط حسابك بنجاح. يمكنك الآن استخدام كافة الخدمات على المنصة.'
+            ));
         }
 
         $user->save();
 
-        return redirect()->back()->with('success', 'تم تحديث حالة الحساب بنجاح.');
+        return redirect()->back()->with('success', $message);
     }
 
-    // عرض صفحة الإدارة وسجل العمليات الأمني الفعلي تنازلياً
     public function audit_logs_admin()
     {
-        // جلب السجلات مع علاقة المستخدم وترتيبها تنازلياً من الأحدث للأقدم
-        $logs = \App\Models\AuditLog::with('user')
+        $logs = AuditLog::with('user')
             ->orderBy('id', 'asc')
             ->paginate(15);
 
-        // تمرير المتغير $logs إلى كود صفحة الـ Blade
         return view('admin.audit-log', compact('logs'));
     }
 
@@ -369,33 +702,22 @@ class AdminController extends Controller
         return view('admin.permissions');
     }
 
-
     public function settings_index()
     {
-        // جلب الإعدادات وتحويلها لمصفوفة مفاتيح وقيم ليسهل استدعاؤها في الـ Blade
         $settings = Setting::pluck('value', 'key')->toArray();
-
-        // جلب المستخدمين الحقيقيين لعرضهم في جدول الصلاحيات
         $users = User::latest()->take(10)->get();
-
         return view('admin.settings', compact('settings', 'users'));
     }
 
-    // تحديث كافة إعدادات أزواج المفاتيح والقيم ديناميكياً
     public function update(Request $request)
     {
-        // استثناء الـ token الخاص بالحماية من الحفظ
         $data = $request->except('_token');
-
         foreach ($data as $key => $value) {
-            // تحديث الإعداد إذا كان موجوداً أو إنشاؤه إذا كان جديداً
             Setting::updateOrCreate(['key' => $key], ['value' => $value]);
         }
-
         return redirect()->back()->with('success', 'تم حفظ جميع التغييرات بنجاح.');
     }
 
-    // معالجة ورفع الشعار الرسمي للمنظمة
     public function uploadLogo(Request $request)
     {
         $request->validate([
@@ -403,16 +725,11 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('org_logo')) {
-            // حذف الشعار القديم إن وجد
             $oldLogo = Setting::get('org_logo');
             if ($oldLogo) {
                 Storage::disk('public')->delete($oldLogo);
             }
-
-            // تخزين الملف الجديد
             $path = $request->file('org_logo')->store('assets/images', 'public');
-
-            // حفظ المسار في جدول الإعدادات
             Setting::updateOrCreate(['key' => 'org_logo'], ['value' => $path]);
         }
 

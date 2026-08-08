@@ -15,7 +15,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="index.html">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
                     <img src="assets/images/logo.png" alt="شعار كنف" height="50" width="110" id="nav-brand-logo"
                         style="object-fit:contain;">
                 </a>
@@ -26,10 +26,10 @@
                 <div class="collapse navbar-collapse" id="navMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1" id="nav-menu-list">
                         <li class="nav-item">
-                            <a class="nav-link" href="index.html" id="nav-link-home">الرئيسية</a>
+                            <a class="nav-link" href="{{ route('knaf') }}" id="nav-link-home">الرئيسية</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="orphans.html" id="nav-link-orphans">قائمة الأيتام</a>
+                            <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="sponsorship/step1.html" id="nav-link-steps">خطوات الكفالة</a>
@@ -39,10 +39,10 @@
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
-                        <a href="auth/login.html" class="btn btn-outline-light px-4 rounded-pill"
+                        <a href="{{ route('login') }}" class="btn btn-outline-light px-4 rounded-pill"
                             id="nav-btn-login">تسجيل
                             الدخول</a>
-                        <a href="auth/register.html" class="btn btn-secondary px-4 rounded-pill fw-bold"
+                        <a href="{{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold"
                             id="nav-btn-register">ابدأ
                             الكفالة الآن</a>
                     </div>
@@ -60,10 +60,10 @@
 
                         <nav aria-label="breadcrumb" class="mb-4">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="index.html"
+                                <li class="breadcrumb-item"><a href="{{ route('knaf') }}"
                                         class="text-primary-green text-decoration-none">الرئيسية</a>
                                 </li>
-                                <li class="breadcrumb-item"><a href="orphans.html"
+                                <li class="breadcrumb-item"><a href="{{ route('orphans') }}"
                                         class="text-primary-green text-decoration-none">قائمة
                                         الأيتام</a></li>
                                 <li class="breadcrumb-item active" aria-current="page">
@@ -77,7 +77,7 @@
                             <div class="col-lg-5">
                                 <div class="bg-white p-4 rounded-4 shadow-sm border text-center">
                                     <div class="position-relative mb-4">
-                                        <img src="{{ asset('Uploads/orphans/' . $orphan->image) }}" alt="أحمد محمد"
+                                        <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}" alt=" "
                                             class="img-fluid rounded-4 shadow-xs"
                                             style="max-height:380px;object-fit:cover;width:100%;">
                                         <span
@@ -90,7 +90,7 @@
                                         <p class="text-muted text-small mb-1">المبلغ المطلوب للكفالة الشهرية الشاملة</p>
                                         <div class="d-flex align-items-center justify-content-center gap-1">
                                             <h3 class="fw-bold text-primary-green mb-0">
-                                                50
+                                                {{ $orphan->required_amount }}
                                             </h3>
                                             <span class="fs-5 text-muted">$ / شهرياً</span>
                                         </div>
@@ -98,7 +98,7 @@
 
                                     <!-- Action buttons -->
                                     <div class="d-grid gap-2">
-                                        <a href="sponsorship/step1.html" class="btn btn-secondary btn-lg py-3 fw-bold">
+                                        <a href="{{ route('step1', $orphan->id) }}" class="btn btn-secondary btn-lg py-3 fw-bold">
                                             ابدأ كفالة الطفل الآن
                                         </a>
                                         <button class="btn btn-outline-primary btn-lg py-2"><i
@@ -219,7 +219,7 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="index.html" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
                         <li><a href="orphans.html" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء

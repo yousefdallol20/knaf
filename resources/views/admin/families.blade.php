@@ -48,7 +48,8 @@
                     <a href="{{ route('admin.users.index') }}"><i class="bi bi-person-circle"></i> إدارة المستخدمين</a>
                 </li>
                 <li class="menu-item" id="menu-permissions">
-                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات والأدوار</a>
+                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات
+                        والأدوار</a>
                 </li>
                 <li class="menu-item" id="menu-reports">
                     <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير
@@ -88,9 +89,10 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="../assets/images/admin.jpg" alt="رمز" class="rounded-circle" width="30"
-                                height="30" style="object-fit: cover;">
-                            <span class="text-small fw-bold">أ. عبد الرحمن البكري</span>
+                            <img src="{{ asset('assets/images/admin.jpg') }}" alt=" " class="rounded-circle"
+                                width="30" height="30" style="object-fit: cover;">
+                            <span
+                                class="text-small fw-bold">{{ auth()->user()->name ?? 'أ. عبد الرحمن البكري' }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="#"><i
@@ -120,10 +122,18 @@
                     </nav>
                 </div>
 
-                <!-- رسائل التأكيد والنجاح -->
+                <!-- رسائل التأكيد والنجاح / الأخطاء -->
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
+                        <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                            aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"
                             aria-label="Close"></button>
                     </div>
@@ -141,7 +151,7 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table text-right text-small">
+                                <table class="table text-right text-small align-middle">
                                     <thead>
                                         <tr>
                                             <th>رقم الملف العائلي</th>
@@ -156,45 +166,159 @@
                                     <tbody>
                                         @foreach ($families as $family)
                                             <tr>
-                                                <!-- رقم المعرف الخاص بالوصي كمعرّف عائلي -->
                                                 <td class="font-monospace">FAM-{{ 100 + $family->id }}</td>
                                                 <td>
-                                                    <!-- الحقول الفعلية من جدول guardians -->
                                                     <strong
-                                                        class="text-dark d-block text-small">{{ $family->name }}</strong>
+                                                        class="text-dark d-block text-small">{{ $family->name ?? 'غير محدد' }}</strong>
                                                     <span class="text-caption text-muted">رقم الهوية:
-                                                        {{ $family->national_id }}</span>
+                                                        {{ $family->national_id ?? '---' }}</span>
                                                 </td>
-                                                <!-- جلب العنوان من علاقة السكن المرتبطة بالوصي أو وضع نص افتراضي -->
-                                                <td>{{ $family->housing->current_displacement_destination ?? 'غير محدد' }}
+                                                <td>{{ $family->housing?->current_displacement_destination ?? 'غير محدد' }}
                                                 </td>
                                                 <td class="font-monospace">
-                                                    {{ $family->user->phone ?? 'لا يوجد هاتف' }}</td>
+                                                    {{ $family->user?->phone ?? 'لا يوجد هاتف' }}</td>
                                                 <td>
                                                     <span
                                                         class="badge bg-light text-primary-green border border-primary-green text-small px-3 py-1">
-                                                        {{ $family->orphans_count }} أبناء
+                                                        {{ $family->orphans_count ?? 0 }} أبناء
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <!-- يمكنك جعل حالة التحقق مرتبطة بالوصي أو افتراضية -->
-                                                    <span
-                                                        class="badge-kanaf badge-active text-success bg-success-subtle py-1 px-2 rounded-2">أصيل
-                                                        ومصدق</span>
+                                                    @if (($family->status ?? 'مصدق') == 'مصدق' || ($family->status ?? '') == 'أصيل ومصدق')
+                                                        <span class="badge-kanaf badge-active">أصيل ومصدق</span>
+                                                    @elseif(($family->status ?? '') == 'مرفوض')
+                                                        <span class="badge bg-danger">مرفوض</span>
+                                                    @else
+                                                        <span class="badge-kanaf badge-pending">قيد الدراسة ومراجعة
+                                                            الإثبات</span>
+                                                    @endif
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-2 justify-content-center">
+                                                        @if (($family->status ?? '') == 'مصدق' || ($family->user?->status ?? '') == 'مصدق')
+                                                            <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                                <i class="bi bi-shield-check"></i> مصدق عليه
+                                                            </button>
+                                                        @else
+                                                            <form id="approve-form-{{ $family->id }}"
+                                                                action="{{ route('admin.families.approve', $family->id) }}"
+                                                                method="POST" class="d-inline">
+                                                                @csrf
+                                                                <button type="button" class="btn btn-success btn-sm"
+                                                                    onclick="confirmApprove('approve-form-{{ $family->id }}')">
+                                                                    <i class="bi bi-shield-check"></i> مصادقة
+                                                                </button>
+                                                            </form>
+                                                        @endif
+
                                                         <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
                                                             data-bs-target="#modal{{ $family->id }}">
                                                             <i class="bi bi-eye"></i> تفاصيل
                                                         </button>
+
+                                                        <form id="reject-form-{{ $family->id }}"
+                                                            action="{{ route('admin.families.reject', $family->id) }}"
+                                                            method="POST" class="d-inline">
+                                                            @csrf
+                                                            <button type="button"
+                                                                class="btn btn-outline-danger btn-sm"
+                                                                onclick="confirmReject('reject-form-{{ $family->id }}')">
+                                                                <i class="bi bi-trash"></i> شطب
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
+
+                                <!-- شريط التنقل بين الصفحات -->
+                                @if ($families instanceof \Illuminate\Pagination\AbstractPaginator)
+                                    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-white"
+                                        style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+
+                                        <div class="text-secondary text-small fw-semibold">
+                                            عرض
+                                            <span class="badge px-2 py-1 mx-1"
+                                                style="background-color: #e6f4f1; color: #0d8a72; border: 1px solid #b2dfdb;">
+                                                {{ $families->firstItem() ?? 0 }}
+                                            </span>
+                                            إلى
+                                            <span class="badge px-2 py-1 mx-1"
+                                                style="background-color: #e6f4f1; color: #0d8a72; border: 1px solid #b2dfdb;">
+                                                {{ $families->lastItem() ?? 0 }}
+                                            </span>
+                                            من أصل
+                                            <span class="fw-bold text-dark mx-1">{{ $families->total() }}</span>
+                                            عائلة/وصي مسجل
+                                        </div>
+
+                                        @if ($families->hasPages())
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagination mb-0 gap-1" style="direction: rtl;">
+
+                                                    @if ($families->onFirstPage())
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link"
+                                                                style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="bi bi-chevron-right"></i>
+                                                            </span>
+                                                        </li>
+                                                    @else
+                                                        <li class="page-item">
+                                                            <a class="page-link shadow-none"
+                                                                href="{{ $families->previousPageUrl() }}"
+                                                                style="color: #0d8a72; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="bi bi-chevron-right"></i>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+
+                                                    @foreach ($families->getUrlRange(1, $families->lastPage()) as $page => $url)
+                                                        @if ($page == $families->currentPage())
+                                                            <li class="page-item active">
+                                                                <span class="page-link shadow-none"
+                                                                    style="background-color: #0d8a72; border-color: #0d8a72; color: #ffffff; border-radius: 8px; font-weight: bold; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                    {{ $page }}
+                                                                </span>
+                                                            </li>
+                                                        @else
+                                                            <li class="page-item">
+                                                                <a class="page-link shadow-none"
+                                                                    href="{{ $url }}"
+                                                                    style="color: #0d8a72; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; font-weight: 600; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                    {{ $page }}
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                    @endforeach
+
+                                                    @if ($families->hasMorePages())
+                                                        <li class="page-item">
+                                                            <a class="page-link shadow-none"
+                                                                href="{{ $families->nextPageUrl() }}"
+                                                                style="color: #0d8a72; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="bi bi-chevron-left"></i>
+                                                            </a>
+                                                        </li>
+                                                    @else
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link"
+                                                                style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="bi bi-chevron-left"></i>
+                                                            </span>
+                                                        </li>
+                                                    @endif
+
+                                                </ul>
+                                            </nav>
+                                        @endif
+
+                                    </div>
+                                @endif
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -202,8 +326,7 @@
         </div>
     </div>
 
-    <!-- إنشاء الـ Modals ديناميكياً لكل عائلة موجودة -->
-    <!-- إنشاء الـ Modals ديناميكياً لكل وصي -->
+    <!-- Modal تفاصيل العوائل -->
     @foreach ($families as $family)
         <div class="modal fade" id="modal{{ $family->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -255,6 +378,18 @@
                                                 <td>{{ $family->orphans_count }} أبناء</td>
                                             </tr>
                                             <tr>
+                                                <th>حالة التحقق</th>
+                                                <td>
+                                                    @if (($family->status ?? 'مصدق') == 'مصدق' || ($family->status ?? '') == 'أصيل ومصدق')
+                                                        <span class="badge-kanaf badge-active">أصيل ومصدق</span>
+                                                    @elseif($family->status == 'مرفوض')
+                                                        <span class="badge bg-danger">مرفوض</span>
+                                                    @else
+                                                        <span class="badge-kanaf badge-pending">قيد الدراسة</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <th>العنوان الحالي</th>
                                                 <td>{{ $family->housing->current_displacement_destination ?? 'غير محدد' }}
                                                 </td>
@@ -271,6 +406,79 @@
     @endforeach
 
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    <!-- ضع السكربت في أسفل الملف قبل إغلاق </body> -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 1. عرض تنبيهات النجاح والخطأ القادمة من الـ Session
+        @if (session('success'))
+            Swal.fire({
+                title: 'تمت العملية بنجاح!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                    popup: 'rounded-4 shadow-lg'
+                }
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                title: 'حدث خطأ!',
+                text: "{{ session('error') }}",
+                icon: 'error',
+                confirmButtonText: 'موافق',
+                confirmButtonColor: '#dc3545',
+                customClass: {
+                    popup: 'rounded-4 shadow-lg'
+                }
+            });
+        @endif
+
+        // 2. تأكيد المصادقة
+        function confirmApprove(formId) {
+            Swal.fire({
+                title: 'هل أنت متأكد من المصادقة؟',
+                text: "سيم منح الحساب الصلاحيات الكاملة وإرسال إشعار للوصي.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-shield-check me-1"></i> نعم، مصادقة',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    popup: 'rounded-4 shadow'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+
+        // 3. تأكيد الشطب / الرفض
+        function confirmReject(formId) {
+            Swal.fire({
+                title: 'هل أنت متأكد من شطب/رفض الملف؟',
+                text: "سيتم تغيير حالة الملف إلى مرفوض وإشعار الوصي بالنتيجة.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash me-1"></i> نعم، شطب',
+                cancelButtonText: 'تراجع',
+                customClass: {
+                    popup: 'rounded-4 shadow'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

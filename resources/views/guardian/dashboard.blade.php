@@ -38,6 +38,9 @@
                     <li class="menu-item" id="menu-payments">
                         <a href="{{ route('received_payments') }}"><i class="bi bi-cash-stack"></i> الدفعات الواردة</a>
                     </li>
+                    <li class="menu-item" id="menu-notifications">
+                        <a href="{{ route('guardian.notifications') }}"><i class="bi bi-bell-fill"></i> الإشعارات</a>
+                    </li>
                     <li class="menu-item" id="menu-profile">
                         <a href="{{ route('profile') }}"><i class="bi bi-person-fill-gear"></i> الملف الشخصي للوصي</a>
                     </li>
@@ -68,9 +71,10 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}" alt="رمز"
-                                class="rounded-circle" width="30" height="30" style="object-fit: cover;">
-                            <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
+                            <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                alt=" " class="rounded-circle" width="30" height="30"
+                                style="object-fit: cover;">
+                            <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="{{ route('profile') }}"><i
@@ -78,8 +82,12 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-small text-danger text-right" href="{{ route('logout') }}"><i
-                                        class="bi bi-box-arrow-right me-2"></i> خروج آمن</a></li>
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit"
+                                    class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100"><i
+                                        class="bi bi-box-arrow-right me-2"></i> خروج آمن</button>
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -155,8 +163,8 @@
                                         <div
                                             class="p-3 bg-light rounded-3 border h-100 flex-grow-1 d-flex flex-column justify-content-between">
                                             <div>
-                                                <img src="{{ asset('Uploads/orphans/' . $info->image) }}"
-                                                    alt="" class="img-fluid rounded-3 mb-2"
+                                                <img src="{{ asset('Uploads/orphans/' . $info->personal_photo_path) }}"
+                                                    alt=" " class="img-fluid rounded-3 mb-2"
                                                     style="height: 140px; object-fit: cover; width: 100%;">
                                                 <h6 class="fw-bold mb-1 text-dark">{{ $info->name }}</h6>
                                                 <div
@@ -202,7 +210,7 @@
                                             <p class="text-caption text-muted mb-0">لإظهارها للمتطوع الكافل فوراً.</p>
                                         </div>
                                     </a>
-                                    <a href="{{ route('payments') }}"
+                                    <a href="{{ route('received_payments') }}"
                                         class="p-3 bg-light rounded-3 text-dark text-decoration-none border d-flex gap-3 align-items-center"
                                         style="transition: all 0.3s ease;">
                                         <div class="p-2 bg-warning text-dark rounded-3"><i

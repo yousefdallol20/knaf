@@ -85,7 +85,7 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="../assets/images/admin.jpg" alt="رمز" class="rounded-circle"
+                            <img src="../assets/images/admin.jpg" alt=" " class="rounded-circle"
                                 width="30" height="30" style="object-fit: cover;">
                             <span class="text-small fw-bold">أ. عبد الرحمن البكري</span>
                         </button>
@@ -227,7 +227,7 @@
                                                         @else
                                                             <!-- زر الموافقة والتفويض يدعم الـ Form التابع له -->
                                                             <form
-                                                                action="{{ route('payments_approve', $payment->id) }}"
+                                                                action="{{ route('approve_payment', $payment->id) }}"
                                                                 method="POST" class="d-inline">
                                                                 @csrf
                                                                 <button type="submit"
@@ -258,8 +258,91 @@
                                         @endforelse
                                     </tbody>
                                 </table>
-                            </div>
 
+
+                            </div>
+<!-- شريط التنقل بين الصفحات أسفل مساحة الجدول التابع للبوتستراب وللارافيل -->
+<div class="d-flex justify-content-between align-items-center p-3 border-top bg-white"
+    style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+
+    <!-- النص التوضيحي باللغة العربية -->
+    <div class="text-secondary text-small fw-semibold">
+        عرض
+        <span class="badge px-2 py-1 mx-1"
+            style="background-color: #e8f5e9; color: #0f5b38; border: 1px solid #a3d9a5;">{{ $payments->firstItem() ?? 0 }}</span>
+        إلى
+        <span class="badge px-2 py-1 mx-1"
+            style="background-color: #e8f5e9; color: #0f5b38; border: 1px solid #a3d9a5;">{{ $payments->lastItem() ?? 0 }}</span>
+        من أصل
+        <span class="fw-bold text-dark mx-1">{{ $payments->total() }}</span>
+        دفعة مالية
+    </div>
+
+    <!-- أزرار الصفحات بالاتجاه الصحيح (RTL) -->
+    @if ($payments->hasPages())
+        <nav aria-label="Page navigation">
+            <ul class="pagination mb-0 gap-1" style="direction: rtl;">
+
+                {{-- زر الصفحة السابقة (السهم الأيمن في الواجهة العربية) --}}
+                @if ($payments->onFirstPage())
+                    <li class="page-item disabled">
+                        <span class="page-link"
+                            style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
+                    </li>
+                @else
+                    <li class="page-item">
+                        <a class="page-link shadow-none"
+                            href="{{ $payments->previousPageUrl() }}"
+                            style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                @endif
+
+                {{-- أرقام الصفحات بالترتيب الصحيح (1, 2, 3...) --}}
+                @foreach ($payments->getUrlRange(1, $payments->lastPage()) as $page => $url)
+                    @if ($page == $payments->currentPage())
+                        <li class="page-item active">
+                            <span class="page-link shadow-none"
+                                style="background-color: #0f5b38; border-color: #0f5b38; color: #ffffff; border-radius: 8px; font-weight: bold; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                {{ $page }}
+                            </span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link shadow-none" href="{{ $url }}"
+                                style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; font-weight: 600; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                {{ $page }}
+                            </a>
+                        </li>
+                    @endif
+                @endforeach
+
+                {{-- زر الصفحة التالية (السهم الأيسر في الواجهة العربية) --}}
+                @if ($payments->hasMorePages())
+                    <li class="page-item">
+                        <a class="page-link shadow-none"
+                            href="{{ $payments->nextPageUrl() }}"
+                            style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                @else
+                    <li class="page-item disabled">
+                        <span class="page-link"
+                            style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-chevron-left"></i>
+                        </span>
+                    </li>
+                @endif
+
+            </ul>
+        </nav>
+    @endif
+
+</div>
                         </div>
                     </div>
                 </div>

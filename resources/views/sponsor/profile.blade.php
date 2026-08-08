@@ -96,8 +96,8 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
-                                alt="رمز" class="rounded-circle" width="30" height="30"
+                            <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('Uploads/parents/default.png') }}"
+                                alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
@@ -156,8 +156,8 @@
                             <div class="dropdown d-inline-block mb-3">
                                 <div class="position-relative profile-img-container" id="avatarDropdown"
                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
-                                        id="profile-avatar-preview" alt="الصورة الشخصية"
+                                    <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('Uploads/parents/default.png') }}"
+                                        id="profile-avatar-preview" alt=" "
                                         class="rounded-circle border border-3 border-success shadow-xs" width="110"
                                         height="110" style="object-fit: cover;">
                                 </div>
@@ -177,9 +177,9 @@
                                     </li>
                                 </ul>
                             </div>
-                            <h5 class="fw-bold text-dark mb-1" name="name">{{ $user->name }}</h5>
+                            <h5 class="fw-bold text-dark mb-1" name="name">{{ $user?->name }}</h5>
                             <p class="text-muted text-small mb-3">كافل معتمد -
-                                {{ $user->sponsor->country ?? 'غير محدد' }}</p>
+                                {{ $sponsor->country ?? 'غير محدد' }}</p>
                             <hr>
                             <div class="text-right text-small">
                                 <div class="d-flex justify-content-between mb-2">
@@ -189,12 +189,12 @@
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">البريد المعتمد:</span>
                                     <strong class="text-dark font-monospace"
-                                        name="email">{{ $user->email }}</strong>
+                                        name="email">{{ $user?->email }}</strong>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-muted">رقم الجوال:</span>
                                     <strong class="text-dark font-monospace"
-                                        name="phone">{{ $user->phone }}</strong>
+                                        name="phone">{{ $user?->phone }}</strong>
                                 </div>
                             </div>
                         </div>
@@ -222,25 +222,25 @@
                                         <label class="form-label text-small fw-semibold text-muted">الاسم ثلاثي أو
                                             رباعي</label>
                                         <input type="text" class="form-control"
-                                            value="{{ old('name', $user->name) }}" name="name">
+                                            value="{{ old('name', $user?->name) }}" name="name">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label text-small fw-semibold text-muted">البريد الإلكتروني
                                             المفضل</label>
                                         <input type="email" class="form-control font-monospace"
-                                            value="{{ old('email', $user->email) }}" name="email">
+                                            value="{{ old('email', $user?->email) }}" name="email">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label text-small fw-semibold text-muted">رقم الجوال الفعال
                                             للتحقق</label>
                                         <input type="tel" class="form-control font-monospace" name="phone"
-                                            value="{{ old('phone', $user->phone) }}">
+                                            value="{{ old('phone', $user?->phone) }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label text-small fw-semibold text-muted">مدينة الإقامة
                                             الفعلية</label>
                                         <input type="text" class="form-control" name="country"
-                                            value="{{ old('country', $user->sponsor->country) }}">
+                                            value="{{ old('country', $sponsor?->country) }}">
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary mt-4 px-4 py-2 text-small">حفظ التغييرات
@@ -300,7 +300,7 @@
                     <!-- تعديل مسار الصورة هنا ليعرض صورة المستخدم الحالية بدقة بدلاً من الصورة الاستاتيكية -->
                     <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
                         id="modal-full-image" class="img-fluid rounded-4 shadow" style="max-height: 80vh;"
-                        alt="صورة الملف الشخصي الكاملة">
+                        alt=" ">
                 </div>
             </div>
         </div>

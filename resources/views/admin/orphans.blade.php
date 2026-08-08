@@ -48,7 +48,8 @@
                     <a href="{{ route('admin.users.index') }}"><i class="bi bi-person-circle"></i> إدارة المستخدمين</a>
                 </li>
                 <li class="menu-item" id="menu-permissions">
-                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات والأدوار</a>
+                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات
+                        والأدوار</a>
                 </li>
                 <li class="menu-item" id="menu-reports">
                     <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير
@@ -88,7 +89,7 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="../assets/images/admin.jpg" alt="رمز" class="rounded-circle" width="30"
+                            <img src="../assets/images/admin.jpg" alt=" " class="rounded-circle" width="30"
                                 height="30" style="object-fit: cover;">
                             <span class="text-small fw-bold">أ. عبد الرحمن البكري</span>
                         </button>
@@ -149,251 +150,177 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($data as $info)
-                                            @if ($info->status !== 'rejected')
-                                                <tr>
-                                                    <td class="font-monospace">#{{ $info->id }}</td>
-                                                    <td>
-                                                        <div class="d-flex align-items-center gap-3">
-                                                            <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center fw-bold text-success"
-                                                                style="width:40px;height:40px;font-size:14px;"><img
-                                                                    src="{{ asset('Uploads/orphans/' . $info->personal_photo_path) }}"
-                                                                    alt="{{ $info->name }}"
-                                                                    class="rounded-circle border"
-                                                                    style="width: 40px; height: 40px; object-fit: cover;">
-                                                            </div>
-                                                            <div>
-                                                                <strong
-                                                                    class="text-dark d-block text-small">{{ $info->name }}</strong>
-                                                                <span
-                                                                    class="text-caption text-muted">{{ $info->country ?? 'فلسطين' }}
-                                                                    - {{ $info->city ?? 'غزة' }}</span>
-                                                            </div>
+                                            <tr>
+                                                <td class="font-monospace">#{{ $info->id }}</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center fw-bold text-success"
+                                                            style="width:40px;height:40px;font-size:14px;">
+                                                            <img src="{{ asset('Uploads/orphans/' . $info->personal_photo_path) }}"
+                                                                alt="" class="rounded-circle border"
+                                                                style="width: 40px; height: 40px; object-fit: cover;">
                                                         </div>
-                                                    </td>
-                                                    <td>{{ $info->age }} سنوات</td>
-                                                    <td>
-                                                        <span
-                                                            class="d-block text-small text-dark fw-semibold">{{ $info->education_level }}</span>
-                                                        <span class="text-caption text-success fs-7">الصحة:
-                                                            {{ $info->health_status }}</span>
-                                                    </td>
-                                                    <td><strong class="text-primary-green">$ 80</strong>/شهرياً</td>
-                                                    <!-- قسم فحص حالة الكفالة والموافقة الديناميكي -->
-                                                    <td>
-                                                        @if ($info->status == 'pending_approval' || $info->status == 'بانتظار الموافقة' || empty($info->status))
-                                                            {{-- الحالة 1: بانتظار الموافقة --}}
+                                                        <div>
+                                                            <strong
+                                                                class="text-dark d-block text-small">{{ $info->name }}</strong>
                                                             <span
-                                                                class="badge-kanaf badge-pending text-warning bg-warning-subtle py-1 px-2 rounded-2">بانتظار
-                                                                الموافقة</span>
-                                                        @elseif(
-                                                            $info->status == 'approved_unsponsored' ||
-                                                                $info->status == 'approved' ||
-                                                                $info->status == 'بانتظار كفيل' ||
-                                                                $info->status == 'بانتظار الكفالة' ||
-                                                                $info->status == 'غير مكفول')
-                                                            {{-- الحالة 2: تم الموافقة وبانتظار الكفيل --}}
-                                                            <span
-                                                                class="badge-kanaf badge-pending text-primary bg-primary-subtle py-1 px-2 rounded-2">غير
-                                                                مكفول</span>
-                                                        @elseif($info->status == 'sponsored' || $info->status == 'مكفول')
-                                                            {{-- الحالة 3: تم الموافقة وهو مكفول حالياً --}}
-                                                            <span
-                                                                class="badge-kanaf badge-active text-success bg-success-subtle py-1 px-2 rounded-2">مكفول</span>
+                                                                class="text-caption text-muted">{{ $info->country ?? 'فلسطين' }}
+                                                                - {{ $info->city ?? 'غزة' }}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ $info->age }} سنوات</td>
+                                                <td>
+                                                    <span
+                                                        class="d-block text-small text-dark fw-semibold">{{ $info->education_level }}</span>
+                                                    <span class="text-caption text-success fs-7">الصحة:
+                                                        {{ $info->health_status }}</span>
+                                                </td>
+                                                <td>
+                                                    <strong class="text-primary-green">
+                                                        @if (empty($info->status) || in_array($info->status, ['pending_approval', 'بانتظار الموافقة', 'بانتظار القبول', 'جديد']))
+                                                            <span class="text-muted fw-normal">غير محدد بعد</span>
                                                         @else
-                                                            {{-- حماية احتياطية: إذا كانت هناك قيمة مختلفة في قاعدة البيانات، اطبعها مباشرة لكي لا يظهر فارغاً --}}
-                                                            <span
-                                                                class="badge-kanaf text-secondary bg-secondary-subtle py-1 px-2 rounded-2">{{ $info->status }}</span>
+                                                            {{ $info->required_amount ? '$' . number_format($info->required_amount, 2) . ' /شهرياً' : 'غير محدد' }}
                                                         @endif
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex justify-content-center w-100">
-                                                            <a href="{{ route('Orphan_Details', $info->id) }}"
-                                                                class="btn btn-outline-warning w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                                                                <i class="bi bi-eye-fill"></i>
-                                                                <span class="fw-bold">عرض التفاصيل الكاملة</span>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endif
+                                                    </strong>
+                                                </td>
+                                                <td>
+                                                    @if (empty($info->status) || in_array($info->status, ['pending_approval', 'بانتظار الموافقة', 'جديد']))
+                                                        <span
+                                                            class="badge-kanaf badge-pending text-warning bg-warning-subtle py-1 px-2 rounded-2">
+                                                            بانتظار القبول
+                                                        </span>
+                                                    @elseif (in_array($info->status, ['approved_unsponsored', 'approved', 'بانتظار كفيل', 'بانتظار الكفالة', 'غير مكفول']))
+                                                        <span
+                                                            class="badge-kanaf badge-pending text-primary bg-primary-subtle py-1 px-2 rounded-2">
+                                                            غير مكفول
+                                                        </span>
+                                                    @elseif (in_array($info->status, ['sponsored', 'مكفول']))
+                                                        <span
+                                                            class="badge-kanaf badge-active text-success bg-success-subtle py-1 px-2 rounded-2">
+                                                            مكفول
+                                                        </span>
+                                                    @elseif (in_array($info->status, ['rejected', 'مرفوض', 'mrfod']))
+                                                        <span
+                                                            class="badge-kanaf text-danger bg-danger-subtle py-1 px-2 rounded-2">
+                                                            مرفوض
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            class="badge-kanaf text-secondary bg-secondary-subtle py-1 px-2 rounded-2">
+                                                            {{ $info->status }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex justify-content-center w-100">
+                                                        <a href="{{ route('Orphan_Details', $info->id) }}"
+                                                            class="btn btn-outline-warning w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                            <span class="fw-bold">عرض التفاصيل الكاملة</span>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         @endforeach
-                                        <!-- شهد محمد الدلو -->
-                                        <tr>
-                                            <td class="font-monospace">#2</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center fw-bold text-info"
-                                                        style="width:40px;height:40px;font-size:14px;">ش</div>
-                                                    <div>
-                                                        <strong class="text-dark d-block text-small">شهد محمد
-                                                            الدلو</strong>
-                                                        <span class="text-caption text-muted">فلسطين - خانيونس</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>9 سنوات</td>
-                                            <td>
-                                                <span class="d-block text-small text-dark fw-semibold">المرحلة
-                                                    الابتدائية - الصف الثالث</span>
-                                                <span class="text-caption text-warning fs-7">الصحة: مريضة ربو
-                                                    مزمن</span>
-                                            </td>
-                                            <td><strong class="text-primary-green">$ 90</strong>/شهرياً</td>
-                                            <td><span class="badge-kanaf badge-active">مكفول</span></td>
-                                            <td>
-                                                <div class="d-flex justify-content-center w-100">
-                                                    <a href="Orphan_Details.html"
-                                                        class="btn btn-outline-warning w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                                                        <i class="bi bi-eye-fill"></i>
-                                                        <span class="fw-bold">عرض التفاصيل الكاملة</span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                        <!-- أنس أحمد اليازجي -->
-                                        <tr>
-                                            <td class="font-monospace">#3</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center fw-bold text-warning"
-                                                        style="width:40px;height:40px;font-size:14px;">أ</div>
-                                                    <div>
-                                                        <strong class="text-dark d-block text-small">أنس أحمد
-                                                            اليازجي</strong>
-                                                        <span class="text-caption text-muted">فلسطين - غزة</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>11 سنوات</td>
-                                            <td>
-                                                <span class="d-block text-small text-dark fw-semibold">المرحلة
-                                                    الابتدائية - الصف الخامس</span>
-                                                <span class="text-caption text-danger fs-7">الصحة: مصاب حرب - بتر في
-                                                    الساق اليسرى</span>
-                                            </td>
-                                            <td><strong class="text-primary-green">$ 120</strong>/شهرياً</td>
-                                            <td><span class="badge-kanaf badge-pending">بانتظار كفيل</span></td>
-                                            <td>
-                                                <div class="d-flex justify-content-center w-100">
-                                                    <a href="Orphan_Details.html"
-                                                        class="btn btn-outline-warning w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                                                        <i class="bi bi-eye-fill"></i>
-                                                        <span class="fw-bold">عرض التفاصيل الكاملة</span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                        <!-- جنى رائد فياض -->
-                                        <tr>
-                                            <td class="font-monospace">#4</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div class="rounded-circle bg-danger-subtle d-flex align-items-center justify-content-center fw-bold text-danger"
-                                                        style="width:40px;height:40px;font-size:14px;">ج</div>
-                                                    <div>
-                                                        <strong class="text-dark d-block text-small">جنى رائد
-                                                            فياض</strong>
-                                                        <span class="text-caption text-muted">فلسطين - دير البلح</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>5 سنوات</td>
-                                            <td>
-                                                <span class="d-block text-small text-dark fw-semibold">الروضة</span>
-                                                <span class="text-caption text-success fs-7">الصحة: سليم</span>
-                                            </td>
-                                            <td><strong class="text-primary-green">$ 80</strong>/شهرياً</td>
-                                            <td><span class="badge-kanaf badge-pending">بانتظار كفيل</span></td>
-                                            <td>
-                                                <div class="d-flex justify-content-center w-100">
-                                                    <a href="Orphan_Details.html"
-                                                        class="btn btn-outline-warning w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                                                        <i class="bi bi-eye-fill"></i>
-                                                        <span class="fw-bold">عرض التفاصيل الكاملة</span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                        <!-- محمود خالد أبو العوف -->
-                                        <tr>
-                                            <td class="font-monospace">#5</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center fw-bold text-success"
-                                                        style="width:40px;height:40px;font-size:14px;">م</div>
-                                                    <div>
-                                                        <strong class="text-dark d-block text-small">محمود خالد أبو
-                                                            العوف</strong>
-                                                        <span class="text-caption text-muted">فلسطين - رفح</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>13 سنوات</td>
-                                            <td>
-                                                <span class="d-block text-small text-dark fw-semibold">المرحلة
-                                                    الإعدادية - الصف الأول</span>
-                                                <span class="text-caption text-success fs-7">الصحة: سليم</span>
-                                            </td>
-                                            <td><strong class="text-primary-green">$ 100</strong>/شهرياً</td>
-                                            <td><span class="badge-kanaf badge-active">مكفول</span></td>
-                                            <td>
-                                                <div class="d-flex justify-content-center w-100">
-                                                    <a href="Orphan_Details.html"
-                                                        class="btn btn-outline-warning w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                                                        <i class="bi bi-eye-fill"></i>
-                                                        <span class="fw-bold">عرض التفاصيل الكاملة</span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                        <!-- ليان بسام رضوان -->
-                                        <tr>
-                                            <td class="font-monospace">#6</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center fw-bold text-info"
-                                                        style="width:40px;height:40px;font-size:14px;">ل</div>
-                                                    <div>
-                                                        <strong class="text-dark d-block text-small">ليان بسام
-                                                            رضوان</strong>
-                                                        <span class="text-caption text-muted">فلسطين - شمال غزة</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>12 سنوات</td>
-                                            <td>
-                                                <span class="d-block text-small text-dark fw-semibold">المرحلة
-                                                    الابتدائية - الصف السادس</span>
-                                                <span class="text-caption text-warning fs-7">الصحة: مرض مزمن -
-                                                    سكري</span>
-                                            </td>
-                                            <td><strong class="text-primary-green">$ 110</strong>/شهرياً</td>
-                                            <td><span class="badge-kanaf badge-pending">بانتظار كفيل</span></td>
-                                            <td>
-                                                <div class="d-flex justify-content-center w-100">
-                                                    <a href="Orphan_Details.html"
-                                                        class="btn btn-outline-warning w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                                                        <i class="bi bi-eye-fill"></i>
-                                                        <span class="fw-bold">عرض التفاصيل الكاملة</span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-
                                     </tbody>
                                 </table>
-                            </div>
 
+                            </div>
+                            <!-- شريط التنقل بين الصفحات والإحصائيات -->
+                            <div class="d-flex justify-content-between align-items-center p-3 border-top bg-white"
+                                style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+
+                                <!-- النص التوضيحي باللغة العربية -->
+                                <div class="text-secondary text-small fw-semibold">
+                                    عرض
+                                    <span class="badge px-2 py-1 mx-1"
+                                        style="background-color: #e8f5e9; color: #0f5b38; border: 1px solid #a3d9a5;">
+                                        {{ $data->firstItem() ?? 0 }}
+                                    </span>
+                                    إلى
+                                    <span class="badge px-2 py-1 mx-1"
+                                        style="background-color: #e8f5e9; color: #0f5b38; border: 1px solid #a3d9a5;">
+                                        {{ $data->lastItem() ?? 0 }}
+                                    </span>
+                                    من أصل
+                                    <span class="fw-bold text-dark mx-1">{{ $data->total() }}</span>
+                                    كفيل مسجل
+                                </div>
+
+                                <!-- أزرار الصفحات بالاتجاه الصحيح (RTL) -->
+                                @if ($data->hasPages())
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination mb-0 gap-1" style="direction: rtl;">
+
+                                            {{-- زر الصفحة السابقة (السهم الأيمن) --}}
+                                            @if ($data->onFirstPage())
+                                                <li class="page-item disabled">
+                                                    <span class="page-link"
+                                                        style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </span>
+                                                </li>
+                                            @else
+                                                <li class="page-item">
+                                                    <a class="page-link shadow-none"
+                                                        href="{{ $data->previousPageUrl() }}"
+                                                        style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                            @endif
+
+                                            {{-- أرقام الصفحات --}}
+                                            @foreach ($data->getUrlRange(1, $data->lastPage()) as $page => $url)
+                                                @if ($page == $data->currentPage())
+                                                    <li class="page-item active">
+                                                        <span class="page-link shadow-none"
+                                                            style="background-color: #0f5b38; border-color: #0f5b38; color: #ffffff; border-radius: 8px; font-weight: bold; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            {{ $page }}
+                                                        </span>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item">
+                                                        <a class="page-link shadow-none" href="{{ $url }}"
+                                                            style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; font-weight: 600; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            {{ $page }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+
+                                            {{-- زر الصفحة التالية (السهم الأيسر) --}}
+                                            @if ($data->hasMorePages())
+                                                <li class="page-item">
+                                                    <a class="page-link shadow-none"
+                                                        href="{{ $data->nextPageUrl() }}"
+                                                        style="color: #0f5b38; background-color: #f8f9fa; border-color: #dce7e1; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                            @else
+                                                <li class="page-item disabled">
+                                                    <span class="page-link"
+                                                        style="color: #cbd5e1; background-color: #f8f9fa; border-color: #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </span>
+                                                </li>
+                                            @endif
+
+                                        </ul>
+                                    </nav>
+                                @endif
+
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+
         </div>
+    </div>
     </div>
 
 

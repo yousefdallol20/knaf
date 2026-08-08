@@ -194,7 +194,7 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="index.html">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
           <img src="assets/images/logo.png" alt="شعار كنف" height="50" width="110" id="nav-brand-logo"
             style="object-fit:contain;">
           <!-- <span id="nav-brand-text">منصة كَنَفْ</span> -->
@@ -206,7 +206,7 @@
         <div class="collapse navbar-collapse" id="navMain">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1" id="nav-menu-list">
             <li class="nav-item">
-              <a class="nav-link" href="index.html" id="nav-link-home">الرئيسية</a>
+              <a class="nav-link" href="{{ route('knaf') }}" id="nav-link-home">الرئيسية</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="orphans.html" id="nav-link-orphans">قائمة الأيتام</a>
@@ -232,7 +232,7 @@
   <main>
     <section class="hero-container">
       <!-- Parallax child emotional image background -->
-      <img src="assets/images/salah-darwish-gDk-wVG43pI-unsplash.jpg" alt="طفل يتطلع بابتسامة وأمل" class="hero-bg-img"
+      <img src="{{ asset('assets/images/salah-darwish-gDk-wVG43pI-unsplash.jpg') }}" alt="طفل يتطلع بابتسامة وأمل" class="hero-bg-img"
         id="hero-parallax-bg">
       <div class="hero-gradient"></div>
 
@@ -380,7 +380,7 @@
           <div class="col-lg-4 col-md-6">
             <div class="kanaf-card h-100 bg-white">
               <div class="position-relative overflow-hidden">
-                <img src="assets/images/salah-darwish-0_mz8WRWWBI-unsplash.jpg" alt="أحمد" class="card-img-top w-100"
+                <img src="assets/images/salah-darwish-0_mz8WRWWBI-unsplash.jpg" alt=" " class="card-img-top w-100"
                   style="height:260px;object-fit:cover;">
 
                 <span
@@ -437,7 +437,7 @@
                     </span>
                   </div>
 
-                  <a href="orphan-{{ route('profile_sponser') }}" class="btn btn-primary py-2 px-4 btn-sm fw-bold rounded-pill">
+                  <a href="#" class="btn btn-primary py-2 px-4 btn-sm fw-bold rounded-pill">
                     تفاصيل
                   </a>
                 </div>
@@ -449,7 +449,7 @@
           <div class="col-lg-4 col-md-6">
             <div class="kanaf-card h-100 bg-white">
               <div class="position-relative overflow-hidden">
-                <img src="assets/images/salah-darwish-0SwkjZ9SZA8-unsplash.jpg" alt="سارة" class="card-img-top w-100"
+                <img src="assets/images/salah-darwish-0SwkjZ9SZA8-unsplash.jpg" alt=" " class="card-img-top w-100"
                   style="height:260px;object-fit:cover;">
 
                 <span
@@ -487,7 +487,7 @@
                     <span class="text-muted">/ شهرياً</span>
                   </div>
 
-                  <a href="orphan-{{ route('profile_sponser') }}" class="btn btn-primary py-2 px-4 btn-sm fw-bold rounded-pill">
+                  <a href="#" class="btn btn-primary py-2 px-4 btn-sm fw-bold rounded-pill">
                     تفاصيل
                   </a>
                 </div>
@@ -499,7 +499,7 @@
           <div class="col-lg-4 col-md-6">
             <div class="kanaf-card h-100 bg-white">
               <div class="position-relative overflow-hidden">
-                <img src="assets/images/salah-darwish-Cl-ZvTlIxTk-unsplash.jpg" alt="محمد" class="card-img-top w-100"
+                <img src="assets/images/salah-darwish-Cl-ZvTlIxTk-unsplash.jpg" alt=" " class="card-img-top w-100"
                   style="height:260px;object-fit:cover;">
 
                 <span
@@ -537,7 +537,7 @@
                     <span class="text-muted">/ شهرياً</span>
                   </div>
 
-                  <a href="orphan-{{ route('profile_sponser') }}" class="btn btn-primary py-2 px-4 btn-sm fw-bold rounded-pill">
+                  <a href="#" class="btn btn-primary py-2 px-4 btn-sm fw-bold rounded-pill">
                     تفاصيل
                   </a>
                 </div>
@@ -590,7 +590,7 @@
 
           <div class="col-lg-6 position-relative text-center" data-aos="fade-left">
             <div class="p-3 bg-warm rounded-5 overflow-hidden shadow-sm border">
-              <img src="assets/images/salah-darwish-XUrUZAimWyI-unsplash.jpg" alt="نشر الفرح بين الأطفال"
+              <img src="{{ asset('assets/images/salah-darwish-XUrUZAimWyI-unsplash.jpg') }}" alt="نشر الفرح بين الأطفال"
                 class="img-fluid rounded-4 shadow-lg border border-3 border-white floating-element"
                 style="max-height: 400px; object-fit: cover; width: 100%;">
             </div>
@@ -634,7 +634,7 @@
                   <div class="testimonial-3d-card h-100">
                     <div class="d-flex align-items-center gap-3 mb-4">
                       <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&q=80"
-                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt="">
+                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt=" "">
 
                       <div>
                         <h6 class="fw-black mb-1">د. صالح بن محمد الرويلي</h6>
@@ -663,7 +663,7 @@
                   <div class="testimonial-3d-card h-100">
                     <div class="d-flex align-items-center gap-3 mb-4">
                       <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80"
-                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt="">
+                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt=" "">
 
                       <div>
                         <h6 class="fw-black mb-1">أ. منيرة بنت عبد الله سليمان</h6>
@@ -691,7 +691,7 @@
                   <div class="testimonial-3d-card h-100">
                     <div class="d-flex align-items-center gap-3 mb-4">
                       <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80"
-                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt="">
+                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt=" "">
 
                       <div>
                         <h6 class="fw-black mb-1">م. خالد العثمان</h6>
@@ -726,7 +726,7 @@
                   <div class="testimonial-3d-card h-100">
                     <div class="d-flex align-items-center gap-3 mb-4">
                       <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80"
-                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt="">
+                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt=" "">
 
                       <div>
                         <h6 class="fw-black mb-1">د. فاطمة الشمري</h6>
@@ -747,7 +747,7 @@
                   <div class="testimonial-3d-card h-100">
                     <div class="d-flex align-items-center gap-3 mb-4">
                       <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&q=80"
-                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt="">
+                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt=" "">
 
                       <div>
                         <h6 class="fw-black mb-1">عبد الرحمن القحطاني</h6>
@@ -767,7 +767,7 @@
                   <div class="testimonial-3d-card h-100">
                     <div class="d-flex align-items-center gap-3 mb-4">
                       <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80"
-                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt="">
+                        class="rounded-circle border" width="60" height="60" style="object-fit:cover;" alt=" "">
 
                       <div>
                         <h6 class="fw-black mb-1">ريم السبيعي</h6>
@@ -858,7 +858,7 @@
         <div class="col-lg-2 col-md-6">
           <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
           <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-            <li><a href="index.html" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
+            <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
             <li><a href="orphans.html" class="text-white text-decoration-none">قائمة الأيتام للبحث</a></li>
             <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء الكفالة</a></li>
             <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>

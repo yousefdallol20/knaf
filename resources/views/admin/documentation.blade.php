@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.rtl.min.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
+
+  <!-- مكتبة التنبيهات SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -16,7 +19,6 @@
     <!-- Sidebar -->
     <div class="sidebar d-flex flex-column" id="kanaf-sidebar-wrapper">
       <div class="brand">
-        <!-- <img src="assets/images/logo.png" alt="كنف" height="35"> -->
         <h5 class="text-primary-green mb-0 fw-bold d-inline-block">لوحة تحكّم كَنَفْ</h5>
         <button type="button" class="btn-close btn-close-white d-lg-none ms-auto" aria-label="إغلاق القائمة"
           onclick="document.getElementById('kanaf-sidebar-wrapper').classList.remove('show'); document.getElementById('kanaf-sidebar-backdrop').classList.remove('show');"></button>
@@ -64,7 +66,6 @@
         </li>
       </ul>
 
-      <!-- Back to main public site link -->
       <div class="p-3 border-top mt-auto">
         <a href="{{ url('/') }}"
           class="btn btn-outline-primary w-full d-flex align-items-center justify-content-center gap-2 py-2">
@@ -73,8 +74,8 @@
         </a>
       </div>
     </div>
-    <div class="main-content">
 
+    <div class="main-content">
       <div class="dashboard-header">
         <div class="d-flex align-items-center gap-3">
           <button class="btn btn-outline-primary d-lg-none" type="button"
@@ -87,9 +88,9 @@
           <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
               id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="{{ asset('assets/images/admin.jpg') }}" alt="رمز" class="rounded-circle" width="30" height="30"
+              <img src="{{ asset('assets/images/admin.jpg') }}" alt=" " class="rounded-circle" width="30" height="30"
                 style="object-fit: cover;">
-              <span class="text-small fw-bold">{{ Auth::user()->name ?? 'أ. عبد الرحمن البكري' }}</span>
+              <span class="text-small fw-bold">{{ Auth::user()->name }}</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
               <li><a class="dropdown-item text-small text-right" href="#"><i
@@ -109,7 +110,6 @@
       </div>
 
       <div class="dashboard-container">
-
         <div class="mb-4">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -120,32 +120,17 @@
           </nav>
         </div>
 
-        @if(session('success'))
-          <div class="alert alert-success alert-dismissible fade show text-right text-small mb-4" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        @endif
-        @if(session('danger'))
-          <div class="alert alert-danger alert-dismissible fade show text-right text-small mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('danger') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        @endif
-
         <div class="row g-4">
           <div class="col-12">
             <div class="kanaf-table-card">
-
               <div class="kanaf-table-header bg-white">
                 <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-file-earmark-check-fill text-primary-green me-1"></i>
                   وثائق وتقارير أيتامنا المرفوعة من الأوصياء للمراجعة والمصادقة</h5>
-                <span class="text-caption text-muted"><i class="bi bi-shield-lock-fill"></i> مراجعة الوثائق تضمن خصوصية
-                  وسرية معلومات الأطفال الأيتام</span>
+                <span class="text-caption text-muted"><i class="bi bi-shield-lock-fill"></i> مراجعة الوثائق تضمن خصوصية وسرية معلومات الأطفال الأيتام</span>
               </div>
 
               <div class="table-responsive">
-                <table class="table text-right text-small">
+                <table class="table text-right text-small align-middle">
                   <thead>
                     <tr>
                       <th>رقم المستند</th>
@@ -158,13 +143,12 @@
                     </tr>
                   </thead>
                   <tbody id="admin-docs-tbody">
-
                     @forelse($documents as $doc)
                     <tr>
                       <td class="font-monospace">DOC-{{ 400 + $doc->id }}</td>
                       <td>
-                        <strong class="text-dark d-block text-small">{{ $doc->orphan->name ?? $doc->orphan->first_name }}</strong>
-                        <span class="text-caption text-muted">الوصي: معلومات العائلة</span>
+                        <strong class="text-dark d-block text-small">{{ $doc->orphan->name ?? $doc->orphan->first_name ?? 'اليتيم' }}</strong>
+                        <span class="text-caption text-muted">الوصي: {{ $doc->orphan->guardian->name ?? 'معلومات العائلة' }}</span>
                       </td>
                       <td>
                         <span class="badge bg-light text-primary-green border border-primary-green text-caption px-2 py-1">
@@ -187,14 +171,19 @@
                           <a href="{{ $doc->file_url }}" target="_blank" class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> استعراض</a>
 
                           @if($doc->status == 'بانتظار المراجعة')
+                            <!-- زر الاعتماد -->
                             <form action="{{ route('documents_approve', $doc->id) }}" method="POST" class="d-inline">
                               @csrf
                               <button type="submit" class="btn btn-success btn-sm" style="color:white !important;"><i class="bi bi-check-lg"></i> اعتماد</button>
                             </form>
 
-                            <form action="{{ route('documents_reject', $doc->id) }}" method="POST" class="d-inline">
+                            <!-- زر الرفض مع سبب -->
+                            <form id="reject-doc-form-{{ $doc->id }}" action="{{ route('documents_reject', $doc->id) }}" method="POST" class="d-inline">
                               @csrf
-                              <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-x-lg"></i> رفض</button>
+                              <input type="hidden" name="rejection_reason" id="reject-reason-{{ $doc->id }}">
+                              <button type="button" class="btn btn-outline-danger btn-sm" onclick="rejectDocument({{ $doc->id }})">
+                                <i class="bi bi-x-lg"></i> رفض
+                              </button>
                             </form>
                           @else
                             <button class="btn btn-outline-secondary btn-sm" disabled><i class="bi bi-lock"></i> مقفل</button>
@@ -207,7 +196,6 @@
                       <td colspan="7" class="text-center text-muted py-4">لا توجد وثائق أو مستندات مرفوعة بانتظار المراجعة حالياً.</td>
                     </tr>
                     @endforelse
-
                   </tbody>
                 </table>
               </div>
@@ -215,13 +203,87 @@
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
   </div>
 
   <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+  <script>
+    // دالة رفض المستند وإدخال السبب
+    function rejectDocument(id) {
+      Swal.fire({
+        title: 'رفض المستند المرفوع',
+        text: 'يرجى تحديد سبب الرفض (عدم وضوح الصورة، ملف غير صحيح، تزوير/بيانات خاطئة...):',
+        input: 'select',
+        inputOptions: {
+          'عدم وضوح الصورة أو جودة الملف ضعيفة': 'عدم وضوح الصورة أو جودة الملف ضعيفة',
+          'المستند المرفق غير صحيح أو لا يطابق المطلوب': 'المستند المرفق غير صحيح أو لا يطابق المطلوب',
+          'اشتباه في تزوير أو عدم صحة البيانات المرفقة': 'اشتباه في تزوير أو عدم صحة البيانات المرفقة',
+          'تاريخ المستند منتهي الصلاحية': 'تاريخ المستند منتهي الصلاحية',
+          'آخر': 'سبب آخر (اكتبه أدناه)'
+        },
+        inputPlaceholder: 'اختر سبب الرفض...',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-x-circle me-1"></i> تأكيد الرفض والإشعار',
+        cancelButtonText: 'إلغاء',
+        customClass: { popup: 'rounded-4 shadow' },
+        inputValidator: (value) => {
+          if (!value) {
+            return 'يجب اختيار سبب الرفض لإبلاغ الوصي!';
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (result.value === 'آخر') {
+            // إذا اختار "سبب آخر" نفتح له مربع نص حر
+            Swal.fire({
+              title: 'اكتب سبب الرفض بالتفصيل:',
+              input: 'text',
+              inputPlaceholder: 'مثال: الصورة غير ملونة، أو الاسم غير واضح...',
+              showCancelButton: true,
+              confirmButtonColor: '#dc3545',
+              confirmButtonText: 'إرسال',
+              cancelButtonText: 'إلغاء',
+              inputValidator: (text) => {
+                if (!text) return 'يرجى كتابة السبب!';
+              }
+            }).then((customResult) => {
+              if (customResult.isConfirmed) {
+                document.getElementById('reject-reason-' + id).value = customResult.value;
+                document.getElementById('reject-doc-form-' + id).submit();
+              }
+            });
+          } else {
+            document.getElementById('reject-reason-' + id).value = result.value;
+            document.getElementById('reject-doc-form-' + id).submit();
+          }
+        }
+      });
+    }
+
+    // تنبيهات النجاح والخطأ
+    @if(session('success'))
+      Swal.fire({
+        title: 'تمت العملية!',
+        text: "{{ session('success') }}",
+        icon: 'success',
+        confirmButtonColor: '#0d6efd',
+        customClass: { popup: 'rounded-4 shadow' }
+      });
+    @endif
+
+    @if(session('danger'))
+      Swal.fire({
+        title: 'تم الرفض!',
+        text: "{{ session('danger') }}",
+        icon: 'error',
+        confirmButtonColor: '#dc3545',
+        customClass: { popup: 'rounded-4 shadow' }
+      });
+    @endif
+  </script>
 </body>
 
 </html>

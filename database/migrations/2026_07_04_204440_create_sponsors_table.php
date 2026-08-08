@@ -17,10 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('image')->nullable();
-            $table->string('country'); // الدولة
-            $table->string('city'); // المدينة
-            $table->enum('status', ['active', 'inactive'])->default('active')->nullable(); // حالة الراعي
-
+            $table->string('country');
+            $table->string('city');
+            $table->enum('status', ['active', 'inactive'])->default('active')->nullable();
             $table->timestamps();
         });
     }

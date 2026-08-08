@@ -21,7 +21,7 @@ Route::get('/', function () {
 
 Route::get('/knaf', function () {
     return view('index');
-});
+})->name('knaf');
 
 Route::get('/orphans', [HomeController::class, 'orphans'])->name('orphans');
 Route::get('/orphans_details/{id}', [HomeController::class, 'orphans_details'])->name('orphans_details');
@@ -30,9 +30,11 @@ Route::get('/orphans_details/{id}', [HomeController::class, 'orphans_details'])-
 // ===================================================
 // ================== Guest / Auth Routes ============
 // ===================================================
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+
 
     Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
@@ -42,13 +44,13 @@ Route::middleware('guest')->group(function () {
 });
 
 // مسار تسجيل الخروج لكل مستخدمي النظام
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 
 // ===================================================
 // ================= Protected Routes ================
 // ===================================================
 Route::middleware(['auth'])->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
     // ---------------------------------------------------
     // -------------------- Guardians --------------------
@@ -66,6 +68,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/upload_docs', [GuardiansController::class, 'upload_docs'])->name('upload_docs');
         Route::post('/upload_docs_store', [GuardiansController::class, 'upload_docs_store'])->name('upload_docs_store');
         Route::get('/received_payments', [GuardiansController::class, 'received_payments'])->name('received_payments');
+
+        Route::get('/notifications', [GuardiansController::class, 'notifications'])->name('guardian.notifications');
+        Route::post('/guardian/notifications/mark-all-read', [GuardiansController::class, 'markAllRead'])->name('guardian_notifications.markAllRead');
+
         Route::get('/profile', [GuardiansController::class, 'profile'])->name('profile');
         Route::post('/profile/update-fields', [GuardiansController::class, 'updateProfileFields'])->name('profile.update.fields');
         Route::post('/profile/update-password', [GuardiansController::class, 'updatePassword'])->name('profile.update.password');
@@ -85,7 +91,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create_step3', [sponsorshipController::class, 'create_step3'])->name('create_step3');
         Route::post('/step3', [sponsorshipController::class, 'step3'])->name('step3');
 
+        // عرض الصفحة
         Route::get('/payments', [SponsorController::class, 'payments'])->name('payments');
+
+        // تصدير كشف الحساب CSV
+        Route::get('/payments/export-csv', [SponsorController::class, 'exportPaymentsCsv'])->name('payments.export.csv');
+
+        // تحميل الإيصال المالي
+        Route::get('/payments/{id}/download-receipt', [SponsorController::class, 'downloadReceipt'])->name('payments.download.receipt');
+
+        // تسجيل دفعة كفالة فورية
+        Route::post('/payments/store-manual', [SponsorController::class, 'storeManualPayment'])->name('payments.store.manual');
+
         Route::get('documentation', [SponsorController::class, 'documentation'])->name('documentation');
         Route::get('/notifications/sponsor', [SponsorController::class, 'sponsorIndex'])->name('notifications');
         Route::post('/notifications/mark-all-read', [SponsorController::class, 'markAllRead'])->name('notifications.markAllRead');
@@ -115,20 +132,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orphans/{id}/reject', [AdminController::class, 'rejectOrphan'])
             ->name('orphans.reject');
 
+        // ======================================
+
         Route::get('/families', [AdminController::class, 'families'])->name('families_admin');
-
-        // اعتماد ومصادقة الملف القانوني للعائلة
-        Route::post('families/{id}/approve-verification', [AdminController::class, 'approveVerification'])->name('family_approve_verification');
-
-        // شطب عائلة من الأرشيف
-        Route::delete('families/{id}/delete', [AdminController::class, 'destroy'])->name('family_destroy');
+        Route::post('/admin/families/{id}/approve', [AdminController::class, 'approveFamily'])->name('admin.families.approve');
+        Route::post('/admin/families/{id}/reject', [AdminController::class, 'rejectFamily'])->name('admin.families.reject');
+        // ===================
         Route::get('/showSponsors', [AdminController::class, 'showSponsors'])->name('showSponsors');
+        Route::put('/admin/sponsors/{id}', [AdminController::class, 'updateSponsor'])->name('admin.sponsors.update');
+
+        Route::patch('/admin/sponsors/{id}/toggle-status', [AdminController::class, 'toggleSponsorStatus'])->name('admin.sponsors.toggleStatus');
+        // ===================
+        // مسار تغيير حالة عقد الكفالة (تفعيل / تعليق)
+        // Route::patch('/admin/sponsorships/{id}/toggle-status', [AdminController::class, 'toggleSponsorshipStatus'])->name('admin.sponsorships.toggleStatus');
         // رابط صفحة إدارة عقود الكفالات في لوحة التحكم للآدمن
         Route::get('/admin/sponsorships', [AdminController::class, 'sponsorships_admin'])->name('sponsorships_admin');
+        // ===================
 
         // مسارات إدارة المدفوعات والتدقيق المالي
         Route::get('/admin/payments', [AdminController::class, 'payments_admin'])->name('payments_admin');
-        Route::post('/admin/payments/{id}/approve', [AdminController::class, 'approve_payment'])->name('payments_approve');
+        Route::post('/admin/payments/{id}/approve', [AdminController::class, 'approve_payment'])->name('approve_payment');
         Route::delete('/admin/payments/{id}/delete', [AdminController::class, 'delete_payment'])->name('payments_delete');
 
         // مسارات نظام مراجعة وتدقيق المستندات للآدمن
@@ -144,15 +167,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/audit-logs', [AdminController::class, 'audit_logs_admin'])->name('audit_admin');
 
 
-        Route::get('/notifications', [AdminController::class, 'adminIndex'])->name('admin.notifications.index');
-        Route::post('/notifications/send', [AdminController::class, 'sendBroadcast'])->name('admin.notifications.send');
+        Route::get('/admin/notifications', [AdminController::class, 'adminIndex'])->name('admin.notifications.index');
+        Route::post('/admin/notifications/send', [AdminController::class, 'sendBroadcast'])->name('admin.notifications.send');
 
         // رابط عرض الصفحة والجدول الرئيسي
         Route::get('/users', [AdminController::class, 'users_index'])->name('admin.users.index');
 
-        // رابط تغيير الحالة (تجميد أو تنشيط العضوية)
-        Route::post('/users/{id}/toggle-status', [AdminController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
-
+        // ✅ المسار الجديد الصحيح
+        Route::patch('/admin/users/{id}/toggle-status', [AdminController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
         Route::get('/permissions', [AdminController::class, 'permissions'])->name('admin.permissions.index');
 
 

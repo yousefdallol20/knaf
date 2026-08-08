@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'phone',
         'role',
+        'guardian_id',
+        'sponsor_id',
     ];
 
     /**
@@ -49,12 +51,13 @@ class User extends Authenticatable
         ];
     }
 
+    // المستخدم يمتلك ملف وصي واحد (عبر عمود user_id في جدول guardians)
     public function guardian()
     {
         return $this->hasOne(guardian::class, 'user_id');
     }
 
-
+    // المستخدم يمتلك ملف كافل واحد (عبر عمود user_id في جدول sponsors)
     public function sponsor()
     {
         return $this->hasOne(Sponsor::class, 'user_id');

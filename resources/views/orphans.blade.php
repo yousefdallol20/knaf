@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>قائمة الأيتام - منصة كنف</title>
-    <link rel="stylesheet" href="assets/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
 
@@ -75,7 +75,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="index.html">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
                     <img src="assets/images/logo.png" alt="شعار كنف" height="50" width="110" id="nav-brand-logo"
                         style="object-fit:contain;">
                 </a>
@@ -86,10 +86,10 @@
                 <div class="collapse navbar-collapse" id="navMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1" id="nav-menu-list">
                         <li class="nav-item">
-                            <a class="nav-link" href="index.html" id="nav-link-home">الرئيسية</a>
+                            <a class="nav-link" href="{{ route('knaf') }}" id="nav-link-home">الرئيسية</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="orphans.html" id="nav-link-orphans">قائمة الأيتام</a>
+                            <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="sponsorship/step1.html" id="nav-link-steps">خطوات الكفالة</a>
@@ -99,10 +99,10 @@
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
-                        <a href="auth/login.html" class="btn btn-outline-light px-4 rounded-pill"
+                        <a href="{{ route('login') }}" class="btn btn-outline-light px-4 rounded-pill"
                             id="nav-btn-login">تسجيل
                             الدخول</a>
-                        <a href="auth/register.html" class="btn btn-secondary px-4 rounded-pill fw-bold"
+                        <a href="{{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold"
                             id="nav-btn-register">ابدأ
                             الكفالة الآن</a>
                     </div>
@@ -185,107 +185,7 @@
                 <!-- Real Orphans Grid with modern styling transition -->
                 <div class="row g-4" id="orphans-list-grid"
                     style="transition: opacity 0.2s ease-in-out; opacity: 1;">
-                    @foreach ($data as $info)
-                        <div class="col-lg-4 col-md-6 list-orphan-element">
-                            <div class="kanaf-card h-100 bg-white shadow-sm">
-                                <div class="position-relative overflow-hidden">
-                                    <img src="{{ asset('Uploads/orphans/' . $info->image) }}"
-                                        alt="يوسف سليمان الكفارنة" class="card-img-top w-100"
-                                        style="height: 250px; object-fit: cover;" referrerpolicy="no-referrer">
-                                    <span
-                                        class="badge position-absolute top-0 right-0 bg-primary-green px-3 py-2 fw-semibold rounded-3 text-white m-3"
-                                        style="right: 14px; left: auto; z-index: 5;"> {{ $info->country ?? 'فلسطين' }}
-                                        -
-                                        {{ $info->city ?? 'غزة' }}</span>
-                                    {{-- @if (($info->status ?? 'بانتظار الكفالة') == 'مكفول') --}}
-                                    <span
-                                        class="badge position-absolute top-0 left-0 px-3 py-2 fw-semibold rounded-3 text-white m-3 bg-primary-green"
-                                        style="left: 14px; right: auto; z-index: 5;">
-                                        {{ $info->status ?? 'بانتظار الكفالة' }} </span>
-                                    {{-- @else
-                                    <span
-                                        class="badge position-absolute top-0 left-0 px-3 py-2 fw-semibold rounded-3 text-white m-3 bg-secondary-gold text-dark"
-                                        style="left: 14px; right: auto; z-index: 5;">{{ $info->status }}</span>
-                                @endif --}}
-                                </div>
-                                <div class="card-body p-4">
-                                    <div class="mb-2 d-flex align-items-center gap-1">
-                                        <i class="bi bi-star-fill text-secondary-gold"
-                                            style="font-size: 0.85rem;"></i>
-                                        <i class="bi bi-star-fill text-secondary-gold"
-                                            style="font-size: 0.85rem;"></i>
-                                        <i class="bi bi-star-fill text-secondary-gold"
-                                            style="font-size: 0.85rem;"></i>
-                                        <i class="bi bi-star-fill text-secondary-gold"
-                                            style="font-size: 0.85rem;"></i>
-                                        <i class="bi bi-star-fill text-secondary-gold"
-                                            style="font-size: 0.85rem;"></i>
-                                    </div>
-                                    <h5 class="fw-black text-dark mb-2">{{ $info->name ?? 'يوسف سليمان الكفارنة' }}
-                                    </h5>
-                                    <div class="d-flex flex-wrap gap-1 mb-3">
-                                        <span
-                                            class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill"
-                                            style="font-size: 0.75rem; font-weight: 700;">{{ $info->orphan_type ?? 'يتيم الأبوين' }}</span>
-                                        <span
-                                            class="badge bg-info-subtle text-dark border border-info-subtle fs-7 px-2.5 py-1 rounded-pill"
-                                            style="font-size: 0.75rem; font-weight: 700;">{{ $info->urgency_level ?? 'أشد حاجة' }}</span>
-                                    </div>
-                                    <div class="d-flex gap-3 text-muted text-small mb-3"
-                                        style="font-size: 0.85rem; font-weight: 600;">
-                                        <span><i class="bi bi-calendar3 text-primary-green me-1"></i>العمر
-                                            :{{ $info->age ?? '7' }} سنوات</span>
-                                        <span><i class="bi bi-shield-heart text-primary-green me-1"></i> الحالة:
-                                            {{ $info->health_status ?? 'سليم' }}</span>
-                                    </div>
-                                    <div class="mb-3 text-muted text-small"
-                                        style="font-size: 0.85rem; font-weight: 600;">
-                                        <i class="bi bi-book text-primary-green me-1"></i> التعليم: <span
-                                            class="fw-semibold text-dark">المرحلة
-                                            {{ $info->education_level ?? 'الابتدائية - الصف الأول' }}</span>
-                                    </div>
-                                    <p class="text-muted text-small small lh-base mb-4"
-                                        style="height: 72px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
-                                        {{ $info->story ??
-                                            ' ناجي وحيد من عائلته التي استشهدت في شمال غزة. يعيش الآن مع جده في مركز إيواء بدير
-                                            البلح برعاية جيدة
-                                            ولكنه يحتاج مستلزمات أساسية وطبابة مستمرة.' }}
-                                    </p>
-
-                                    <div class="mb-4">
-                                        <div class="d-flex justify-content-between text-small mb-1"
-                                            style="font-size: 0.82rem; font-weight: 700;">
-                                            <span class="text-muted">درجة اكتمال الكفالة</span>
-                                            <span class="fw-semibold text-success">0%</span>
-                                        </div>
-                                        <div class="progress"
-                                            style="height: 6px; background-color: var(--light-gray); border-radius: 999px; overflow: hidden;">
-                                            <div class="progress-bar" role="progressbar"
-                                                style="width: 0%; background-color: var(--secondary-gold);"
-                                                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="border-top pt-3 d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <span class="text-muted d-block text-small mb-1"
-                                                style="font-size: 0.75rem; font-weight: 700;">مبلغ
-                                                الكفالة</span>
-                                            <span class="fs-4 fw-black text-primary-green">$ 80</span> <span
-                                                class="text-muted text-small"
-                                                style="font-size: 0.8rem;">/شهرياً</span>
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('orphans_details', $info->id) }}" class="btn btn-primary">التفاصيل</a>
-                                            <a href="{{ route('step1', $info->id) }}"
-                                                class="btn btn-secondary btn-sm px-3 fw-bold rounded-pill">
-                                                اكفل</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                    @include('orphans-list', ['data' => $data])
                 </div>
 
             </div>
@@ -320,7 +220,8 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="index.html" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
+                        </li>
                         <li><a href="orphans.html" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
@@ -360,6 +261,79 @@
     </footer>
 
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1️⃣ إمساك العناصر من الـ DOM بالاستعانة بالـ ID الموجود بالواجهة
+            const searchInput = document.getElementById('search-input');
+            const filterCountry = document.getElementById('filter-country');
+            const filterGender = document.getElementById('filter-gender');
+            const resetBtn = document.getElementById('reset-filters');
+            const gridContainer = document.getElementById('orphans-list-grid');
+            const emptyState = document.getElementById('orphans-empty-state');
+
+            let debounceTimer; // متغيّر لحفظ الوقت عند الكتابة لتخفيف الطلبات (Debounce)
+
+            // 2️⃣ دالة إرسال طلب الـ Ajax وجلب البيانات من السيرفر
+            function fetchFilteredOrphans() {
+                // خفض الشفافية لإعطاء انطباع للمستخدم بأن البيانات جارٍ تحميلها
+                gridContainer.style.opacity = '0.4';
+
+                // تجميع معايير البحث المكتوبة والمحددة في عناصر الـ Input
+                const params = new URLSearchParams({
+                    search: searchInput.value.trim(),
+                    country: filterCountry.value,
+                    gender: filterGender.value
+                });
+
+                // إرسال طلب fetch إلى الـ Route
+                fetch(`{{ route('orphans') }}?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest' // هذا الهيدر يتيح للارافيل معرفة أن الطلب نوعه Ajax عبر $request->ajax()
+                        }
+                    })
+                    .then(response => response
+                .text()) // تحويل النتيجة المرتجعة لنص HTML (الذي يمثله كود ملف الـ partial)
+                    .then(html => {
+                        // استبدال كروت الأيتام الحالية بالـ HTML الجديد القادم من لارافيل
+                        gridContainer.innerHTML = html;
+                        gridContainer.style.opacity = '1'; // إعادة الشفافية لوضعها الطبيعي
+
+                        // إذا كان الـ HTML العائد فارغاً (لا توجد أيتام) نُظهر مربع "لم نجد نتائج"
+                        if (html.trim() === '') {
+                            emptyState.classList.remove('d-none');
+                        } else {
+                            emptyState.classList.add('d-none');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('حدث خطأ أثناء جلب البيانات:', error);
+                        gridContainer.style.opacity = '1';
+                    });
+            }
+
+            // 3️⃣ ربط الأحداث (Event Listeners)
+
+            // أ) عند الكتابة في مربع البحث باسم اليتيم (مع تأخير 300ms كي لا يرسل طلب مع كل حرف مباشرة)
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(fetchFilteredOrphans, 300);
+            });
+
+            // ب) عند تغيير دولة الموطن من الـ Select Box
+            filterCountry.addEventListener('change', fetchFilteredOrphans);
+
+            // ج) عند تغيير جنس اليتيم من الـ Select Box
+            filterGender.addEventListener('change', fetchFilteredOrphans);
+
+            // د) زر "إعادة ضبط" لتصفير كافة الخانات
+            resetBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                filterCountry.value = 'all';
+                filterGender.value = 'all';
+                fetchFilteredOrphans(); // جلب كافة الأيتام من جديد
+            });
+        });
+    </script>
 </body>
 
 </html>

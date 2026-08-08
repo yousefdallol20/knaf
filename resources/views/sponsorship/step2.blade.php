@@ -215,7 +215,7 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="index.html" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
                         <li><a href="orphans.html" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء

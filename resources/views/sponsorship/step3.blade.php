@@ -85,8 +85,8 @@
                                         <h5 class="fw-bold text-dark mb-3">ملخص الكفالة</h5>
 
                                         <div class="d-flex align-items-center gap-2 mb-3">
-                                            <img src="{{ asset('Uploads/orphans/' . $orphan->image) }}"
-                                                alt="{{ $orphan->name }}" class="rounded-circle shadow-xs"
+                                            <img src="{{ asset('Uploads/orphans/' . $orphan->image) }}" alt=" "
+                                                class="rounded-circle shadow-xs"
                                                 style="width:50px;height:50px;object-fit:cover;">
                                             <div>
                                                 <h6 class="fw-bold mb-0 text-dark">
@@ -101,7 +101,8 @@
                                         <hr>
                                         <div class="d-flex justify-content-between mb-2 text-small">
                                             <span class="text-muted">مبلغ الكفالة الشهري</span>
-                                            <span class="fw-bold text-dark" id="recap-base">$ {{ $amountToPay }}</span>
+                                            <span class="fw-bold text-dark" id="recap-base">$
+                                                {{ $orphan->required_amount }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2 text-small">
                                             <span class="text-muted">رسوم البوابة والضرائب</span>
@@ -110,8 +111,8 @@
                                         <hr>
                                         <div class="d-flex justify-content-between align-items-center text-dark">
                                             <span class="fw-bold">المبلغ الإجمالي المحصل</span>
-                                            <strong class="fs-4 text-primary-green" id="recap-total">$
-                                                {{ $amountToPay }}</strong>
+                                            <strong class="fs-4 text-primary-green" id="recap-total">
+                                                {{ $orphan->required_amount }}$</strong>
                                         </div>
                                     </div>
                                 </div>

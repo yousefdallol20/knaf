@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Sponsorship extends Model
 {
+    use Notifiable;
     protected $table = 'sponsorships';
     protected $guarded = [];
 

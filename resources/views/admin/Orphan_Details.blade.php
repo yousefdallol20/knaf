@@ -491,7 +491,7 @@
             <div class="brand">
                 <h5 class="text-primary-green mb-0 fw-bold d-inline-block">لوحة تحكّم كَنَفْ</h5>
                 <button type="button" class="btn-close btn-close-white d-lg-none ms-auto" aria-label="إغلاق القائمة"
-                    onclick="document.getElementById('kanaf-sidebar-wrapper').classList.remove('show');"></button>
+                    onclick="document.getElementById('kanaf-sidebar-wrapper').classList.remove('show'); document.getElementById('kanaf-sidebar-backdrop').classList.remove('show');"></button>
             </div>
 
             <ul class="sidebar-menu flex-grow-1" id="dynamic-menu-list">
@@ -521,7 +521,8 @@
                     <a href="{{ route('admin.users.index') }}"><i class="bi bi-person-circle"></i> إدارة المستخدمين</a>
                 </li>
                 <li class="menu-item" id="menu-permissions">
-                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات والأدوار</a>
+                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات
+                        والأدوار</a>
                 </li>
                 <li class="menu-item" id="menu-reports">
                     <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير
@@ -538,6 +539,14 @@
                     <a href="{{ route('admin.settings.index') }}"><i class="bi bi-gear-fill"></i> الإعدادات</a>
                 </li>
             </ul>
+
+            <div class="p-3 border-top mt-auto">
+                <a href="{{ route('dashboard_admin') }}"
+                    class="btn btn-outline-primary w-full d-flex align-items-center justify-content-center gap-2 py-2">
+                    <i class="bi bi-arrow-right-short fs-5"></i>
+                    <span>العودة للرئيسية</span>
+                </a>
+            </div>
         </div>
 
         <div class="main-content">
@@ -553,8 +562,8 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="../assets/images/admin.jpg" alt="رمز" class="rounded-circle"
-                                width="30" height="30" style="object-fit: cover;">
+                            <img src="../assets/images/admin.jpg" alt=" " class="rounded-circle" width="30"
+                                height="30" style="object-fit: cover;">
                             <span class="text-small fw-bold">أ. عبد الرحمن البكري</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
@@ -591,21 +600,32 @@
                     <!-- العمود الأيمن (اليتيم والقرار) -->
                     <div class="right-sidebar">
                         <div class="orphan-photo-card">
-                            <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}"
-                                alt="صورة اليتيم">
+                            <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}" alt=" ">
                             <h2>{{ $orphan->name }}</h2>
                             <div style="margin-bottom: 15px;">
-
-                                @if ($orphan->status)
+                                @if (empty($orphan->status) || in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'جديد']))
                                     <span
-                                        class="badge-kanaf badge-active text-success bg-success-subtle py-1 px-2 rounded-2"><i
-                                            class="bi bi-check-circle"></i>
-                                        مكفول</span>
+                                        class="badge-kanaf badge-pending text-warning bg-warning-subtle py-1 px-2 rounded-2">
+                                        بانتظار القبول
+                                    </span>
+                                @elseif (in_array($orphan->status, ['approved_unsponsored', 'approved', 'بانتظار كفيل', 'بانتظار الكفالة', 'غير مكفول']))
+                                    <span
+                                        class="badge-kanaf badge-pending text-primary bg-primary-subtle py-1 px-2 rounded-2">
+                                        غير مكفول
+                                    </span>
+                                @elseif (in_array($orphan->status, ['sponsored', 'مكفول']))
+                                    <span
+                                        class="badge-kanaf badge-active text-success bg-success-subtle py-1 px-2 rounded-2">
+                                        مكفول
+                                    </span>
+                                @elseif (in_array($orphan->status, ['rejected', 'مرفوض', 'mrfod']))
+                                    <span class="badge-kanaf text-danger bg-danger-subtle py-1 px-2 rounded-2">
+                                        مرفوض
+                                    </span>
                                 @else
-                                    <span
-                                        class="badge-kanaf badge-pending text-primary bg-primary-subtle py-1 px-2 rounded-2"><i
-                                            class="bi bi-x-circle"></i>
-                                        غير مكفول</span>
+                                    <span class="badge-kanaf text-secondary bg-secondary-subtle py-1 px-2 rounded-2">
+                                        {{ $orphan->status }}
+                                    </span>
                                 @endif
                             </div>
                         </div>
@@ -665,14 +685,51 @@
                             </div>
                         </div>
 
+                        <!-- تم إضافة شرط Blade لاختفاء الأزرار عند الموافقة أو الرفض -->
+                        <!-- بعد التعديل -->
+                        {{-- 2. أزرار اتخاذ القرار والتنبيه --}}
                         <div class="actions-wrapper">
-                            <button class="btn-action btn-approve" id="btnApprove">
-                                <i class="bi bi-check-circle"></i> قبول واعتماد اليتيم
-                            </button>
-                            <button class="btn-action btn-reject" id="btnReject">
-                                <i class="bi bi-x-circle"></i> رفض الطلب الحالي
-                            </button>
+                            @if (empty($orphan->status) ||
+                                    in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'بانتظار القبول', 'جديد']))
+                                {{-- حالة طلب جديد ينتظر الاعتماد --}}
+                                <div class="alert alert-warning text-center mb-2 border-0 fw-bold py-2">
+                                    <i class="bi bi-clock-history me-1"></i> الملف بانتظار المراجعة والقبول
+                                </div>
+                                <button class="btn-action btn-approve" id="btnApprove">
+                                    <i class="bi bi-check-circle"></i> قبول واعتماد اليتيم
+                                </button>
+                                <button class="btn-action btn-reject" id="btnReject">
+                                    <i class="bi bi-x-circle"></i> رفض الطلب الحالي
+                                </button>
+                            @elseif (in_array($orphan->status, ['rejected', 'مرفوض', 'mrfod']))
+                                {{-- حالة الملف المرفوض --}}
+                                <div class="alert alert-danger text-center mb-2 border-0 fw-bold py-2">
+                                    <i class="bi bi-x-circle-fill me-1"></i> تم رفض هذا الطلب
+                                </div>
+                                <button class="btn-action btn-approve" id="btnApprove">
+                                    <i class="bi bi-arrow-counterclockwise"></i> إعادة قبول وإدراج اليتيم
+                                </button>
+                            @else
+                                {{-- حالة الملف المقبول أو المكفول --}}
+                                <div class="alert alert-success text-center mb-2 border-0 fw-bold py-2"
+                                    style="background-color: var(--secondary-green); color: var(--primary-green); border-radius: 8px;">
+                                    <i class="bi bi-check-circle-fill me-1"></i> تمت مراجعة الملف واعتتماده
+                                </div>
+                                <button class="btn-action btn-reject" id="btnReject">
+                                    <i class="bi bi-x-circle"></i> تغيير الحالة إلى مرفوض
+                                </button>
+                            @endif
                         </div>
+
+                        {{-- 3. مبلغ الكفالة المقترح --}}
+                        <strong class="data-value" style="color:var(--primary-green); font-size:1.1rem;">
+                            @if (empty($orphan->status) ||
+                                    in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'بانتظار القبول', 'جديد']))
+                                <span class="text-muted fs-6">غير محدد بعد</span>
+                            @else
+                                {{ $orphan->required_amount ? number_format($orphan->required_amount, 2) . ' $' : 'غير محدد' }}
+                            @endif
+                        </strong>
                     </div>
 
                     <!-- العمود الأيسر (تفاصيل العائلة والسكن والمالية) -->
@@ -857,8 +914,13 @@
                                             <span class="data-label" style="display:block; margin-bottom:4px;">مبلغ
                                                 الكفالة المقترح</span>
                                             <strong class="data-value"
-                                                style="color:var(--primary-green); font-size:1.1rem;">{{ number_format($orphan->required_amount, 2) }}
-                                                $</strong>
+                                                style="color:var(--primary-green); font-size:1.1rem;">
+                                                @if (empty($orphan->status) || in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'جديد']))
+                                                    <span class="text-muted fs-6">غير محدد بعد</span>
+                                                @else
+                                                    {{ $orphan->required_amount ? number_format($orphan->required_amount, 2) . ' $' : 'غير محدد' }}
+                                                @endif
+                                            </strong>
                                         </div>
                                     </div>
                                 </div>
@@ -958,8 +1020,8 @@
                         <label class="form-label" for="required_amount">تحديد سعر الكفالة الشهرية المقترحة
                             لليتيم</label>
                         <div class="form-input-wrapper">
-                            <input type="number" name="required_amount" id="required_amount"
-                                class="form-input form-input-number" value="{{ $orphan->required_amount }}"
+                            <input type="number" step="0.01" name="required_amount" id="required_amount"
+                                class="form-input form-input-number" value="{{ $orphan->required_amount ?? 50.0 }}"
                                 min="10" required>
                             <span class="currency-label">دولار ($) / شهرياً</span>
                         </div>
@@ -1021,21 +1083,25 @@
         const closeRejectModalBtn = document.getElementById('closeRejectModalBtn');
         const cancelRejectModalBtn = document.getElementById('cancelRejectModalBtn');
 
-        // أحداث مودال القبول
-        btnApprove.addEventListener('click', () => {
-            approveModal.classList.add('open');
-        });
-        const closeApproveModal = () => approveModal.classList.remove('open');
-        closeApproveModalBtn.addEventListener('click', closeApproveModal);
-        cancelApproveModalBtn.addEventListener('click', closeApproveModal);
+        // أحداث مودال القبول (يتم فحص وجود العناصر لتجنب أخطاء JS عند اختفاء الأزرار)
+        if (btnApprove) {
+            btnApprove.addEventListener('click', () => {
+                approveModal.classList.add('open');
+            });
+            const closeApproveModal = () => approveModal.classList.remove('open');
+            closeApproveModalBtn.addEventListener('click', closeApproveModal);
+            cancelApproveModalBtn.addEventListener('click', closeApproveModal);
+        }
 
         // أحداث مودال الرفض
-        btnReject.addEventListener('click', () => {
-            rejectModal.classList.add('open');
-        });
-        const closeRejectModal = () => rejectModal.classList.remove('open');
-        closeRejectModalBtn.addEventListener('click', closeRejectModal);
-        cancelRejectModalBtn.addEventListener('click', closeRejectModal);
+        if (btnReject) {
+            btnReject.addEventListener('click', () => {
+                rejectModal.classList.add('open');
+            });
+            const closeRejectModal = () => rejectModal.classList.remove('open');
+            closeRejectModalBtn.addEventListener('click', closeRejectModal);
+            cancelRejectModalBtn.addEventListener('click', closeRejectModal);
+        }
     </script>
 </body>
 
