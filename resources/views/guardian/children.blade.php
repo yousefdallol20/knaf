@@ -307,11 +307,14 @@
                                                 </tr>
                                                 <tr>
                                                     <th>التقييم</th>
-                                                    <td>5/5</td>
+                                                    <td>
+                                                        ({{ $info->rating ?? 1 }}/5)</span>
+
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <th>رقم العائلة</th>
-                                                    <td>103</td>
+                                                    <td>{{ 100 + $info->id }}</td>
                                                 </tr>
                                             </table>
                                         </div>

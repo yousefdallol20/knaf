@@ -95,10 +95,13 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="{{ route('profile_sponser') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100">
+                                <button type="submit"
+                                    class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100">
                                     <i class="bi bi-box-arrow-right me-2"></i> خروج آمن
                                 </button>
                             </form>
@@ -114,7 +117,8 @@
                     style="background: linear-gradient(135deg, var(--primary-green) 0%, #114b2d 100%);">
                     <div class="max-w-xl">
                         <h2 class="fw-bold mb-2">تقبّل الله طاعتكم وجزاكم خيراً، أ. {{ $user->name }}</h2>
-                        <p class="mb-0 text-white-50">مرحباً بك مجدداً في لوحة المتابعة الشاملة لليتامى المكفولين تحت اسمك الكريم.</p>
+                        <p class="mb-0 text-white-50">مرحباً بك مجدداً في لوحة المتابعة الشاملة لليتامى المكفولين تحت
+                            اسمك الكريم.</p>
                     </div>
                 </div>
 
@@ -160,10 +164,10 @@
                     <!-- Chart Section -->
                     <div class="col-lg-7">
                         <div class="bg-white p-4 rounded-4 shadow-sm border h-100">
-                            <h5 class="fw-bold mb-4 text-dark">
-                                <i class="bi bi-bar-chart-line-fill text-primary-green me-2"></i> سجل المساهمة الشهرية عبر كنف
-                            </h5>
-                            <div style="height: 300px; position: relative;">
+                            <h5 class="fw-bold mb-4 text-dark"><i
+                                    class="bi bi-bar-chart-line-fill text-primary-green me-2"></i> سجل
+                                المساهمة الشهرية عبر كنف</h5>
+                            <div style="height: 300px;">
                                 <canvas id="payment-chart"></canvas>
                             </div>
                         </div>
@@ -176,7 +180,8 @@
                                 <h5 class="fw-bold mb-0 text-dark">
                                     <i class="bi bi-people-fill text-primary-green me-2"></i> كفالاتي السارية
                                 </h5>
-                                <a href="{{ route('sponsorships') }}" class="text-caption text-primary-green text-decoration-none">
+                                <a href="{{ route('sponsorships') }}"
+                                    class="text-caption text-primary-green text-decoration-none">
                                     عرض الكل <i class="bi bi-chevron-left text-small align-middle"></i>
                                 </a>
                             </div>
@@ -184,18 +189,23 @@
                             <div class="d-flex flex-column gap-3">
                                 @forelse($sponsorships as $sponsorship)
                                     @if ($sponsorship->orphan)
-                                        <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3 border">
+                                        <div
+                                            class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3 border">
                                             <div class="d-flex align-items-center gap-3">
                                                 <img src="{{ $sponsorship->orphan->personal_photo_path ? asset('Uploads/orphans/' . $sponsorship->orphan->personal_photo_path) : asset('assets/images/Default.png') }}"
-                                                    class="rounded-circle shadow-xs" width="45" height="45" style="object-fit:cover;">
+                                                    class="rounded-circle shadow-xs" width="45" height="45"
+                                                    style="object-fit:cover;">
                                                 <div>
-                                                    <h6 class="fw-bold mb-1 text-dark text-small">{{ $sponsorship->orphan->name }}</h6>
+                                                    <h6 class="fw-bold mb-1 text-dark text-small">
+                                                        {{ $sponsorship->orphan->name }}</h6>
                                                     <span class="text-muted text-small d-block">
-                                                        <i class="bi bi-calendar3"></i> العمر: {{ $sponsorship->orphan->age ?? 'غير محدد' }} سنوات
+                                                        <i class="bi bi-calendar3"></i> العمر:
+                                                        {{ $sponsorship->orphan->age ?? 'غير محدد' }} سنوات
                                                     </span>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('sponsorship_detail', $sponsorship->orphan_id) }}" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
+                                            <a href="{{ route('sponsorship_detail', $sponsorship->orphan_id) }}"
+                                                class="btn btn-outline-primary btn-sm px-3 fw-semibold">
                                                 التفاصيل
                                             </a>
                                         </div>
@@ -214,48 +224,79 @@
 
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 
-    <!-- تشغيل Chart.js ورسم البيانات من لارافيل -->
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const ctx = document.getElementById('payment-chart').getContext('2d');
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('payment-chart');
+        if (!ctx) return;
 
-            const labels = {!! json_encode($chartLabels) !!};
-            const data = {!! json_encode($chartData) !!};
+        const labels = @json($chartLabels) || ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
+        const dataValues = @json($chartData) || [650, 650, 650, 950, 950, 950];
 
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'مبلغ المساهمة ($)',
-                        data: data,
-                        backgroundColor: '#1E7548',
-                        borderColor: '#114b2d',
-                        borderWidth: 1,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'المدفوعات الشهرية لشراكة الكفالة ($)',
+                    data: dataValues,
+                    borderColor: '#114b2d',
+                    backgroundColor: 'rgba(17, 75, 45, 0.05)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#f59e0b',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                family: 'inherit',
+                                size: 13
+                            }
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value;
-                                }
+                    tooltip: {
+                        rtl: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.raw;
                             }
                         }
                     }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1000,
+                        ticks: {
+                            stepSize: 100,
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        },
+                        grid: {
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
                 }
-            });
+            }
         });
+    });
     </script>
 </body>
 

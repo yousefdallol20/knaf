@@ -119,7 +119,55 @@ class GuardiansController extends Controller
         if (!$user) {
             return redirect()->route('login');
         }
-        return view('guardian.child-form', ['user' => $user]);
+
+        // جلب آخر بيانات وصي مسجلة لنفس هذا الحساب إن وجدت
+        $existingGuardian = Guardian::where('user_id', $user->id)->latest()->first();
+        $existingHousing = null;
+        $existingFinancial = null;
+        $existingParents = null;
+
+        if ($existingGuardian) {
+            $existingHousing = Housing::where('orphan_id', $existingGuardian->orphan_id)->first();
+            $existingFinancial = financial_data::where('orphan_id', $existingGuardian->orphan_id)->first();
+            $existingParents = Parents::where('orphan_id', $existingGuardian->orphan_id)->first();
+        }
+
+        $prefill = [
+            // الوصي
+            'guardian_name'           => $existingGuardian->name ?? $user->name,
+            'guardian_national_id'    => $existingGuardian->national_id ?? '',
+            'guardian_birth_date'     => isset($existingGuardian->birth_date) ? substr((string)$existingGuardian->birth_date, 0, 10) : '',
+            'guardian_relationship'   => $existingGuardian->kinship_relation ?? '',
+            'guardian_marital_status' => $existingGuardian->marital_status ?? '',
+            'guardian_health_status'  => $existingGuardian->health_status ?? '',
+            'guardian_health_details' => $existingGuardian->health_details ?? '',
+            'family_income_source'    => $existingGuardian->income_source ?? '',
+
+            // بيانات الأب (لأن الأبناء غالباً من نفس الأب)
+            'father_name'         => $existingParents->name ?? '',
+            'father_national_id'  => $existingParents->national_id ?? '',
+            'father_death_date'   => isset($existingParents->death_date) ? substr((string)$existingParents->death_date, 0, 10) : '',
+            'father_death_reason' => $existingParents->death_reason ?? '',
+            'mother_alive'        => isset($existingParents) ? ($existingParents->is_mother_alive ? 'yes' : 'no') : 'yes',
+
+            // السكن والنزوح (تتشارك فيه العائلة)
+            'housing_type'                     => $existingHousing->current_housing_type ?? '',
+            'housing_condition'                => $existingHousing->housing_condition ?? '',
+            'housing_damage_details'           => $existingHousing->damage_description ?? '',
+            'original_city'                    => $existingHousing->original_city ?? '',
+            'current_displacement_destination' => $existingHousing->current_displacement_destination ?? '',
+            'current_address_details'          => $existingHousing->detailed_current_address ?? '',
+
+            // المالية (تتشارك فيها العائلة)
+            'financial_entity'        => $existingFinancial->official_receiving_entity ?? '',
+            'account_holder_name'     => $existingFinancial->account_holder_name ?? '',
+            'iban_or_account_number'  => $existingFinancial->bank_account_or_iban ?? '',
+        ];
+
+        return view('guardian.child-form', [
+            'user' => $user,
+            'prefill' => $prefill
+        ]);
     }
 
     // عرض نفس فورم الإنشاء لكن معبأ ببيانات اليتيم وعائلته (وضع التعديل)
@@ -145,6 +193,7 @@ class GuardiansController extends Controller
             // اليتيم
             'child_first_name'       => $orphan->first_name,
             'child_full_name'        => $orphan->name,
+            'child_rating'           => $orphan->rating ?? 1, // جلب التقييم الرقمي المخزن بالجدول
             'child_national_id'      => $orphan->national_id,
             'child_birth_date'       => $d($orphan->birth_date),
             'child_age'              => $orphan->age,
@@ -210,6 +259,9 @@ class GuardiansController extends Controller
             // 1) اليتيم
             $orphan->first_name = $request->child_first_name;
             $orphan->name = $request->child_full_name;
+            // بدلاً من $request->child_financial_rating
+            // في دالة update ودالة new_child_form
+            $orphan->rating = $request->input('child_rating', 1);
             $orphan->national_id = $request->child_national_id;
             $orphan->birth_date = $request->child_birth_date;
             $orphan->age = $request->child_age;
@@ -386,6 +438,8 @@ class GuardiansController extends Controller
             $orphan->is_critically_needy = $request->has('badge_extreme_need') ? 1 : 0;
             $orphan->is_war_injured = $request->has('badge_injured') ? 1 : 0;
             $orphan->has_chronic_disease = $request->has('badge_chronic_disease') ? 1 : 0;
+            // في دالة update ودالة new_child_form
+            $orphan->rating = $request->input('child_rating', 1);
 
             $orphan->health_status = $request->child_health_status;
             $orphan->health_description = $request->child_medical_needs;

@@ -454,7 +454,8 @@
                                                 الشخصية</label>
                                             <input type="text" name="guardian_national_id" class="form-control"
                                                 placeholder="9 خانات رقمية"
-                                                value="{{ old('guardian_national_id', $prefill['guardian_national_id'] ?? '') }}">
+                                                value="{{ old('guardian_national_id', $prefill['guardian_national_id'] ?? '') }}"
+                                                {{ !empty($prefill['guardian_national_id']) ? 'readonly' : '' }}>
                                             @error('guardian_national_id')
                                                 <span class="error-msg"
                                                     style="color: rgb(255, 0, 0)">{{ $message }}</span>
@@ -1444,7 +1445,7 @@
             4: ['financial_entity', 'account_holder_name', 'iban_or_account_number', 'family_financial_rating'],
             5: ['child_first_name', 'child_full_name', 'child_national_id', 'child_birth_date', 'child_age',
                 'child_gender', 'child_education_status', 'child_presence_status', 'child_health_status',
-                'legal_affirmation'
+                'child_rating', 'legal_affirmation'
             ],
         };
 
