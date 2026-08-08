@@ -79,13 +79,22 @@ class SponsorController extends Controller
             return redirect()->route('login');
         }
 
+        // 1️⃣ جلب أحدث ID لكل عملية كفالة/دفعة خاصة بكل يتيم فريد للكافل الحالي
+        $latestIds = Sponsorship::where('sponsor_id', $sponsor->id)
+            ->select(DB::raw('MAX(id) as id'))
+            ->groupBy('orphan_id')
+            ->pluck('id');
+
+        // 2️⃣ جلب البيانات واستخدام paginate للحفاظ على كائن التصفح (Pagination)
         $sponsorships = Sponsorship::with('orphan')
-            ->where('sponsor_id', $sponsor->id)
+            ->whereIn('id', $latestIds)
+            ->latest()
             ->paginate(10);
 
         return view('sponsor.sponsorships', compact('user', 'sponsorships'));
     }
 
+    // عرض تفاصيل كفالة يتيم محدد
     // عرض تفاصيل كفالة يتيم محدد
     public function sponsorship_detail(string $id)
     {
@@ -96,13 +105,25 @@ class SponsorController extends Controller
             return redirect()->route('login');
         }
 
-        // جلب الكفالة مع جلب كلاً من الأيتام والوثائق والمدفوعات
-        $sponsorship = Sponsorship::with(['orphan', 'orphan.documents'])
+        // 1️⃣ جلب بيانات اليتيم والعقد الأول
+        $sponsorship = Sponsorship::with(['orphan'])
             ->where('sponsor_id', $sponsor->id)
             ->where('orphan_id', $id)
             ->firstOrFail();
 
-        return view('sponsor.sponsorship-detail', compact('user', 'sponsorship'));
+        // 2️⃣ جلب جميع عمليات الدفع المنجزة لهذا الطفل من قبل هذا الكافل (لتظهر كاملة في جدول سجل المدفوعات)
+        $allPayments = Sponsorship::where('sponsor_id', $sponsor->id)
+            ->where('orphan_id', $id)
+            ->latest()
+            ->get();
+
+        // 3️⃣ جلب فقط المستندات والتقارير المعتمدة والمقبولة من الأدمن
+        $documents =  documents::where('orphan_id', $id)
+            ->whereIn('status', ['مقبول', 'موافق عليه', 'approved'])
+            ->latest()
+            ->get();
+
+        return view('sponsor.sponsorship-detail', compact('user', 'sponsorship', 'allPayments', 'documents'));
     }
 
     // عرض سجل المدفوعات والاشتراكات
@@ -243,7 +264,7 @@ class SponsorController extends Controller
         AuditLog::create([
             'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
             'action'  => 'دفع مستحقات',
-            'details' => 'تم دفع المستحقالت الخاصة بالطفل '. $request->name.'المتعلقة بالشهر الحال',
+            'details' => 'تم دفع المستحقالت الخاصة بالطفل ' . $request->name . 'المتعلقة بالشهر الحال',
         ]);
 
         // 🔔 إرسال إشعار للوصي (أهل الطفل) بوجود كفالة/دفعة من الكافل

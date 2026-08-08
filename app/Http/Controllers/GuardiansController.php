@@ -101,7 +101,10 @@ class GuardiansController extends Controller
             ->get();
 
         // 3. جلب كافة المستندات التابعة لهؤلاء الأطفال
-        $document = documents::whereIn('orphan_id', $orphanIds)->get();
+        // 3. جلب المستندات المقبولة فقط من الأدمن
+        $document = documents::whereIn('orphan_id', $orphanIds)
+            ->where('status', 'مقبول')
+            ->get();
 
         return view('guardian.children', [
             'orphan'   => $orphan,
@@ -317,7 +320,7 @@ class GuardiansController extends Controller
             AuditLog::create([
                 'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
                 'action'  => 'تعديل بيانات طفل',
-                'details' => 'تم تحديث على بيانات الطفل '. $orphan->name,
+                'details' => 'تم تحديث على بيانات الطفل ' . $orphan->name,
             ]);
 
             return redirect()->route('children')->with('success', 'تم تحديث بيانات اليتيم وعائلته بنجاح.');
@@ -340,7 +343,7 @@ class GuardiansController extends Controller
         AuditLog::create([
             'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
             'action'  => 'حذف طفل',
-            'details' => 'تم حذف الطفل '. $orphan->name,
+            'details' => 'تم حذف الطفل ' . $orphan->name,
         ]);
 
         return redirect()->route('children')->with('success', 'تم حذف اليتيم وكافة بياناته المرتبطة بنجاح.');

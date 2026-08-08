@@ -89,16 +89,20 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
-                                alt="رمز" class="rounded-circle" width="30" height="30" style="object-fit: cover;">
+                                alt="رمز" class="rounded-circle" width="30" height="30"
+                                style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="{{ route('profile_sponser') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100">
+                                <button type="submit"
+                                    class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100">
                                     <i class="bi bi-box-arrow-right me-2"></i> خروج آمن
                                 </button>
                             </form>
@@ -112,9 +116,12 @@
                 <div class="mb-4">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard_sponsor') }}" class="text-primary-green text-decoration-none">الرئيسية</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('sponsorships') }}" class="text-primary-green text-decoration-none">كفالاتي السارية</a></li>
-                            <li class="breadcrumb-item active" aria-current="page" id="breadcrumb-title">تفاصيل الكفالة</li>
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard_sponsor') }}"
+                                    class="text-primary-green text-decoration-none">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('sponsorships') }}"
+                                    class="text-primary-green text-decoration-none">كفالاتي السارية</a></li>
+                            <li class="breadcrumb-item active" aria-current="page" id="breadcrumb-title">تفاصيل الكفالة
+                            </li>
                         </ol>
                     </nav>
                 </div>
@@ -124,10 +131,10 @@
                         @php
                             $orphan = $sponsorship->orphan;
                             // جلب المبلغ إما من الكفالة أو من اليتيم مباشرة
-                            $amountDisplay = $sponsorship->amount
-                                ?? $sponsorship->amount_paid
-                                ?? $sponsorship->required_amount
-                                ?? ($orphan ? $orphan->required_amount : 0);
+                            $amountDisplay =
+                                $sponsorship->amount ??
+                                ($sponsorship->amount_paid ??
+                                    ($sponsorship->required_amount ?? ($orphan ? $orphan->required_amount : 0)));
                         @endphp
 
                         <!-- Left sidebar in detail workspace: Child core card -->
@@ -147,28 +154,34 @@
                                 <div class="bg-light p-3 rounded-3 text-start mb-4">
                                     <div class="d-flex justify-content-between mb-2 text-small">
                                         <span class="text-muted">العمر الحالي</span>
-                                        <strong class="text-dark" id="detail-orphan-age">{{ $orphan->age ?? '-' }} سنوات</strong>
+                                        <strong class="text-dark" id="detail-orphan-age">{{ $orphan->age ?? '-' }}
+                                            سنوات</strong>
                                     </div>
                                     <div class="d-flex justify-content-between mb-2 text-small">
                                         <span class="text-muted">المرحلة التعليمية</span>
-                                        <strong class="text-dark" id="detail-orphan-education">{{ $orphan->education_level ?? '-' }}</strong>
+                                        <strong class="text-dark"
+                                            id="detail-orphan-education">{{ $orphan->education_level ?? '-' }}</strong>
                                     </div>
                                     <div class="d-flex justify-content-between mb-2 text-small">
                                         <span class="text-muted">الحالة الصحية</span>
-                                        <strong class="text-dark" id="detail-orphan-health">{{ $orphan->health_status ?? '-' }}</strong>
+                                        <strong class="text-dark"
+                                            id="detail-orphan-health">{{ $orphan->health_status ?? '-' }}</strong>
                                     </div>
                                     <div class="d-flex justify-content-between mb-0 text-small">
                                         <span class="text-muted">مبلغ الكفالة الشهري</span>
-                                        <strong class="text-success fw-bold">${{ number_format($amountDisplay, 2) }}</strong>
+                                        <strong
+                                            class="text-success fw-bold">${{ number_format($amountDisplay, 2) }}</strong>
                                     </div>
                                 </div>
                                 <div class="d-grid gap-2">
                                     <!-- تفعيل زر سداد الكفالة ليأخذك مباشرة لخطوة السداد -->
-                                    <a href="{{ route('step1', $orphan->id ?? $sponsorship->orphan_id) }}" class="btn btn-secondary fw-bold py-2">
+                                    <a href="{{ route('step1', $orphan->id ?? $sponsorship->orphan_id) }}"
+                                        class="btn btn-secondary fw-bold py-2">
                                         <i class="bi bi-wallet2 me-1"></i> سداد استحقاق الكفالة القادمة
                                     </a>
                                     <!-- تفعيل زر مشاهدة الملف التفصيلي لليتيم -->
-                                    <a href="{{ route('orphans_details', $orphan->id ?? $sponsorship->orphan_id) }}" id="btn-view-public" class="btn btn-outline-primary py-2 btn-sm">
+                                    <a href="{{ route('orphans_details', $orphan->id ?? $sponsorship->orphan_id) }}"
+                                        id="btn-view-public" class="btn btn-outline-primary py-2 btn-sm">
                                         مشاهدة الملف التفصيلي
                                     </a>
                                 </div>
@@ -193,19 +206,21 @@
                                             data-bs-toggle="tab" data-bs-target="#tab-payments" type="button"
                                             role="tab" aria-controls="tab-payments" aria-selected="true">
                                             <i class="bi bi-credit-card-fill me-1"></i> سجل المدفوعات للطفل
+                                            ({{ $allPayments->count() }})
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link text-small fw-semibold" id="tab-reports-btn"
                                             data-bs-toggle="tab" data-bs-target="#tab-reports" type="button"
                                             role="tab" aria-controls="tab-reports" aria-selected="false">
-                                            <i class="bi bi-file-earmark-person-fill me-1"></i> وثائق وتقارير الوصي المرفوعة
+                                            <i class="bi bi-file-earmark-person-fill me-1"></i> وثائق وتقارير الوصي
+                                            المعتمدة ({{ $documents->count() }})
                                         </button>
                                     </li>
                                 </ul>
 
                                 <div class="tab-content" id="detailTabsContent">
-                                    <!-- Payments List -->
+                                    <!-- 1️⃣ سجل جميع المدفوعات للطفل -->
                                     <div class="tab-pane fade show active" id="tab-payments" role="tabpanel"
                                         aria-labelledby="tab-payments-btn">
                                         <div class="table-responsive">
@@ -220,80 +235,85 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @if (isset($sponsorship->payments) && $sponsorship->payments->count() > 0)
-                                                        @foreach ($sponsorship->payments as $payment)
-                                                            <tr>
-                                                                <td>{{ $payment->reference_number ?? ('KNF-' . $payment->id) }}</td>
-                                                                <td>{{ $payment->payment_date ?? $payment->created_at->format('Y-m-d') }}</td>
-                                                                <td class="fw-bold text-success">
-                                                                    ${{ number_format($payment->amount ?? $amountDisplay, 2) }}
-                                                                </td>
-                                                                <td>{{ $payment->payment_method ?? 'بطاقة إلكترونية' }}</td>
-                                                                <td>
-                                                                    <span class="badge bg-success">{{ $payment->status ?? 'مؤكدة' }}</span>
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <!-- عرض سجل الكفالة الرئيسي في حال عدم وجود جدول مدفوعات فرعي -->
+                                                    @forelse ($allPayments as $payment)
                                                         <tr>
-                                                            <td>KNF-2026-{{ $sponsorship->id }}</td>
-                                                            <td>{{ $sponsorship->last_batch ?? \Carbon\Carbon::parse($sponsorship->start_date ?? now())->format('Y-m-d') }}</td>
-                                                            <td class="fw-bold text-success">${{ number_format($amountDisplay, 2) }}</td>
-                                                            <td>{{ $sponsorship->payment_method == 'card' ? 'بطاقة إلكترونية' : ($sponsorship->payment_method == 'bank_transfer' ? 'تحويل بنكي' : ($sponsorship->payment_method ?? 'بطاقة ائتمان')) }}</td>
+                                                            <td>KNF-2026-{{ $payment->id }}</td>
+                                                            <td>{{ $payment->last_batch ?? $payment->created_at->format('Y-m-d') }}
+                                                            </td>
+                                                            <td class="fw-bold text-success">
+                                                                ${{ number_format($payment->amount_paid ?? ($payment->amount ?? ($sponsorship->orphan->required_amount ?? 50)), 2) }}
+                                                            </td>
                                                             <td>
-                                                                @if(in_array($sponsorship->payment_status, ['paid', 'مؤكدة', 'مقبول', 'تم الموافقة']))
+                                                                {{ $payment->payment_method == 'card' ? 'بطاقة إلكترونية' : ($payment->payment_method == 'bank_transfer' ? 'تحويل بنكي' : $payment->payment_method ?? 'بطاقة إلكترونية') }}
+                                                            </td>
+                                                            <td>
+                                                                @if (in_array($payment->payment_status, ['paid', 'مؤكدة', 'مقبول', 'تم الموافقة']))
                                                                     <span class="badge bg-success">مؤكدة</span>
                                                                 @else
-                                                                    <span class="badge bg-warning text-dark">قيد المراجعة</span>
+                                                                    <span class="badge bg-warning text-dark">قيد
+                                                                        المراجعة</span>
                                                                 @endif
                                                             </td>
                                                         </tr>
-                                                    @endif
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="5" class="text-center py-4 text-muted">لا
+                                                                توجد عمليات دفع مسجلة لهذا الطفل حتى الآن.</td>
+                                                        </tr>
+                                                    @endforelse
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
 
-                                    <!-- Reports & Documentation List -->
-                                    <div class="tab-pane fade" id="tab-reports" role="tabpanel" aria-labelledby="tab-reports-btn">
+                                    <!-- 2️⃣ الوثائق والتقارير المعتمدة من الأدمن فقط -->
+                                    <div class="tab-pane fade" id="tab-reports" role="tabpanel"
+                                        aria-labelledby="tab-reports-btn">
                                         <div class="row g-3">
-                                            @if($orphan && $orphan->documents && $orphan->documents->count() > 0)
-                                                @foreach($orphan->documents as $document)
-                                                    <div class="col-md-6">
-                                                        <div class="bg-light p-3 rounded-3 border">
-                                                            <span class="badge bg-success">معتمد</span>
-                                                            <h6 class="mt-3 text-dark fw-bold">
-                                                                @if (str_contains(strtolower($document->document_type ?? ''), 'صح') || str_contains($document->document_type ?? '', 'طب'))
-                                                                    <i class="bi bi-heart-pulse-fill text-danger me-1"></i>
-                                                                @else
-                                                                    <i class="bi bi-journal-bookmark-fill text-primary me-1"></i>
-                                                                @endif
-                                                                {{ $document->document_type ?? $document->title ?? 'تقرير رسمي' }}
-                                                            </h6>
-                                                            <p class="text-muted text-caption mb-3">
-                                                                الرافع: {{ $orphan->guardian->name ?? 'والدة اليتيم (الوصي)' }}
-                                                            </p>
-                                                            <a href="{{ asset($document->file_path ? (str_starts_with($document->file_path, 'Uploads/') ? $document->file_path : 'Uploads/document/' . $document->file_path) : '#') }}"
-                                                                target="_blank" class="btn btn-outline-primary btn-sm">
-                                                                <i class="bi bi-file-earmark-pdf"></i>
-                                                                استعراض التقرير
-                                                            </a>
+                                            @forelse($documents as $document)
+                                                <div class="col-md-6">
+                                                    <div class="bg-light p-3 rounded-3 border">
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center mb-2">
+                                                            <span class="badge bg-success"><i
+                                                                    class="bi bi-check-circle-fill me-1"></i> معتمد من
+                                                                الإدارة</span>
+                                                            <small
+                                                                class="text-muted">{{ $document->created_at ? $document->created_at->format('Y-m-d') : '' }}</small>
                                                         </div>
+                                                        <h6 class="mt-2 text-dark fw-bold">
+                                                            @if (str_contains(strtolower($document->document_type ?? ''), 'صح') ||
+                                                                    str_contains($document->document_type ?? '', 'طب'))
+                                                                <i class="bi bi-heart-pulse-fill text-danger me-1"></i>
+                                                            @else
+                                                                <i
+                                                                    class="bi bi-journal-bookmark-fill text-primary me-1"></i>
+                                                            @endif
+                                                            {{ $document->title ?? ($document->document_type ?? 'تقرير رسمي') }}
+                                                        </h6>
+                                                        <p class="text-muted text-caption mb-3">
+                                                            المرفق:
+                                                            {{ $document->description ?? 'وثيقة رسمية معتمدة خاصة بالطفل' }}
+                                                        </p>
+                                                        <a href="{{ asset($document->file_path ? (str_starts_with($document->file_path, 'Uploads/') ? $document->file_path : 'Uploads/document/' . $document->file_path) : '#') }}"
+                                                            target="_blank"
+                                                            class="btn btn-outline-primary btn-sm rounded-pill w-100">
+                                                            <i class="bi bi-file-earmark-pdf"></i> استعراض التقرير
+                                                            المعتمد
+                                                        </a>
                                                     </div>
-                                                @endforeach
-                                            @else
-                                                <div class="col-12 text-center py-4">
-                                                    <i class="bi bi-folder-x text-muted fs-1 d-block mb-2"></i>
-                                                    <p class="text-muted mb-0">لا توجد وثائق أو تقارير مرفوعة لهذا اليتيم حتى الآن.</p>
                                                 </div>
-                                            @endif
+                                            @empty
+                                                <div class="col-12 text-center py-5">
+                                                    <i class="bi bi-folder-x text-muted fs-1 d-block mb-2"></i>
+                                                    <p class="text-muted mb-0">لا توجد وثائق أو تقارير اعتمدها الأدمن
+                                                        لهذا الطفل حتى الآن.</p>
+                                                </div>
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
 
                     </div>

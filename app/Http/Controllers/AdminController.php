@@ -113,20 +113,10 @@ class AdminController extends Controller
         $orphan->required_amount = $request->required_amount;
         $orphan->save();
 
-        // 🔍 جلب الوصي المرتبط بالطفل بأكثر من طريقة لضمان الوصول للـ user_id الصحيح
-        $guardian = guardian::where('orphan_id', $orphan->id)
-            ->orWhere('id', $orphan->guardian_id)
-            ->first();
+        $guardian = guardian::find($orphan->guardian_id) ?? guardian::where('orphan_id', $orphan->id)->latest()->first();
 
-        if ($guardian) {
-            // العثور على حساب المستخدم (User)
+        if ($guardian && $guardian->user_id) {
             $user = User::find($guardian->user_id);
-
-            if (!$user && !empty($guardian->email)) {
-                $user = User::where('email', $guardian->email)->first();
-            }
-
-            // إرسال الإشعار فوراً
             if ($user) {
                 $user->notify(new BroadcastAnnouncement(
                     'تم قبول طلب إضافة الطفل',
@@ -152,20 +142,11 @@ class AdminController extends Controller
         $orphan->status = 'مرفوض';
         $orphan->save();
 
-        // 🔍 جلب الوصي المرتبط بالطفل بأكثر من طريقة لضمان الوصول للـ user_id الصحيح
-        $guardian = guardian::where('orphan_id', $orphan->id)
-            ->orWhere('id', $orphan->guardian_id)
-            ->first();
+        // جلب الوصي المحدد بدقة لمنع الخلط بين الحسابات
+        $guardian = guardian::find($orphan->guardian_id) ?? guardian::where('orphan_id', $orphan->id)->latest()->first();
 
-        if ($guardian) {
-            // العثور على حساب المستخدم (User)
+        if ($guardian && $guardian->user_id) {
             $user = User::find($guardian->user_id);
-
-            if (!$user && !empty($guardian->email)) {
-                $user = User::where('email', $guardian->email)->first();
-            }
-
-            // إرسال الإشعار فوراً
             if ($user) {
                 $user->notify(new BroadcastAnnouncement(
                     'رفض طلب تسجيل طفل',
@@ -194,18 +175,15 @@ class AdminController extends Controller
         $guardian->status = 'مصدق';
         $guardian->save();
 
-        // 🔍 جلب حساب المستخدم المرتبط بالوصي مباشرةً بنفس النمط
-        $user = User::find($guardian->user_id);
-        if (!$user && !empty($guardian->email)) {
-            $user = User::where('email', $guardian->email)->first();
-        }
-
-        if ($user) {
-            $user->notify(new BroadcastAnnouncement(
-                'توثيق حساب العائلة',
-                'توثيق',
-                "تمت المصادقة على ملف العائلة الخاص بكم بنجاح (FAM-" . (100 + $guardian->id) . ")، ويمكنكم الآن استخدام كافة صلاحيات المنصة وإضافة الأيتام."
-            ));
+        if ($guardian->user_id) {
+            $user = User::find($guardian->user_id);
+            if ($user) {
+                $user->notify(new BroadcastAnnouncement(
+                    'توثيق حساب العائلة',
+                    'توثيق',
+                    "تمت المصادقة على ملف العائلة الخاص بكم بنجاح (FAM-" . (100 + $guardian->id) . ")، ويمكنكم الآن استخدام كافة صلاحيات المنصة وإضافة الأيتام."
+                ));
+            }
         }
 
         return redirect()->back()->with('success', 'تمت المصادقة على العائلة وإرسال إشعار للوصي بنجاح.');
@@ -218,18 +196,15 @@ class AdminController extends Controller
         $guardian->status = 'مرفوض';
         $guardian->save();
 
-        // 🔍 جلب حساب المستخدم المرتبط بالوصي مباشرةً بنفس النمط
-        $user = User::find($guardian->user_id);
-        if (!$user && !empty($guardian->email)) {
-            $user = User::where('email', $guardian->email)->first();
-        }
-
-        if ($user) {
-            $user->notify(new BroadcastAnnouncement(
-                'رفض طلب توثيق العائلة',
-                'توثيق',
-                "للأسف، تعذر قبول ملف العائلة الخاص بكم (FAM-" . (100 + $guardian->id) . "). يرجى مراجعة البيانات المرفقة أو التواصل مع الإدارة."
-            ));
+        if ($guardian->user_id) {
+            $user = User::find($guardian->user_id);
+            if ($user) {
+                $user->notify(new BroadcastAnnouncement(
+                    'رفض طلب توثيق العائلة',
+                    'توثيق',
+                    "للأسف، تعذر قبول ملف العائلة الخاص بكم (FAM-" . (100 + $guardian->id) . "). يرجى مراجعة البيانات المرفقة أو التواصل مع الإدارة."
+                ));
+            }
         }
 
         return redirect()->back()->with('success', 'تم شطب/رفض الطلب وإشعار الوصي بالنتيجة.');
@@ -275,12 +250,9 @@ class AdminController extends Controller
             $sponsorship->notes = $reason;
             $message = 'تم تعليق عقد الكفالة بنجاح.';
 
-            // 🔍 إشعار الكافل بنفس الآلية المباشرة
-            if ($sponsorship->sponsor) {
+            // إشعار الكافل المباشر
+            if ($sponsorship->sponsor && $sponsorship->sponsor->user_id) {
                 $sponsorUser = User::find($sponsorship->sponsor->user_id);
-                if (!$sponsorUser && !empty($sponsorship->sponsor->email)) {
-                    $sponsorUser = User::where('email', $sponsorship->sponsor->email)->first();
-                }
                 if ($sponsorUser) {
                     $sponsorUser->notify(new BroadcastAnnouncement(
                         'تعليق عقد الكفالة',
@@ -290,17 +262,12 @@ class AdminController extends Controller
                 }
             }
 
-            // 🔍 إشعار الوصي بنفس الآلية المباشرة
+            // إشعار الوصي المباشر للطفل
             if ($sponsorship->orphan) {
-                $guardian = guardian::where('orphan_id', $sponsorship->orphan->id)
-                    ->orWhere('id', $sponsorship->orphan->guardian_id)
-                    ->first();
+                $guardian = guardian::find($sponsorship->orphan->guardian_id) ?? guardian::where('orphan_id', $sponsorship->orphan->id)->latest()->first();
 
-                if ($guardian) {
+                if ($guardian && $guardian->user_id) {
                     $guardianUser = User::find($guardian->user_id);
-                    if (!$guardianUser && !empty($guardian->email)) {
-                        $guardianUser = User::where('email', $guardian->email)->first();
-                    }
                     if ($guardianUser) {
                         $guardianUser->notify(new BroadcastAnnouncement(
                             'إيقاف/تجميد الكفالة',
@@ -314,12 +281,9 @@ class AdminController extends Controller
             $sponsorship->status = 'نشط';
             $message = 'تم إعادة تفعيل عقد الكفالة بنجاح.';
 
-            // 🔍 إشعار الكافل
-            if ($sponsorship->sponsor) {
+            // إشعار الكافل
+            if ($sponsorship->sponsor && $sponsorship->sponsor->user_id) {
                 $sponsorUser = User::find($sponsorship->sponsor->user_id);
-                if (!$sponsorUser && !empty($sponsorship->sponsor->email)) {
-                    $sponsorUser = User::where('email', $sponsorship->sponsor->email)->first();
-                }
                 if ($sponsorUser) {
                     $sponsorUser->notify(new BroadcastAnnouncement(
                         'إعادة تفعيل الكفالة',
@@ -372,12 +336,9 @@ class AdminController extends Controller
 
         $orphanName = $payment->orphan->name ?? 'الطفل';
 
-        // 🔍 إشعار الكافل
-        if ($payment->sponsor) {
+        // إشعار الكافل المباشر
+        if ($payment->sponsor && $payment->sponsor->user_id) {
             $sponsorUser = User::find($payment->sponsor->user_id);
-            if (!$sponsorUser && !empty($payment->sponsor->email)) {
-                $sponsorUser = User::where('email', $payment->sponsor->email)->first();
-            }
             if ($sponsorUser) {
                 $sponsorUser->notify(new BroadcastAnnouncement(
                     'تأكيد الدفعة المالية',
@@ -387,17 +348,12 @@ class AdminController extends Controller
             }
         }
 
-        // 🔍 إشعار الوصي بنفس الآلية المباشرة
+        // إشعار الوصي المباشر
         if ($payment->orphan) {
-            $guardian = guardian::where('orphan_id', $payment->orphan->id)
-                ->orWhere('id', $payment->orphan->guardian_id)
-                ->first();
+            $guardian = guardian::find($payment->orphan->guardian_id) ?? guardian::where('orphan_id', $payment->orphan->id)->latest()->first();
 
-            if ($guardian) {
+            if ($guardian && $guardian->user_id) {
                 $guardianUser = User::find($guardian->user_id);
-                if (!$guardianUser && !empty($guardian->email)) {
-                    $guardianUser = User::where('email', $guardian->email)->first();
-                }
                 if ($guardianUser) {
                     $guardianUser->notify(new BroadcastAnnouncement(
                         'استلام مستحقات كفالة',
@@ -413,10 +369,44 @@ class AdminController extends Controller
 
     public function delete_payment(string $id)
     {
-        $payment = Sponsorship::findOrFail($id);
+        // جلب المعاملة المالية مع العلاقات المطلوبة قبل حذفها
+        $payment = Sponsorship::with(['orphan.guardian', 'sponsor.user'])->findOrFail($id);
+
+        $orphanName = $payment->orphan->name ?? 'الطفل المكفول';
+
+        // 1️⃣ إشعار الكافل بحدث رفض/شطب المعاملة
+        if ($payment->sponsor && $payment->sponsor->user_id) {
+            $sponsorUser = User::find($payment->sponsor->user_id);
+            if ($sponsorUser) {
+                $sponsorUser->notify(new BroadcastAnnouncement(
+                    'رفض المعاملة المالية',
+                    'مالية',
+                    "تم رفض وشطب المعاملة المالية الخاصة بكفالة الطفل ({$orphanName}). يرجى التأكد من تفاصيل الدفع وإعادة العملية إذا لزم الأمر."
+                ));
+            }
+        }
+
+        // 2️⃣ إشعار الوصي بالاعتذار وتوقع تأخير المستحقات
+        if ($payment->orphan) {
+            $guardian = guardian::find($payment->orphan->guardian_id)
+                ?? guardian::where('orphan_id', $payment->orphan->id)->latest()->first();
+
+            if ($guardian && $guardian->user_id) {
+                $guardianUser = User::find($guardian->user_id);
+                if ($guardianUser) {
+                    $guardianUser->notify(new BroadcastAnnouncement(
+                        'تأخير في دفعة المستحقات',
+                        'مالية',
+                        "نعتذر لكم، قد تتأخر دفعة الشهر الحالي الخاصة بالطفل ({$orphanName}) نظرًا لعدم اكتمال المعاملة المالية الأخيرة، ونعمل على معالجتها في أقرب وقت."
+                    ));
+                }
+            }
+        }
+
+        // 3️⃣ حذف المعاملة المالية بعد إرسال الإشعارات
         $payment->delete();
 
-        return redirect()->back()->with('success', 'تم شطب المعاملة المالية من السجل بنجاح.');
+        return redirect()->back()->with('success', 'تم شطب المعاملة المالية من السجل بنجاح وإشعار الكافل والوصي.');
     }
 
     public function documents_admin()
@@ -435,17 +425,11 @@ class AdminController extends Controller
         $docTitle = $document->title ?? 'مستند جديد';
 
         if ($document->orphan) {
-            // 1️⃣ إرسال إشعار للوصي
-            $guardian = guardian::where('orphan_id', $document->orphan->id)
-                ->orWhere('id', $document->orphan->guardian_id)
-                ->first();
+            // 1️⃣ إرسال إشعار للوصي المباشر
+            $guardian = guardian::find($document->orphan->guardian_id) ?? guardian::where('orphan_id', $document->orphan->id)->latest()->first();
 
-            if ($guardian) {
+            if ($guardian && $guardian->user_id) {
                 $user = User::find($guardian->user_id);
-                if (!$user && !empty($guardian->email)) {
-                    $user = User::where('email', $guardian->email)->first();
-                }
-
                 if ($user) {
                     $user->notify(new BroadcastAnnouncement(
                         'تم قبول واستيعاب الوثيقة',
@@ -455,17 +439,13 @@ class AdminController extends Controller
                 }
             }
 
-            // 2️⃣ إرسال إشعار لكافل اليتيم (في حال وجود كفالة نشطة أو مرتبطة)
+            // 2️⃣ إرسال إشعار لكافل اليتيم
             $sponsorship = Sponsorship::with('sponsor')
                 ->where('orphan_id', $document->orphan->id)
                 ->first();
 
-            if ($sponsorship && $sponsorship->sponsor) {
+            if ($sponsorship && $sponsorship->sponsor && $sponsorship->sponsor->user_id) {
                 $sponsorUser = User::find($sponsorship->sponsor->user_id);
-                if (!$sponsorUser && !empty($sponsorship->sponsor->email)) {
-                    $sponsorUser = User::where('email', $sponsorship->sponsor->email)->first();
-                }
-
                 if ($sponsorUser) {
                     $sponsorUser->notify(new BroadcastAnnouncement(
                         'إضافة مستند جديد للمكفول',
@@ -493,16 +473,10 @@ class AdminController extends Controller
         $orphanName = $document->orphan->name ?? 'الطفل';
 
         if ($document->orphan) {
-            $guardian = guardian::where('orphan_id', $document->orphan->id)
-                ->orWhere('id', $document->orphan->guardian_id)
-                ->first();
+            $guardian = guardian::find($document->orphan->guardian_id) ?? guardian::where('orphan_id', $document->orphan->id)->latest()->first();
 
-            if ($guardian) {
+            if ($guardian && $guardian->user_id) {
                 $user = User::find($guardian->user_id);
-                if (!$user && !empty($guardian->email)) {
-                    $user = User::where('email', $guardian->email)->first();
-                }
-
                 if ($user) {
                     $user->notify(new BroadcastAnnouncement(
                         'تم رفض المستند المرفوع',
@@ -665,7 +639,6 @@ class AdminController extends Controller
             $user->status = 'inactive';
             $message = 'تم تجميد حساب المستخدم بنجاح.';
 
-            // إرسال إشعار التجميد للمستخدم المعني
             $user->notify(new BroadcastAnnouncement(
                 'تجميد الحساب',
                 'تنبيه',
@@ -675,7 +648,6 @@ class AdminController extends Controller
             $user->status = 'active';
             $message = 'تم تنشيط حساب المستخدم بنجاح.';
 
-            // إرسال إشعار إعادة التنشيط للمستخدم المعني
             $user->notify(new BroadcastAnnouncement(
                 'تنشيط الحساب',
                 'تحديث',

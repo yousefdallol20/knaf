@@ -170,7 +170,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center gap-3">
-                                                        <img src="{{ asset('Uploads/orphans/' . $info->orphan->personal_photo_path) }}"
+                                                        <img src="{{ asset('Uploads/orphans/' . ($info->orphan->personal_photo_path ?? 'default.png')) }}"
                                                             class="rounded-circle shadow-xs" width="40"
                                                             height="40" style="object-fit:cover;">
 
@@ -189,14 +189,17 @@
                                                 <td>{{ $info->start_date }}</td>
 
                                                 <td>
-                                                    <strong>$ {{ number_format($info->amount ?? $info->amount_paid ?? $info->required_amount ?? ($info->orphan->required_amount ?? 0), 2) }}</strong> / شهر
+                                                    <strong>$
+                                                        {{ number_format($info->amount ?? ($info->amount_paid ?? ($info->orphan->required_amount ?? 0)), 2) }}</strong>
+                                                    / شهر
                                                 </td>
 
-                                                <td>{{ $info->last_batch }}</td>
+                                                <!-- عرض تاريخ آخر دفعة مسجلة لهذا اليتيم -->
+                                                <td>{{ $info->last_batch ?? $info->created_at->format('Y-m-d') }}</td>
 
                                                 <td>
                                                     <span class="badge-kanaf badge-active">
-                                                        نشطة سارية
+                                                        {{ $info->status ?? 'نشطة سارية' }}
                                                     </span>
                                                 </td>
 

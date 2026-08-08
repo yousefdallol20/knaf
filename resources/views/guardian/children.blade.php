@@ -525,8 +525,9 @@
                                                 @endif
 
                                                 {{-- 6. التقارير والشهادات الإضافية من جدول documents --}}
+                                                {{-- 6. التقارير والشهادات الإضافية المقبولة فقط من الأدمن --}}
                                                 @foreach ($document as $documents)
-                                                    @if ($documents->orphan_id == $info->id)
+                                                    @if ($documents->orphan_id == $info->id && $documents->status == 'مقبول')
                                                         @php
                                                             $ext = pathinfo($documents->file_path, PATHINFO_EXTENSION);
                                                             $isImage = in_array(strtolower($ext), [
