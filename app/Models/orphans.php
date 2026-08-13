@@ -15,7 +15,8 @@ class orphans extends Model
     // اليتيم هو الكيان الأب: كل جدول فرعي يحمل orphan_id يشير إليه.
     public function guardian()
     {
-        return $this->hasOne(guardian::class, 'orphan_id');
+        // اليتيم ينتمي لوصي واحد عبر المفتاح الأجنبي guardian_id
+        return $this->belongsTo(guardian::class, 'guardian_id');
     }
 
     public function parents()
@@ -52,5 +53,4 @@ class orphans extends Model
     {
         return \Database\Factories\OrphanFactory::new();
     }
-
 }

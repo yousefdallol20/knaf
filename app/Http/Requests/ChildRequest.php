@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\guardian;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class ChildRequest extends FormRequest
@@ -22,24 +24,28 @@ class ChildRequest extends FormRequest
      */
     public function rules(): array
     {
-        // عند التعديل يكون id اليتيم موجوداً في الراوت → نتجاهل صفّه في فحص التفرّد (unique)
+        // عند التعديل يكون id اليتيم موجوداً في الراوت → نتجاهل صفّه في فحص التفرّد الخاص بالطفل
         $orphanId = $this->route('id');
 
         $orphanNationalIdUnique = Rule::unique('orphans', 'national_id');
-        $guardianNationalIdUnique = Rule::unique('guardians', 'national_id');
         if ($orphanId) {
             $orphanNationalIdUnique->ignore($orphanId);
-            $guardianNationalIdUnique->ignore($orphanId, 'orphan_id');
         }
+
+        // جلب سجل الوصي المرتبط بحساب المستخدم الحالي والذي يمتلك رقم هوية غير فارغ مسجل مسبقاً
+        $existingGuardian = guardian::where('user_id', Auth::id())
+            ->whereNotNull('national_id')
+            ->where('national_id', '!=', '')
+            ->first();
 
         return [
             // 1. بيانات اليتيم (Orphan)
             'child_first_name'            => 'required|string|max:50',
             'child_full_name'             => 'required|string|max:150',
-            'child_national_id'           => ['required', 'digits:9', $orphanNationalIdUnique], // 9 أرقام مطابقة لعمود varchar(9)
+            'child_national_id'           => ['required', 'digits:9', $orphanNationalIdUnique], // هوية الطفل يجب أن تكون فريدة
             'child_birth_date'            => 'required|date|before:today',
             'child_age'                   => 'required|integer|min:0|max:18',
-            'child_gender'                => 'required|in:male,female,ذكر,أنثى', // حسب القيم المخزنة عندك
+            'child_gender'                => 'required|in:male,female,ذكر,أنثى',
             'child_education_status'      => 'required|string|max:100',
             'child_presence_status'       => 'required|string|max:100',
             'child_health_status'         => 'required|string|max:100',
@@ -50,18 +56,29 @@ class ChildRequest extends FormRequest
             'child_photo'                 => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'child_birth_certificate'     => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:4096',
 
-            // حقول الـ Checkboxes (اختيارية)
+            // حقول الـ Checkboxes
             'badge_both_parents'          => 'nullable',
             'badge_lone_survivor'         => 'nullable',
             'badge_extreme_need'          => 'nullable',
             'badge_injured'               => 'nullable',
             'badge_chronic_disease'       => 'nullable',
-            'legal_affirmation'           => 'accepted', // يجب تفعيل التعهد القانوني (checkbox)
+            'legal_affirmation'           => 'accepted',
 
             // 2. بيانات الوصي (Guardian)
             'guardian_name'               => 'required|string|max:150',
-            'guardian_national_id'        => ['required', 'digits:9', $guardianNationalIdUnique], // 9 أرقام + فريد مطابق للـ UNIQUE
-            'guardian_birth_date'         => 'required|date|before:child_birth_date', // طبيعي يكون أكبر من الطفل
+            'guardian_national_id'        => [
+                'required',
+                'digits:9',
+                function ($attribute, $value, $fail) use ($existingGuardian) {
+                    // الفحص يطبق فقط إذا كان هناك رقم هوية قديم مُخزّن بالفعل للوصي وليس NULL
+                    if ($existingGuardian && !empty($existingGuardian->national_id)) {
+                        if ($value !== $existingGuardian->national_id) {
+                            $fail('رقم الهوية غير صحيح، يجب إدخال رقم هوية الوصي المسجل لهذا الحساب.');
+                        }
+                    }
+                }
+            ],
+            'guardian_birth_date'         => 'required|date|before:child_birth_date',
             'guardian_relationship'       => 'required|string|max:100',
             'guardian_marital_status'     => 'required|string|max:50',
             'guardian_health_status'      => 'required|string|max:100',
@@ -100,7 +117,7 @@ class ChildRequest extends FormRequest
     /**
      * تخصيص أسماء الحقول باللغة العربية لتظهر في رسائل الخطأ بشكل مفهوم للمستخدم.
      */
-public function messages(): array
+    public function messages(): array
     {
         return [
             // 1. بيانات اليتيم (Orphan)
@@ -153,7 +170,6 @@ public function messages(): array
 
             'guardian_national_id.required'        => 'رقم هوية الوصي مطلوب *',
             'guardian_national_id.digits'          => 'رقم هوية الوصي يجب أن يكون 9 أرقام بالضبط *',
-            'guardian_national_id.unique'          => 'رقم هوية الوصي هذا مسجل مسبقاً في النظام *',
 
             'guardian_birth_date.required'         => 'تاريخ ميلاد الوصي مطلوب *',
             'guardian_birth_date.date'             => 'تاريخ ميلاد الوصي غير صحيح *',

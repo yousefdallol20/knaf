@@ -172,8 +172,13 @@
                                                 </td>
                                                 <td>{{ $info->age }} سنة</td>
                                                 <td>{{ $info->education_level }}</td>
-                                                <td class="fw-bold text-success">$ {{ $info->required_amount }}
-                                                    /شهرياً</td>
+                                                <td class="fw-bold text-success">
+                                                    @if ($info->status == 'بانتظار القبول')
+                                                        <span class="text-muted fw-normal">لم يتم التحديد بعد</span>
+                                                    @else
+                                                        $ {{ $info->required_amount }} /شهرياً
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     @if ($info->status == 'بانتظار القبول')
                                                         <span class="badge bg-warning text-dark"><i
@@ -314,7 +319,7 @@
                                                 </tr>
                                                 <tr>
                                                     <th>رقم العائلة</th>
-                                                    <td>{{ 100 + $info->id }}</td>
+                                                    <td>{{ 100 + $info->guardian_id }}</td>
                                                 </tr>
                                             </table>
                                         </div>
@@ -327,7 +332,13 @@
                                             <table class="table table-sm">
                                                 <tr>
                                                     <th width="25%">المبلغ الشهري</th>
-                                                    <td>$ {{ $info->required_amount }} </td>
+                                                    <td>
+                                                        @if ($info->status == 'بانتظار القبول')
+                                                            <span class="text-muted">لم يتم التحديد بعد</span>
+                                                        @else
+                                                            $ {{ $info->required_amount }}
+                                                        @endif
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <th>حالة الكفالة</th>

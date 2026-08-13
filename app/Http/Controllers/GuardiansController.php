@@ -6,7 +6,7 @@ use App\Http\Requests\ChildRequest;
 use App\Models\AuditLog;
 use App\Models\documents;
 use App\Models\financial_data;
-use App\Models\guardian;
+use App\Models\Guardian;
 use App\Models\Housing;
 use App\Models\orphans;
 use App\Models\Parents;
@@ -20,17 +20,14 @@ use Illuminate\Support\Facades\Log;
 class GuardiansController extends Controller
 {
     /**
-     *  guardian folder .
-     */
-    /**
-     *  guardian folder .
+     * لوحة تحكم الوصي - عرض إحصائيات لجميع الأطفال
      */
     public function dashboard()
     {
         $user = Auth::user();
 
-        // 1. جلب سجل الوصي الأول لتأكيد وجود سجل
-        $guardian = $user->guardian ?? guardian::where('user_id', $user->id)->first();
+        // 1. جلب سجل الوصي المنسوب للمستخدم الحالي
+        $guardian = Guardian::where('user_id', $user->id)->first();
 
         if (!$guardian) {
             return view('guardian.dashboard', [
@@ -43,21 +40,19 @@ class GuardiansController extends Controller
             ]);
         }
 
-        // 2. جلب جميع معرفات الأطفال التابعين لهذا الوصي عبر user_id
-        $orphanIds = guardian::where('user_id', $user->id)->pluck('orphan_id');
+        // 2. جلب جميع الأيتام التابعين لهذا الوصي عبر guardian_id
+        $orphan = orphans::where('guardian_id', $guardian->id)->get();
+        $orphanIds = $orphan->pluck('id');
 
-        // 3. جلب الأيتام بناءً على قائمة المعرفات كاملة
-        $orphan = orphans::whereIn('id', $orphanIds)->get();
-
-        // 4. حساب الأبناء المسجلين
+        // 3. حساب إجمالي عدد الأبناء
         $childrenCount = $orphan->count();
 
-        // 5. حساب عدد الكفالات النشطة لجميع الأبناء التابعين للوصي
+        // 4. حساب عدد الكفالات النشطة لجميع الأبناء
         $activeSponsorships = orphans::whereIn('id', $orphanIds)
             ->whereIn('status', ['مكفول', 'كفالة نشطة', 'نشط'])
             ->count();
 
-        // 6. حساب المستندات المطلوبة لجميع الأطفال
+        // 5. حساب المستندات المطلوبة لجميع الأطفال
         $requiredDocsCount = documents::whereIn('orphan_id', $orphanIds)
             ->where('status', 'مطلوب')
             ->count();
@@ -71,9 +66,9 @@ class GuardiansController extends Controller
             'requiredDocsCount'
         ));
     }
+
     /**
-     *  guardian folder .
-     *  children page .
+     * عرض قائمة جميع الأبناء المسجلين للوصي
      */
     public function children()
     {
@@ -83,11 +78,9 @@ class GuardiansController extends Controller
             return redirect()->route('login');
         }
 
-        // 1. جلب جميع المعرفات (IDs) للأطفال التابعين لهذا المستخدم كوصي
-        $orphanIds = guardian::where('user_id', $user->id)->pluck('orphan_id');
+        $guardian = Guardian::where('user_id', $user->id)->first();
 
-        // في حال عدم وجود أطفال مسجلين لهذا الوصي
-        if ($orphanIds->isEmpty()) {
+        if (!$guardian) {
             return view('guardian.children', [
                 'orphan'   => collect(),
                 'document' => collect(),
@@ -95,13 +88,14 @@ class GuardiansController extends Controller
             ]);
         }
 
-        // 2. جلب جميع الأطفال المقترنين بهذه المعرفات مع العلاقات المطلوبة
-        $orphan = orphans::whereIn('id', $orphanIds)
+        // جلب جميع الأطفال المنسوبين لهذا الوصي
+        $orphan = orphans::where('guardian_id', $guardian->id)
             ->with(['guardian', 'parents', 'housing', 'financial_data'])
             ->get();
 
-        // 3. جلب كافة المستندات التابعة لهؤلاء الأطفال
-        // 3. جلب المستندات المقبولة فقط من الأدمن
+        $orphanIds = $orphan->pluck('id');
+
+        // جلب المستندات المقبولة الخاصة بكل أطفاله
         $document = documents::whereIn('orphan_id', $orphanIds)
             ->where('status', 'مقبول')
             ->get();
@@ -113,6 +107,9 @@ class GuardiansController extends Controller
         ]);
     }
 
+    /**
+     * نموذج إضافة طفل جديد مع التعبئة التلقائية لبيانات العائلة السابقة
+     */
     public function child_form()
     {
         $user = Auth::user();
@@ -120,16 +117,19 @@ class GuardiansController extends Controller
             return redirect()->route('login');
         }
 
-        // جلب آخر بيانات وصي مسجلة لنفس هذا الحساب إن وجدت
-        $existingGuardian = Guardian::where('user_id', $user->id)->latest()->first();
+        $existingGuardian = Guardian::where('user_id', $user->id)->first();
         $existingHousing = null;
         $existingFinancial = null;
         $existingParents = null;
 
+        // في حال كان للوصي أطفال سابقون، يتم استعراض بيانات العائلة المترابطة لتسهيل الإدخال
         if ($existingGuardian) {
-            $existingHousing = Housing::where('orphan_id', $existingGuardian->orphan_id)->first();
-            $existingFinancial = financial_data::where('orphan_id', $existingGuardian->orphan_id)->first();
-            $existingParents = Parents::where('orphan_id', $existingGuardian->orphan_id)->first();
+            $latestOrphan = orphans::where('guardian_id', $existingGuardian->id)->latest()->first();
+            if ($latestOrphan) {
+                $existingHousing = Housing::where('orphan_id', $latestOrphan->id)->first();
+                $existingFinancial = financial_data::where('orphan_id', $latestOrphan->id)->first();
+                $existingParents = Parents::where('orphan_id', $latestOrphan->id)->first();
+            }
         }
 
         $prefill = [
@@ -143,14 +143,14 @@ class GuardiansController extends Controller
             'guardian_health_details' => $existingGuardian->health_details ?? '',
             'family_income_source'    => $existingGuardian->income_source ?? '',
 
-            // بيانات الأب (لأن الأبناء غالباً من نفس الأب)
+            // بيانات الأب
             'father_name'         => $existingParents->name ?? '',
             'father_national_id'  => $existingParents->national_id ?? '',
             'father_death_date'   => isset($existingParents->death_date) ? substr((string)$existingParents->death_date, 0, 10) : '',
             'father_death_reason' => $existingParents->death_reason ?? '',
             'mother_alive'        => isset($existingParents) ? ($existingParents->is_mother_alive ? 'yes' : 'no') : 'yes',
 
-            // السكن والنزوح (تتشارك فيه العائلة)
+            // السكن والنزوح
             'housing_type'                     => $existingHousing->current_housing_type ?? '',
             'housing_condition'                => $existingHousing->housing_condition ?? '',
             'housing_damage_details'           => $existingHousing->damage_description ?? '',
@@ -158,7 +158,7 @@ class GuardiansController extends Controller
             'current_displacement_destination' => $existingHousing->current_displacement_destination ?? '',
             'current_address_details'          => $existingHousing->detailed_current_address ?? '',
 
-            // المالية (تتشارك فيها العائلة)
+            // البيانات المالية
             'financial_entity'        => $existingFinancial->official_receiving_entity ?? '',
             'account_holder_name'     => $existingFinancial->account_holder_name ?? '',
             'iban_or_account_number'  => $existingFinancial->bank_account_or_iban ?? '',
@@ -170,7 +170,9 @@ class GuardiansController extends Controller
         ]);
     }
 
-    // عرض نفس فورم الإنشاء لكن معبأ ببيانات اليتيم وعائلته (وضع التعديل)
+    /**
+     * صفحة تعديل طفل محدد
+     */
     public function edit(string $id)
     {
         $user = Auth::user();
@@ -185,15 +187,12 @@ class GuardiansController extends Controller
 
         $genderMap = ['ذكر', 'أنثى'];
         $ratingMap = ['حالة ضعيفة',  'حالة متوسطة', 'حالة جيدة'];
-        $d = fn($v) => $v ? substr((string) $v, 0, 10) : null; // تنسيق التاريخ لحقل input[type=date]
+        $d = fn($v) => $v ? substr((string) $v, 0, 10) : null;
 
-        // القيم المعبأة مسبقاً، مُحوّلة إلى أسماء حقول الفورم وتُمرَّر كمتغيّر صريح للـ view.
-        // حقول الـ checkbox تُمثَّل بـ '1' عند التفعيل و '' عند عدمه لتتوافق مع old() في الفورم.
         $prefill = [
-            // اليتيم
             'child_first_name'       => $orphan->first_name,
             'child_full_name'        => $orphan->name,
-            'child_rating'           => $orphan->rating ?? 1, // جلب التقييم الرقمي المخزن بالجدول
+            'child_rating'           => $orphan->rating ?? 1,
             'child_national_id'      => $orphan->national_id,
             'child_birth_date'       => $d($orphan->birth_date),
             'child_age'              => $orphan->age,
@@ -209,7 +208,7 @@ class GuardiansController extends Controller
             'badge_injured'          => $orphan->is_war_injured ? '1' : '',
             'badge_chronic_disease'  => $orphan->has_chronic_disease ? '1' : '',
             'legal_affirmation'      => $orphan->data_acknowledgement ? '1' : '',
-            // الوصي
+
             'guardian_name'           => $g->name ?? null,
             'guardian_national_id'    => $g->national_id ?? null,
             'guardian_birth_date'     => $d($g->birth_date ?? null),
@@ -218,7 +217,7 @@ class GuardiansController extends Controller
             'guardian_health_status'  => $g->health_status ?? null,
             'guardian_health_details' => $g->health_details ?? null,
             'family_income_source'    => $g->income_source ?? null,
-            // الوالدين
+
             'father_name'         => $p->name ?? null,
             'father_national_id'  => $p->national_id ?? null,
             'father_death_date'   => $d($p->death_date ?? null),
@@ -226,27 +225,26 @@ class GuardiansController extends Controller
             'mother_alive'        => isset($p) ? ($p->is_mother_alive ? 'yes' : 'no') : 'yes',
             'mother_death_date'   => $d($p->mother_death_date ?? null),
             'mother_death_reason' => $p->mother_death_reason ?? null,
-            // السكن
+
             'housing_type'                     => $h->current_housing_type ?? null,
             'housing_condition'                => $h->housing_condition ?? null,
             'housing_damage_details'           => $h->damage_description ?? null,
             'original_city'                    => $h->original_city ?? null,
             'current_displacement_destination' => $h->current_displacement_destination ?? null,
             'current_address_details'          => $h->detailed_current_address ?? null,
-            // المالية
+
             'financial_entity'        => $f->official_receiving_entity ?? null,
             'account_holder_name'     => $f->account_holder_name ?? null,
             'iban_or_account_number'  => $f->bank_account_or_iban ?? null,
             'family_financial_rating' => isset($f) ? ($ratingMap[$f->family_financial_status] ?? null) : null,
         ];
 
-
-
-
         return view('guardian.child-form', ['editId' => $id, 'prefill' => $prefill, 'user' => $user]);
     }
 
-    // حفظ تعديلات بيانات اليتيم وعائلته على نفس الجداول الخمسة
+    /**
+     * تحديث بيانات طفل محدد
+     */
     public function update(ChildRequest $request, string $id)
     {
         $orphan = orphans::findOrFail($id);
@@ -256,12 +254,10 @@ class GuardiansController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1) اليتيم
+            // 1. تحديث بيانات اليتيم
             $orphan->first_name = $request->child_first_name;
             $orphan->name = $request->child_full_name;
-            // بدلاً من $request->child_financial_rating
-            // في دالة update ودالة new_child_form
-            $orphan->rating = $request->input('child_rating', 1);
+            $orphan->rating = $request->input('child_rating');
             $orphan->national_id = $request->child_national_id;
             $orphan->birth_date = $request->child_birth_date;
             $orphan->age = $request->child_age;
@@ -290,10 +286,11 @@ class GuardiansController extends Controller
                 $request->child_birth_certificate->move(public_path('Uploads/certificates'), $certName);
                 $orphan->birth_certificate_path = $certName;
             }
-            $orphan->save();
+            $orphan->rating = $orphan->is_double_orphan + $orphan->is_sole_breadwinner + $orphan->is_critically_needy + $orphan->is_war_injured + $orphan->has_chronic_disease;
 
-            // 2) الوصي (نحدّث صفّه المرتبط أو ننشئه إن غاب)
-            $guardian = guardian::firstOrNew(['orphan_id' => $orphan->id]);
+            // 2. تحديث بيانات الوصي
+            $guardian = Guardian::firstOrNew(['user_id' => Auth::id()]);
+            $guardian->user_id = Auth::id();
             $guardian->name = $request->guardian_name;
             $guardian->national_id = $request->guardian_national_id;
             $guardian->birth_date = $request->guardian_birth_date;
@@ -302,27 +299,28 @@ class GuardiansController extends Controller
             $guardian->health_status = $request->guardian_health_status;
             $guardian->health_details = $request->guardian_health_details;
             $guardian->income_source = $request->family_income_source;
-            $guardian->orphan_id = $orphan->id;
-            if (!$guardian->exists) {
-                $guardian->user_id = Auth::id();
-            }
+
             if ($request->hasFile('guardian_id_photo')) {
                 $gIdName = 'guardian_id_' . time() . '.' . $request->guardian_id_photo->extension();
                 $request->guardian_id_photo->move(public_path('Uploads/guardians'), $gIdName);
                 $guardian->guardian_id_image = $gIdName;
-            } elseif (! $guardian->guardian_id_image) {
+            } elseif (!$guardian->guardian_id_image) {
                 $guardian->guardian_id_image = 'default.png';
             }
+
             if ($request->hasFile('guardian_legal_document')) {
                 $gDocName = 'legal_doc_' . time() . '.' . $request->guardian_legal_document->extension();
                 $request->guardian_legal_document->move(public_path('Uploads/guardians'), $gDocName);
                 $guardian->legal_guardianship_document = $gDocName;
-            } elseif (! $guardian->legal_guardianship_document) {
+            } elseif (!$guardian->legal_guardianship_document) {
                 $guardian->legal_guardianship_document = 'default.pdf';
             }
             $guardian->save();
 
-            // 3) الوالدين
+            $orphan->guardian_id = $guardian->id;
+            $orphan->save();
+
+            // 3. تحديث بيانات الوالدين
             $parent = Parents::firstOrNew(['orphan_id' => $orphan->id]);
             $parent->name = $request->father_name;
             $parent->national_id = $request->father_national_id;
@@ -332,13 +330,15 @@ class GuardiansController extends Controller
             $parent->mother_death_date = $request->mother_death_date;
             $parent->mother_death_reason = $request->mother_death_reason;
             $parent->orphan_id = $orphan->id;
+
             if ($request->hasFile('father_death_certificate')) {
                 $fDeath = 'father_death_' . time() . '.' . $request->father_death_certificate->extension();
                 $request->father_death_certificate->move(public_path('Uploads/parents'), $fDeath);
                 $parent->death_certificate = $fDeath;
-            } elseif (! $parent->death_certificate) {
+            } elseif (!$parent->death_certificate) {
                 $parent->death_certificate = 'default.pdf';
             }
+
             if ($request->hasFile('mother_death_certificate')) {
                 $mDeath = 'mother_death_' . time() . '.' . $request->mother_death_certificate->extension();
                 $request->mother_death_certificate->move(public_path('Uploads/parents'), $mDeath);
@@ -346,7 +346,7 @@ class GuardiansController extends Controller
             }
             $parent->save();
 
-            // 4) السكن والنزوح
+            // 4. تحديث بيانات السكن
             $housing = Housing::firstOrNew(['orphan_id' => $orphan->id]);
             $housing->current_housing_type = $request->housing_type;
             $housing->housing_condition = $request->housing_condition;
@@ -357,7 +357,7 @@ class GuardiansController extends Controller
             $housing->orphan_id = $orphan->id;
             $housing->save();
 
-            // 5) البيانات المالية
+            // 5. تحديث البيانات المالية
             $financial = financial_data::firstOrNew(['orphan_id' => $orphan->id]);
             $financial->official_receiving_entity = $request->financial_entity;
             $financial->account_holder_name = $request->account_holder_name;
@@ -370,9 +370,9 @@ class GuardiansController extends Controller
             DB::commit();
 
             AuditLog::create([
-                'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
+                'user_id' => Auth::id(),
                 'action'  => 'تعديل بيانات طفل',
-                'details' => 'تم تحديث على بيانات الطفل ' . $orphan->name,
+                'details' => 'تم تحديث بيانات الطفل ' . $orphan->name,
             ]);
 
             return redirect()->route('children')->with('success', 'تم تحديث بيانات اليتيم وعائلته بنجاح.');
@@ -383,7 +383,9 @@ class GuardiansController extends Controller
         }
     }
 
-    // حذف اليتيم (ويُحذف معه تلقائياً الوصي والوالدين والسكن والبيانات المالية عبر cascade)
+    /**
+     * حذف طفل محدد
+     */
     public function destroy(string $id)
     {
         $orphan = orphans::findOrFail($id);
@@ -393,7 +395,7 @@ class GuardiansController extends Controller
         $orphan->delete();
 
         AuditLog::create([
-            'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
+            'user_id' => Auth::id(),
             'action'  => 'حذف طفل',
             'details' => 'تم حذف الطفل ' . $orphan->name,
         ]);
@@ -402,10 +404,8 @@ class GuardiansController extends Controller
     }
 
     /**
-     *  guardian folder .
-     *  children-form page .
+     * إضافة طفل جديد وربطه بالوصي الحالي
      */
-
     public function new_child_form(ChildRequest $request)
     {
         $user = Auth::user();
@@ -413,67 +413,11 @@ class GuardiansController extends Controller
             return redirect()->route('login');
         }
 
-        // استخدام الـ Transaction لضمان حفظ كل الجداول معاً أو تراجع الكل في حال حدوث خطأ
         DB::beginTransaction();
 
         try {
-            // 1. حفظ بيانات اليتيم
-            $orphan = new orphans(); // التأكد من اسم الموديل عندك
-            $orphan->first_name = $request->child_first_name;
-            $orphan->name = $request->child_full_name;
-            $orphan->national_id = $request->child_national_id;
-            $orphan->birth_date = $request->child_birth_date;
-            $orphan->age = $request->child_age;
-
-            // تحديد الجنس بدقة
-            $genderMap = ['0' => 'ذكر', '1' => 'أنثى', 'ذكر' => 'ذكر', 'أنثى' => 'أنثى'];
-            $orphan->gender = $genderMap[$request->child_gender] ?? $request->child_gender;
-
-            $orphan->education_level = $request->child_education_status;
-            $orphan->orphan_location_status = $request->child_presence_status;
-
-            // حقول الـ Checkbox (تحويلها إلى Boolean)
-            $orphan->is_double_orphan = $request->has('badge_both_parents') ? 1 : 0;
-            $orphan->is_sole_breadwinner = $request->has('badge_lone_survivor') ? 1 : 0;
-            $orphan->is_critically_needy = $request->has('badge_extreme_need') ? 1 : 0;
-            $orphan->is_war_injured = $request->has('badge_injured') ? 1 : 0;
-            $orphan->has_chronic_disease = $request->has('badge_chronic_disease') ? 1 : 0;
-            // في دالة update ودالة new_child_form
-            $orphan->rating = $request->input('child_rating', 1);
-
-            $orphan->health_status = $request->child_health_status;
-            $orphan->health_description = $request->child_medical_needs;
-            $orphan->story = $request->child_story;
-            $orphan->data_acknowledgement = $request->has('legal_affirmation') ? 1 : 0;
-
-            // حقول إضافية مع قيم افتراضية
-            $orphan->country = 'Palestine';
-            $orphan->city = $request->original_city ?? 'Gaza';
-            $orphan->status = 'بانتظار القبول';
-
-            // رفع صورة الطفل الشخصية
-            if ($request->hasFile('child_photo')) {
-                $fileName = 'orphan_' . time() . '_' . $request->child_first_name . '.' . $request->child_photo->extension();
-                $request->child_photo->move(public_path('Uploads/orphans'), $fileName);
-                $orphan->personal_photo_path = $fileName;
-            } else {
-                $orphan->personal_photo_path = 'default.png';
-            }
-
-            // رفع شهادة ميلاد الطفل
-            if ($request->hasFile('child_birth_certificate')) {
-                $certName = 'birth_' . time() . '.' . $request->child_birth_certificate->extension();
-                $request->child_birth_certificate->move(public_path('Uploads/certificates'), $certName);
-                $orphan->birth_certificate_path = $certName;
-            } else {
-                $orphan->birth_certificate_path = 'default_cert.png';
-            }
-
-            $orphan->save(); // تم الحفظ وتوليد ID اليتيم
-
-            // 2. حفظ بيانات الوصي (Guardian)
-            $guardian = new Guardian();
-            $guardian->orphan_id = $orphan->id; // ربط المفتاح الأجنبي
+            // 1. حفظ / تحديث بيانات الوصي للحصول على guardian_id
+            $guardian = Guardian::firstOrNew(['user_id' => Auth::id()]);
             $guardian->user_id = Auth::id();
             $guardian->name = $request->guardian_name;
             $guardian->national_id = $request->guardian_national_id;
@@ -484,28 +428,75 @@ class GuardiansController extends Controller
             $guardian->health_details = $request->guardian_health_details;
             $guardian->income_source = $request->family_income_source;
 
-            // صورة هوية الوصي
             if ($request->hasFile('guardian_id_photo')) {
                 $gIdName = 'guardian_id_' . time() . '.' . $request->guardian_id_photo->extension();
                 $request->guardian_id_photo->move(public_path('Uploads/guardians'), $gIdName);
                 $guardian->guardian_id_image = $gIdName;
-            } else {
+            } elseif (!$guardian->guardian_id_image) {
                 $guardian->guardian_id_image = 'default.png';
             }
 
-            // صك الوصاية القانوني
             if ($request->hasFile('guardian_legal_document')) {
                 $gDocName = 'legal_doc_' . time() . '.' . $request->guardian_legal_document->extension();
                 $request->guardian_legal_document->move(public_path('Uploads/guardians'), $gDocName);
                 $guardian->legal_guardianship_document = $gDocName;
-            } else {
+            } elseif (!$guardian->legal_guardianship_document) {
                 $guardian->legal_guardianship_document = 'default.pdf';
             }
 
-            $orphan->guardian_id = $guardian->id;
             $guardian->save();
 
-            // 3. حفظ بيانات الوالدين (Parents)
+            // 2. حفظ بيانات الطفل الجديد وربطه بالـ guardian_id
+            $orphan = new orphans();
+            $orphan->guardian_id = $guardian->id;
+            $orphan->first_name = $request->child_first_name;
+            $orphan->name = $request->child_full_name;
+            $orphan->national_id = $request->child_national_id;
+            $orphan->birth_date = $request->child_birth_date;
+            $orphan->age = $request->child_age;
+
+            $genderMap = ['0' => 'ذكر', '1' => 'أنثى', 'ذكر' => 'ذكر', 'أنثى' => 'أنثى'];
+            $orphan->gender = $genderMap[$request->child_gender] ?? $request->child_gender;
+
+            $orphan->education_level = $request->child_education_status;
+            $orphan->orphan_location_status = $request->child_presence_status;
+
+            $orphan->is_double_orphan = $request->has('badge_both_parents') ? 1 : 0;
+            $orphan->is_sole_breadwinner = $request->has('badge_lone_survivor') ? 1 : 0;
+            $orphan->is_critically_needy = $request->has('badge_extreme_need') ? 1 : 0;
+            $orphan->is_war_injured = $request->has('badge_injured') ? 1 : 0;
+            $orphan->has_chronic_disease = $request->has('badge_chronic_disease') ? 1 : 0;
+
+            $orphan->rating = $orphan->is_double_orphan + $orphan->is_sole_breadwinner + $orphan->is_critically_needy + $orphan->is_war_injured + $orphan->has_chronic_disease;
+
+            $orphan->health_status = $request->child_health_status;
+            $orphan->health_description = $request->child_medical_needs;
+            $orphan->story = $request->child_story;
+            $orphan->data_acknowledgement = $request->has('legal_affirmation') ? 1 : 0;
+
+            $orphan->country = 'Palestine';
+            $orphan->city = $request->original_city ?? 'Gaza';
+            $orphan->status = 'بانتظار القبول';
+
+            if ($request->hasFile('child_photo')) {
+                $fileName = 'orphan_' . time() . '_' . $request->child_first_name . '.' . $request->child_photo->extension();
+                $request->child_photo->move(public_path('Uploads/orphans'), $fileName);
+                $orphan->personal_photo_path = $fileName;
+            } else {
+                $orphan->personal_photo_path = 'default.png';
+            }
+
+            if ($request->hasFile('child_birth_certificate')) {
+                $certName = 'birth_' . time() . '.' . $request->child_birth_certificate->extension();
+                $request->child_birth_certificate->move(public_path('Uploads/certificates'), $certName);
+                $orphan->birth_certificate_path = $certName;
+            } else {
+                $orphan->birth_certificate_path = 'default_cert.png';
+            }
+
+            $orphan->save();
+
+            // 3. حفظ بيانات الوالدين
             $parent = new Parents();
             $parent->orphan_id = $orphan->id;
             $parent->name = $request->father_name;
@@ -532,7 +523,7 @@ class GuardiansController extends Controller
 
             $parent->save();
 
-            // 4. حفظ بيانات السكن والنزوح (Housing)
+            // 4. حفظ بيانات السكن والنزوح
             $housing = new Housing();
             $housing->orphan_id = $orphan->id;
             $housing->current_housing_type = $request->housing_type;
@@ -543,7 +534,7 @@ class GuardiansController extends Controller
             $housing->detailed_current_address = $request->current_address_details;
             $housing->save();
 
-            // 5. حفظ البيانات المالية (Financial Data)
+            // 5. حفظ البيانات المالية
             $financial = new financial_data();
             $financial->orphan_id = $orphan->id;
             $financial->official_receiving_entity = $request->financial_entity;
@@ -554,7 +545,6 @@ class GuardiansController extends Controller
             $financial->family_financial_status = $statusMap[$request->family_financial_rating] ?? 'weak';
             $financial->save();
 
-            // تأكيد الحفظ الفعلي بقاعدة البيانات لجميع الجداول
             DB::commit();
 
             AuditLog::create([
@@ -565,36 +555,30 @@ class GuardiansController extends Controller
 
             return redirect()->route('children')->with('success', 'تم إضافة الطفل بنجاح وتوزيع البيانات على الجداول.');
         } catch (\Exception $e) {
-            // إلغاء المعاملة عند حدوث أي خطأ
             DB::rollBack();
-
             Log::error('new_child_form failed: ' . $e->getMessage(), ['exception' => $e]);
-
             return redirect()->back()->withInput()->withErrors(['error' => 'حدث خطأ أثناء الحفظ: ' . $e->getMessage()]);
         }
     }
 
     /**
-     *  guardian folder .
-     *  upload_docs page .
+     * صفحة رفع المستندات لكل أطفال الوصي
      */
-
     public function upload_docs()
     {
         $user = Auth::user();
 
-        // 1. جلب معرفات جميع الأطفال التابعين لهذا المستخدم
-        $orphanIds = guardian::where('user_id', $user->id)->pluck('orphan_id');
+        $guardian = Guardian::where('user_id', $user->id)->first();
 
-        if ($orphanIds->isEmpty()) {
+        if (!$guardian) {
             return view('guardian.upload-docs', [
                 'orphan' => collect(),
                 'user'   => $user
             ]);
         }
 
-        // 2. جلب كافة الأطفال المعنيين لإظهارهم في القائمة المنسدلة
-        $orphan = orphans::whereIn('id', $orphanIds)->get();
+        // جلب جميع أطفال الوصي لإتاحة اختيار الطفل المراد رفع المستند له من المنسدلة
+        $orphan = orphans::where('guardian_id', $guardian->id)->get();
 
         return view('guardian.upload-docs', [
             'orphan' => $orphan,
@@ -604,7 +588,6 @@ class GuardiansController extends Controller
 
     public function upload_docs_store(Request $request)
     {
-        // 1. التحقق لضمان وصول البيانات كاملة ومنع الأخطاء
         $request->validate([
             'orphan_id' => 'required',
             'doc_type'  => 'required',
@@ -618,39 +601,27 @@ class GuardiansController extends Controller
         $document->orphan_id = $request->orphan_id;
         $document->date = now()->format('Y-m-d');
 
-        // 2. معالجة وحفظ الملف المرفوع واستخراج البيانات منه لقاعدة البيانات
-        // 2. معالجة وحفظ الملف المرفوع واستخراج البيانات منه لقاعدة البيانات
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-
-            // 1. توليد اسم فريد للملف
             $d = 'document_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-            // 2. جلب البيانات وحفظها في الكائن (فقط الحقول الموجودة في قاعدة البيانات)
             $document->file_path = 'Uploads/document/' . $d;
-
-            // 3. نقل الملف الفعلي إلى المجلد المطلوب
             $file->move(public_path('Uploads/document'), $d);
         }
 
         AuditLog::create([
-            'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
+            'user_id' => Auth::id(),
             'action'  => 'اضافة مستندات',
             'details' => 'تم اضافة مستند من نوع ' . $request->doc_type . ' لصالح الطفل ' . $request->orphan_id,
         ]);
 
-        // 3. الحفظ الفعلي في قاعدة البيانات
         $document->save();
 
-        // 4. إعادة التوجيه لصفحة الأطفال مع رسالة نجاح
         return redirect()->route('children')->with('success', 'تم رفع المستند بنجاح وهو قيد المراجعة الآن.');
     }
 
     /**
-     *  guardian folder .
-     *  upload_docs page .
+     * عرض جميع الحوالات والمدفوعات لجميع أطفال هذا الوصي
      */
-
     public function received_payments()
     {
         $user = Auth::user();
@@ -658,32 +629,38 @@ class GuardiansController extends Controller
             return redirect()->route('login');
         }
 
-        // 1. جلب سجل الوصي
-        $guardian = guardian::where('user_id', $user->id)->first();
+        $guardian = Guardian::where('user_id', $user->id)->first();
 
-        if (!$guardian || !$guardian->orphan_id) {
+        if (!$guardian) {
             return view('guardian.received-payments', [
-                'user' => $user,
-                'payments' => collect(),
+                'user'          => $user,
+                'payments'      => collect(),
                 'totalReceived' => 0,
                 'paymentsCount' => 0
             ]);
         }
 
-        // 2. الاستعلام من جدول الكفالات والمدفوعات الحقيقي (sponsorships)
-        $orphanId = $guardian->orphan_id;
-        $query = Sponsorship::where('orphan_id', $orphanId);
+        // جلب معرفات كل الأطفال التابعين للوصي
+        $orphanIds = orphans::where('guardian_id', $guardian->id)->pluck('id');
 
-        // 3. جلب المدفوعات مع اليتيم مرقمة صفحتها
+        if ($orphanIds->isEmpty()) {
+            return view('guardian.received-payments', [
+                'user'          => $user,
+                'payments'      => collect(),
+                'totalReceived' => 0,
+                'paymentsCount' => 0
+            ]);
+        }
+
+        $query = Sponsorship::whereIn('orphan_id', $orphanIds);
+
         $payments = (clone $query)
             ->with(['orphan'])
             ->latest()
             ->paginate(10);
 
-        // 4. إجمالي عدد الحوالات الموجهة للطفل
         $paymentsCount = $payments->total();
 
-        // 5. حساب إجمالي المبالغ "المقبوضة والمؤكدة" فقط (payment_status == 'paid')
         $totalReceived = (clone $query)
             ->where('payment_status', 'paid')
             ->sum('amount_paid');
@@ -691,29 +668,22 @@ class GuardiansController extends Controller
         return view('guardian.received-payments', compact('user', 'payments', 'totalReceived', 'paymentsCount'));
     }
 
-
     /**
-     * عرض صفحة الإشعارات الخاصة بالوصي
+     * الإشعارات
      */
     public function notifications()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-
-        // جلب إشعارات الوصي/الأمهات الحاضنات مرتبة أحدثها أولاً مع Pagination
         $notifications = $user->notifications()->latest()->paginate(10);
 
         return view('guardian.notifications', compact('user', 'notifications'));
     }
 
-    /**
-     * تعليم جميع إشعارات الوصي كمقروءة
-     */
     public function markAllRead()
     {
         try {
             $user = Auth::user();
-
-            // تعليم الإشعارات غير المقروءة كمقروءة
             $user->unreadNotifications->markAsRead();
 
             return redirect()->back()->with('success', 'تم تعليم جميع الإشعارات كمقروءة بنجاح.');
@@ -722,14 +692,35 @@ class GuardiansController extends Controller
         }
     }
 
-
+    /**
+     * الصفحة الشخصية للوصي
+     */
     public function profile()
     {
         $user = Auth::user();
         if (!$user) {
             return redirect()->route('login');
         }
-        return view('guardian.profile', ['user' => $user]);
+
+        $guardian = $user->guardian ?? Guardian::where('user_id', $user->id)->first();
+        $housing  = null;
+
+        if ($guardian) {
+            $orphanIds = orphans::where('guardian_id', $guardian->id)->pluck('id');
+
+            $housing = Housing::where('guardian_id', $guardian->id)
+                ->when($orphanIds->isNotEmpty(), function ($query) use ($orphanIds) {
+                    $query->orWhereIn('orphan_id', $orphanIds);
+                })
+                ->latest()
+                ->first();
+        }
+
+        return view('guardian.profile', [
+            'user'     => $user,
+            'guardian' => $guardian,
+            'housing'  => $housing
+        ]);
     }
 
     public function updateProfileFields(Request $request)
@@ -741,7 +732,6 @@ class GuardiansController extends Controller
             return redirect()->route('login');
         }
 
-        // 1. التحقق من صحة البيانات
         $request->validate([
             'name'                             => 'nullable|string|max:255',
             'email'                            => 'nullable|email|max:255|unique:users,email,' . $user->id,
@@ -751,7 +741,6 @@ class GuardiansController extends Controller
             'profile_photo'                    => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        // 2. تحديث جدول users
         if ($request->filled('name')) {
             $user->name = $request->name;
         }
@@ -763,17 +752,13 @@ class GuardiansController extends Controller
         }
         $user->save();
 
-        // 3. تحديث بيانات الوصي
         if ($user->guardian) {
             $guardian = $user->guardian;
 
-            // رفع وتحديث الصورة الشخصية للوصي
             if ($request->hasFile('profile_photo')) {
                 $file = $request->file('profile_photo');
                 $filename = 'guardian_avatar_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('Uploads/guardians'), $filename);
-
-                // الاعتماد على العمود الصحيح image بدلاً من guardian_id_image
                 $guardian->image = $filename;
             }
 
@@ -787,23 +772,37 @@ class GuardiansController extends Controller
 
             $guardian->save();
 
-            // تحديث جدول السكن (Housing)
-            if ($request->has('current_displacement_destination')) {
-                $housing = Housing::firstOrNew([
-                    'orphan_id' => $guardian->orphan_id
-                ]);
+            if ($request->filled('current_displacement_destination')) {
+                $orphanIds = orphans::where('guardian_id', $guardian->id)->pluck('id');
+                $firstOrphanId = $orphanIds->first();
 
-                $housing->guardian_id = $guardian->id;
-                $housing->current_displacement_destination = $request->current_displacement_destination;
-                $housing->current_housing_type = $housing->current_housing_type ?? 'غير محدد';
-                $housing->housing_condition    = $housing->housing_condition ?? 'غير محدد';
+                $housing = Housing::where('guardian_id', $guardian->id)
+                    ->when($orphanIds->isNotEmpty(), function ($q) use ($orphanIds) {
+                        $q->orWhereIn('orphan_id', $orphanIds);
+                    })
+                    ->first();
 
-                $housing->save();
+                if ($housing) {
+                    $housing->update([
+                        'guardian_id'                      => $guardian->id,
+                        'current_displacement_destination' => $request->current_displacement_destination
+                    ]);
+                } elseif ($firstOrphanId) {
+                    Housing::create([
+                        'guardian_id'                      => $guardian->id,
+                        'orphan_id'                        => $firstOrphanId,
+                        'current_displacement_destination' => $request->current_displacement_destination,
+                        'current_housing_type'             => 'غير محدد',
+                        'housing_condition'                => 'غير محدد',
+                        'original_city'                    => 'غير محدد',
+                        'detailed_current_address'         => $request->detailed_current_address ?? 'غير محدد',
+                    ]);
+                }
 
                 AuditLog::create([
-                    'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
+                    'user_id' => Auth::id(),
                     'action'  => 'تعديل بيانات وصي',
-                    'details' => 'قام الوصي بتحديث بيانته الشخصية ',
+                    'details' => 'قام الوصي بتحديث بياناته الشخصية ووجهة النزوح',
                 ]);
             }
         }
@@ -820,7 +819,6 @@ class GuardiansController extends Controller
             return redirect()->route('login');
         }
 
-        // التحقق من شروط كلمة المرور وتأكيدها
         $request->validate([
             'current_password' => 'required',
             'password'         => 'required|string|min:6|confirmed',
@@ -830,12 +828,10 @@ class GuardiansController extends Controller
             'password.min'              => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
         ]);
 
-        // التحقق من أن كلمة المرور الحالية صحيحة
         if (!Hash::check($request->current_password, $user->password)) {
             return redirect()->back()->withErrors(['current_password' => 'كلمة المرور الحالية غير صحيحة']);
         }
 
-        // تشفير وحفظ كلمة المرور الجديدة
         $user->password = Hash::make($request->password);
         $user->save();
 

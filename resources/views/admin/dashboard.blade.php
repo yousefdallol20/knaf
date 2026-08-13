@@ -102,10 +102,8 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ auth()->user()->avatar ?? asset('assets/images/admin.jpg') }}" alt=" "
-                                class="rounded-circle" width="30" height="30" style="object-fit: cover;">
                             <span
-                                class="text-small fw-bold">{{ auth()->user()->name ?? 'أ. عبد الرحمن البكري' }}</span>
+                                class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="#"><i

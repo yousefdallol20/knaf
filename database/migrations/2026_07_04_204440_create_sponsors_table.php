@@ -13,13 +13,20 @@ return new class extends Migration
     {
         Schema::create('sponsors', function (Blueprint $table) {
             $table->id();
+
+            // 1️⃣ إضافة المفتاح الأجنبي لربط الكافل بحساب المستخدم
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('image')->nullable();
-            $table->string('country');
-            $table->string('city');
+
+            // 2️⃣ إعطاء قيم افتراضية للحقول غير الموجودة في نموذج التسجيل
+            $table->string('country')->nullable()->default('-');
+            $table->string('city')->nullable()->default('-');
             $table->enum('status', ['active', 'inactive'])->default('active')->nullable();
+
             $table->timestamps();
         });
     }

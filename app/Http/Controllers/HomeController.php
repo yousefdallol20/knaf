@@ -10,26 +10,32 @@ class HomeController extends Controller
 
     public function orphans(Request $request)
     {
-        $query = orphans::query();
+        // 1. بدء الاستعلام واستثناء غير المقبولين
+        $query = orphans::query()
+            ->where('status', '!=', 'بانتظار القبول')
+            ->where('status', '!=', 'مرفوض');
 
-        // 1. البحث باسم اليتيم
+        // أو إذا كانت الحالات المقبولة محددة بوضوح استخدم whereIn:
+        // ->whereIn('status', ['بانتظار الكفالة', 'مكفول']);
+
+        // 2. البحث باسم اليتيم
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // 2. الفلترة حسب البلد / الموطن
+        // 3. فلترة الدولة
         if ($request->filled('country') && $request->country !== 'all') {
             $query->where('country', $request->country);
         }
 
-        // 3. الفلترة حسب الجنس
+        // 4. فلترة الجنس
         if ($request->filled('gender') && $request->gender !== 'all') {
             $query->where('gender', $request->gender);
         }
 
-        $data = $query->latest()->get();
+        $data = $query->get(); // أو paginate(12)
 
-        // إرجاع ملف orphans-list المباشر عند طلب Ajax
+        // إذا كان الطلب AJAX (عند البحث والتصفية)
         if ($request->ajax()) {
             return view('orphans-list', compact('data'))->render();
         }

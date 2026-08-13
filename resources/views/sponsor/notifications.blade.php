@@ -144,7 +144,7 @@
 
                             <!-- Notifications list feed -->
                             <!-- Notifications list feed -->
-                            <div class="d-flex flex-column gap-3">
+                            <div class="d-flex flex-column gap-3" id="sponsor-notifications-list">
                                 @forelse($notifications as $notification)
                                     @php
                                         // تحديد الأيقونة واللون بناءً على نوع التنبيه المرسل أو المخزن
@@ -161,8 +161,9 @@
                                         $isUnread = $notification->unread();
                                     @endphp
 
-                                    <div
-                                        class="p-3 rounded-3 border {{ $isUnread ? 'border-success bg-success-subtle' : '' }}">
+                                    <div class="notification-item p-3 rounded-3 border {{ $isUnread ? 'border-success bg-success-subtle' : 'bg-light' }}"
+                                        style="{{ $isUnread ? 'cursor: pointer;' : '' }}"
+                                        @if ($isUnread) onclick="markAllNotificationsAsRead()" @endif>
                                         <div class="d-flex align-items-start gap-3">
 
                                             <div class="p-2 rounded-circle bg-white border d-flex align-items-center justify-content-center"
@@ -218,17 +219,28 @@
 
     <script>
         function markAllNotificationsAsRead() {
+            // 1. تحديث شكل الإشعارات فوراً على الشاشة لتجربة مستخدم أسرع
+            document.querySelectorAll('#sponsor-notifications-list .bg-success-subtle').forEach(card => {
+                card.classList.remove('bg-success-subtle', 'border-success');
+                card.classList.add('bg-light');
+                card.style.cursor = 'default';
+                card.removeAttribute('onclick');
+            });
+
+            // إزالة شارة "جديد" الحمراء
+            document.querySelectorAll('#sponsor-notifications-list .badge.bg-danger').forEach(badge => badge.remove());
+
+            // 2. إرسال الطلب للسيرفر لتحديث حالة الإشعارات
             fetch("{{ route('notifications.markAllRead') }}", {
                     method: "POST",
                     headers: {
-                        "X-CSR-Token": "{{ csrf_token() }}",
-                        "Content-Type": "application/json"
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // إعادة تحميل الصفحة لتحديث مظهر الإشعارات وإزالة علامات "جديد"
+                .then(response => {
+                    if (response.ok) {
                         window.location.reload();
                     }
                 })

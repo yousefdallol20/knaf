@@ -562,9 +562,8 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="../assets/images/admin.jpg" alt=" " class="rounded-circle" width="30"
-                                height="30" style="object-fit: cover;">
-                            <span class="text-small fw-bold">أ. عبد الرحمن البكري</span>
+                            <span
+                                class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="profile.html"><i
@@ -720,16 +719,6 @@
                                 </button>
                             @endif
                         </div>
-
-                        {{-- 3. مبلغ الكفالة المقترح --}}
-                        <strong class="data-value" style="color:var(--primary-green); font-size:1.1rem;">
-                            @if (empty($orphan->status) ||
-                                    in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'بانتظار القبول', 'جديد']))
-                                <span class="text-muted fs-6">غير محدد بعد</span>
-                            @else
-                                {{ $orphan->required_amount ? number_format($orphan->required_amount, 2) . ' $' : 'غير محدد' }}
-                            @endif
-                        </strong>
                     </div>
 
                     <!-- العمود الأيسر (تفاصيل العائلة والسكن والمالية) -->
@@ -915,10 +904,12 @@
                                                 الكفالة المقترح</span>
                                             <strong class="data-value"
                                                 style="color:var(--primary-green); font-size:1.1rem;">
-                                                @if (empty($orphan->status) || in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'جديد']))
-                                                    <span class="text-muted fs-6">غير محدد بعد</span>
+                                                @if (empty($orphan->status) ||
+                                                        in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'بانتظار القبول', 'جديد']) ||
+                                                        !$orphan->required_amount)
+                                                    <span class="text-muted fs-6">لسا لم يتم التحديد</span>
                                                 @else
-                                                    {{ $orphan->required_amount ? number_format($orphan->required_amount, 2) . ' $' : 'غير محدد' }}
+                                                    {{ number_format($orphan->required_amount, 2) . ' $' }}
                                                 @endif
                                             </strong>
                                         </div>

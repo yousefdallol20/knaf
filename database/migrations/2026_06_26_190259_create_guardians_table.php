@@ -13,20 +13,27 @@ return new class extends Migration
     {
         Schema::create('guardians', function (Blueprint $table) {
             $table->id();
+
+
             $table->string('name'); // الاسم
-            $table->string('national_id', 9)->unique(); // رقم الهوية
-            $table->date('birth_date'); // تاريخ الميلاد
-            $table->string('kinship_relation'); // صلة القرابة باليتيم
-            $table->string('marital_status'); // الحالة الاجتماعية
-            $table->string('health_status'); // الحالة الصحية للوصي
+
+            // 2️⃣ جعل الحقول قابلة للـ NULL مؤقتاً لحين إكمال بيانات الملف الشخصي
+            $table->string('national_id', 9)->nullable(); // رقم الهوية
+            $table->date('birth_date')->nullable(); // تاريخ الميلاد
+            $table->string('kinship_relation')->nullable(); // صلة القرابة باليتيم
+            $table->string('marital_status')->nullable(); // الحالة الاجتماعية
+            $table->string('health_status')->nullable(); // الحالة الصحية للوصي
             $table->text('health_details')->nullable(); // تفاصيل الحالة الصحية والطبية للوصي
-            $table->string('income_source')->nullable(); // مصدر الدخل (اختياري في الفورم)
+            $table->string('income_source')->nullable(); // مصدر الدخل (اختياري)
 
-            $table->string('guardian_id_image'); // صورة هوية الوصي الشخصية
-            $table->string('legal_guardianship_document'); // صك الوصاية القانونية الشرعي
+            // 3️⃣ وضع قيم افتراضية للمستندات والأسناد
+            $table->string('guardian_id_image')->nullable()->default('default.jpg'); // صورة هوية الوصي الشخصية
+            $table->string('legal_guardianship_document')->nullable()->default('default.pdf'); // صك الوصاية القانونية الشرعي
 
-            // المفتاح الأجنبي يشير إلى اليتيم (اليتيم هو الكيان الأب). الاسم صُحِّح من guardian_id إلى orphan_id.
-            $table->foreignId('orphan_id')->references('id')->on('orphans')->onUpdate('cascade')->onDelete('cascade');
+            // 4️⃣ جعل orphan_id قابل للـ NULL لأن الوصي ينشئ حسابه قبل إضافة الأيتام
+            $table->foreignId('orphan_id')->nullable()->references('id')->on('orphans')->onUpdate('cascade')->onDelete('cascade');
+            // 1️⃣ إضافة المفتاح الأجنبي لربط الوصي بحساب المستخدم
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
 
             $table->timestamps();
         });

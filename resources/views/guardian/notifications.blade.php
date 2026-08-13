@@ -100,7 +100,7 @@
                     </nav>
 
                     <button type="button" class="btn btn-outline-primary btn-sm fw-bold"
-                        onclick="markAllNotificationsAsRead">
+                        onclick="markAllNotificationsAsRead()">
                         <i class="bi bi-check-all fs-5 me-1"></i> تحديد الكل كمقروء
                     </button>
                 </div>
@@ -126,8 +126,9 @@
                                         $isUnread = is_null($notification->read_at);
                                     @endphp
 
-                                    <div
-                                        class="p-3 rounded-3 border {{ $isUnread ? 'border-success bg-success-subtle' : 'bg-light' }}">
+                                    <div class="notification-item p-3 rounded-3 border {{ $isUnread ? 'border-success bg-success-subtle' : 'bg-light' }}"
+                                        style="{{ $isUnread ? 'cursor: pointer;' : '' }}"
+                                        @if ($isUnread) onclick="markAllNotificationsAsRead()" @endif>
                                         <div class="d-flex align-items-start gap-3">
                                             <div class="p-2 rounded-circle bg-white border d-flex align-items-center justify-content-center"
                                                 style="width:42px;height:42px;">
@@ -177,6 +178,17 @@
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
     <script>
         function markAllNotificationsAsRead() {
+            // 1. تحديث شكل الإشعارات فوراً في الشاشة لإعطاء استجابة سريعة للمستخدم
+            document.querySelectorAll('#guardian-notifications-list .bg-success-subtle').forEach(card => {
+                card.classList.remove('bg-success-subtle', 'border-success');
+                card.classList.add('bg-light');
+                card.style.cursor = 'default';
+            });
+
+            // إزالة شارة "جديد" الحمراء
+            document.querySelectorAll('#guardian-notifications-list .badge.bg-danger').forEach(badge => badge.remove());
+
+            // 2. إرسال الطلب لجدول الإشعارات في قاعدة البيانات
             fetch("{{ route('guardian_notifications.markAllRead') }}", {
                     method: "POST",
                     headers: {
@@ -187,6 +199,7 @@
                 })
                 .then(response => {
                     if (response.ok) {
+                        // إعادة تحميل الصفحة لتحديث حالة البيانات بالكامل
                         window.location.reload();
                     }
                 })

@@ -166,7 +166,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($sponsorships as $info)
+                                        @forelse ($sponsorships as $info)
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center gap-3">
@@ -213,7 +213,14 @@
                                                     </div>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4 text-muted">
+                                                    <i class="bi bi-inbox fs-3 d-block mb-2 text-secondary"></i>
+                                                    لم يتم كفالة أي يتيم حتى الآن
+                                                </td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>

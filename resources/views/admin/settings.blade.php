@@ -314,19 +314,23 @@
                     <a href="{{ route('payments_admin') }}"><i class="bi bi-wallet2"></i> إدارة المدفوعات</a>
                 </li>
                 <li class="menu-item" id="menu-docs">
-                    <a href="{{ route('documents_admin') }}"><i class="bi bi-file-earmark-lock-fill"></i> مراجعة التوثيق</a>
+                    <a href="{{ route('documents_admin') }}"><i class="bi bi-file-earmark-lock-fill"></i> مراجعة
+                        التوثيق</a>
                 </li>
                 <li class="menu-item" id="menu-users">
                     <a href="{{ route('admin.users.index') }}"><i class="bi bi-person-circle"></i> إدارة المستخدمين</a>
                 </li>
                 <li class="menu-item" id="menu-permissions">
-                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات والأدوار</a>
+                    <a href="{{ route('admin.permissions.index') }}"><i class="bi bi-key-fill"></i> الصلاحيات
+                        والأدوار</a>
                 </li>
                 <li class="menu-item" id="menu-reports">
-                    <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير والتحليلات</a>
+                    <a href="{{ route('reports_admin') }}"><i class="bi bi-file-earmark-bar-graph-fill"></i> التقارير
+                        والتحليلات</a>
                 </li>
                 <li class="menu-item" id="menu-notifications">
-                    <a href="{{ route('admin.notifications.index') }}"><i class="bi bi-send-fill"></i> الإرسال الجماعي والإشعار</a>
+                    <a href="{{ route('admin.notifications.index') }}"><i class="bi bi-send-fill"></i> الإرسال الجماعي
+                        والإشعار</a>
                 </li>
                 <li class="menu-item" id="menu-audit">
                     <a href="{{ route('audit_admin') }}"><i class="bi bi-journal-text"></i> سجل العمليات السري</a>
@@ -359,18 +363,20 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ asset('assets/images/admin.jpg') }}" alt=" " class="rounded-circle" width="30"
-                                height="30" style="object-fit: cover;">
-                            <span class="text-small fw-bold">{{ Auth::user()->name ?? 'أ. عبد الرحمن البكري' }}</span>
+                            <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
                             <li><a class="dropdown-item text-small text-right" href="#"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100"><i class="bi bi-box-arrow-right me-2"></i> خروج آمن</button>
+                                    <button type="submit"
+                                        class="dropdown-item text-small text-danger text-right border-0 bg-transparent w-100"><i
+                                            class="bi bi-box-arrow-right me-2"></i> خروج آمن</button>
                                 </form>
                             </li>
                         </ul>
@@ -381,10 +387,12 @@
             <div class="dashboard-container">
 
                 <!-- رسائل النجاح أو الأخطاء التلقائية -->
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show text-right text-small mb-4" role="alert">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show text-right text-small mb-4"
+                        role="alert">
                         <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                            aria-label="Close"></button>
                     </div>
                 @endif
 
@@ -392,12 +400,14 @@
                 <div class="p-4 rounded-4 shadow-sm mb-4 text-white"
                     style="background: linear-gradient(135deg, var(--primary-green) 0%, #0d381c 100%);">
                     <div class="d-flex align-items-center gap-3">
-                        <div style="width:52px;height:52px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">
+                        <div
+                            style="width:52px;height:52px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">
                             <i class="bi bi-sliders"></i>
                         </div>
                         <div>
                             <h4 class="fw-bold mb-1">إعدادات وضبط المنظومة</h4>
-                            <p class="mb-0 text-white-50 small">تحكم كامل في بيانات المنظمة، وسائل التواصل، الإشعارات، الصلاحيات، والأمان</p>
+                            <p class="mb-0 text-white-50 small">تحكم كامل في بيانات المنظمة، وسائل التواصل، الإشعارات،
+                                الصلاحيات، والأمان</p>
                         </div>
                     </div>
                 </div>
@@ -408,22 +418,28 @@
                     <div class="col-lg-3">
                         <div class="settings-nav">
                             <div class="nav flex-column" id="settingsTab" role="tablist">
-                                <button class="nav-link active" id="tab-org" data-bs-toggle="tab" data-bs-target="#panel-org" type="button">
+                                <button class="nav-link active" id="tab-org" data-bs-toggle="tab"
+                                    data-bs-target="#panel-org" type="button">
                                     <i class="bi bi-building"></i> بيانات المنظمة
                                 </button>
-                                <button class="nav-link" id="tab-contact" data-bs-toggle="tab" data-bs-target="#panel-contact" type="button">
+                                <button class="nav-link" id="tab-contact" data-bs-toggle="tab"
+                                    data-bs-target="#panel-contact" type="button">
                                     <i class="bi bi-telephone-fill"></i> وسائل التواصل
                                 </button>
-                                <button class="nav-link" id="tab-notif" data-bs-toggle="tab" data-bs-target="#panel-notif" type="button">
+                                <button class="nav-link" id="tab-notif" data-bs-toggle="tab"
+                                    data-bs-target="#panel-notif" type="button">
                                     <i class="bi bi-bell-fill"></i> الإشعارات والتنبيهات
                                 </button>
-                                <button class="nav-link" id="tab-users" data-bs-toggle="tab" data-bs-target="#panel-users" type="button">
+                                <button class="nav-link" id="tab-users" data-bs-toggle="tab"
+                                    data-bs-target="#panel-users" type="button">
                                     <i class="bi bi-people-fill"></i> المستخدمون والصلاحيات
                                 </button>
-                                <button class="nav-link" id="tab-payments" data-bs-toggle="tab" data-bs-target="#panel-payments" type="button">
+                                <button class="nav-link" id="tab-payments" data-bs-toggle="tab"
+                                    data-bs-target="#panel-payments" type="button">
                                     <i class="bi bi-cash-coin"></i> إعدادات الدفع
                                 </button>
-                                <button class="nav-link" id="tab-security" data-bs-toggle="tab" data-bs-target="#panel-security" type="button">
+                                <button class="nav-link" id="tab-security" data-bs-toggle="tab"
+                                    data-bs-target="#panel-security" type="button">
                                     <i class="bi bi-shield-lock-fill"></i> الأمان والنسخ الاحتياطي
                                 </button>
                             </div>
@@ -438,28 +454,42 @@
                             <div class="tab-pane fade show active" id="panel-org">
                                 <div class="settings-panel">
                                     <div class="settings-panel-header">
-                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-building me-2 text-primary-green"></i>بيانات المنظمة الرسمية</h5>
-                                        <p class="text-muted small mb-0 mt-1">المعلومات الأساسية التي تظهر على الوثائق والتقارير الرسمية</p>
+                                        <h5 class="fw-bold mb-0 text-dark"><i
+                                                class="bi bi-building me-2 text-primary-green"></i>بيانات المنظمة
+                                            الرسمية</h5>
+                                        <p class="text-muted small mb-0 mt-1">المعلومات الأساسية التي تظهر على الوثائق
+                                            والتقارير الرسمية</p>
                                     </div>
 
                                     <!-- نموذج رفع الشعار المنفصل -->
                                     <div class="settings-panel-body border-bottom">
-                                        <form action="{{ route('admin.settings.uploadLogo') }}" method="POST" enctype="multipart/form-data">
+                                        <form action="{{ route('admin.settings.uploadLogo') }}" method="POST"
+                                            enctype="multipart/form-data">
                                             @csrf
-                                            <div class="d-flex align-items-center gap-4 p-3 rounded-3" style="background:#f8fafc;border:1px solid #e2e8f0;">
-                                                <div style="width:72px;height:72px;background:var(--primary-green);border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
-                                                    @if(isset($settings['org_logo']))
-                                                        <img src="{{ asset('storage/' . $settings['org_logo']) }}" alt="الشعار" style="width:100%;height:100%;object-fit:cover;">
+                                            <div class="d-flex align-items-center gap-4 p-3 rounded-3"
+                                                style="background:#f8fafc;border:1px solid #e2e8f0;">
+                                                <div
+                                                    style="width:72px;height:72px;background:var(--primary-green);border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                                                    @if (isset($settings['org_logo']))
+                                                        <img src="{{ asset('storage/' . $settings['org_logo']) }}"
+                                                            alt="الشعار"
+                                                            style="width:100%;height:100%;object-fit:cover;">
                                                     @else
                                                         <i class="bi bi-tree-fill text-white fs-2"></i>
                                                     @endif
                                                 </div>
                                                 <div>
                                                     <div class="fw-bold mb-1">شعار المنظمة الحالي</div>
-                                                    <div class="text-muted small mb-2">PNG أو JPG بحجم أقصى 2 ميغابايت</div>
+                                                    <div class="text-muted small mb-2">PNG أو JPG بحجم أقصى 2 ميغابايت
+                                                    </div>
                                                     <div class="d-flex gap-2">
-                                                        <input type="file" name="org_logo" id="org_logo_input" class="form-control form-control-sm d-none" onchange="this.form.submit()">
-                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('org_logo_input').click()"><i class="bi bi-upload me-1"></i>رفع شعار جديد</button>
+                                                        <input type="file" name="org_logo" id="org_logo_input"
+                                                            class="form-control form-control-sm d-none"
+                                                            onchange="this.form.submit()">
+                                                        <button type="button"
+                                                            class="btn btn-outline-secondary btn-sm"
+                                                            onclick="document.getElementById('org_logo_input').click()"><i
+                                                                class="bi bi-upload me-1"></i>رفع شعار جديد</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -472,48 +502,63 @@
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">اسم المنظمة (عربي)</label>
-                                                    <input type="text" name="org_name_ar" class="form-control" value="{{ $settings['org_name_ar'] ?? 'منظومة كنف للكفالة' }}">
+                                                    <input type="text" name="org_name_ar" class="form-control"
+                                                        value="{{ $settings['org_name_ar'] ?? 'منظومة كنف للكفالة' }}">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">اسم المنظمة (إنجليزي)</label>
-                                                    <input type="text" name="org_name_en" class="form-control" value="{{ $settings['org_name_en'] ?? 'Kanaf Orphan Care' }}">
+                                                    <input type="text" name="org_name_en" class="form-control"
+                                                        value="{{ $settings['org_name_en'] ?? 'Kanaf Orphan Care' }}">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">رقم الترخيص / السجل الرسمي</label>
-                                                    <input type="text" name="org_license" class="form-control" value="{{ $settings['org_license'] ?? 'NGO-2019-00148' }}">
+                                                    <input type="text" name="org_license" class="form-control"
+                                                        value="{{ $settings['org_license'] ?? 'NGO-2019-00148' }}">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">البريد الإلكتروني الرسمي</label>
-                                                    <input type="email" name="org_email" class="form-control" value="{{ $settings['org_email'] ?? 'info@kanaf.org' }}">
+                                                    <input type="email" name="org_email" class="form-control"
+                                                        value="{{ $settings['org_email'] ?? 'info@kanaf.org' }}">
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="form-label">العنوان الكامل</label>
-                                                    <input type="text" name="org_address" class="form-control" value="{{ $settings['org_address'] ?? 'نابلس، فلسطين - شارع المدينة، مبنى الخدمات الاجتماعية' }}">
+                                                    <input type="text" name="org_address" class="form-control"
+                                                        value="{{ $settings['org_address'] ?? 'نابلس، فلسطين - شارع المدينة، مبنى الخدمات الاجتماعية' }}">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">الدولة / الإقليم</label>
                                                     <select name="org_country" class="form-select">
-                                                        <option value="فلسطين" {{ ($settings['org_country'] ?? '') == 'فلسطين' ? 'selected' : '' }}>فلسطين</option>
-                                                        <option value="الأردن" {{ ($settings['org_country'] ?? '') == 'الأردن' ? 'selected' : '' }}>الأردن</option>
-                                                        <option value="لبنان" {{ ($settings['org_country'] ?? '') == 'لبنان' ? 'selected' : '' }}>لبنان</option>
+                                                        <option value="فلسطين"
+                                                            {{ ($settings['org_country'] ?? '') == 'فلسطين' ? 'selected' : '' }}>
+                                                            فلسطين</option>
+                                                        <option value="الأردن"
+                                                            {{ ($settings['org_country'] ?? '') == 'الأردن' ? 'selected' : '' }}>
+                                                            الأردن</option>
+                                                        <option value="لبنان"
+                                                            {{ ($settings['org_country'] ?? '') == 'لبنان' ? 'selected' : '' }}>
+                                                            لبنان</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">المدينة</label>
-                                                    <input type="text" name="org_city" class="form-control" value="{{ $settings['org_city'] ?? 'نابلس' }}">
+                                                    <input type="text" name="org_city" class="form-control"
+                                                        value="{{ $settings['org_city'] ?? 'نابلس' }}">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">الرمز البريدي</label>
-                                                    <input type="text" name="org_zipcode" class="form-control" value="{{ $settings['org_zipcode'] ?? '44000' }}">
+                                                    <input type="text" name="org_zipcode" class="form-control"
+                                                        value="{{ $settings['org_zipcode'] ?? '44000' }}">
                                                 </div>
                                                 <div class="col-12">
-                                                    <label class="form-label">نبذة عن المنظمة (تظهر في التقارير)</label>
+                                                    <label class="form-label">نبذة عن المنظمة (تظهر في
+                                                        التقارير)</label>
                                                     <textarea name="org_about" class="form-control" rows="3">{{ $settings['org_about'] ?? 'منظومة كنف هي مبادرة إنسانية تُعنى برعاية الأطفال الأيتام وتأمين كفالتهم من خلال منظومة شاملة تربط بين الكافلين والأسر بإشراف متخصص.' }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="save-bar">
-                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>المزامنة نشطة التخزين</span>
+                                            <span class="text-muted small"><i
+                                                    class="bi bi-info-circle me-1"></i>المزامنة نشطة التخزين</span>
                                             <button type="submit" class="btn btn-primary-green px-4">
                                                 <i class="bi bi-floppy-fill me-2"></i>حفظ بيانات المنظمة
                                             </button>
@@ -526,86 +571,116 @@
                             <div class="tab-pane fade" id="panel-contact">
                                 <div class="settings-panel">
                                     <div class="settings-panel-header">
-                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-telephone-fill me-2" style="color:var(--primary-green)"></i>وسائل التواصل والاتصال</h5>
-                                        <p class="text-muted small mb-0 mt-1">قنوات التواصل الرسمية الظاهرة للكافلين والجهات الخارجية</p>
+                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-telephone-fill me-2"
+                                                style="color:var(--primary-green)"></i>وسائل التواصل والاتصال</h5>
+                                        <p class="text-muted small mb-0 mt-1">قنوات التواصل الرسمية الظاهرة للكافلين
+                                            والجهات الخارجية</p>
                                     </div>
                                     <form action="{{ route('admin.settings.update') }}" method="POST">
                                         @csrf
                                         <div class="settings-panel-body">
                                             <!-- الهواتف -->
-                                            <div class="section-divider"><i class="bi bi-phone-fill"></i> أرقام الهاتف</div>
+                                            <div class="section-divider"><i class="bi bi-phone-fill"></i> أرقام الهاتف
+                                            </div>
                                             <div class="row g-3 mb-3">
                                                 <div class="col-md-4">
                                                     <label class="form-label">الهاتف الرئيسي</label>
-                                                    <input type="text" name="contact_phone" class="form-control" value="{{ $settings['contact_phone'] ?? '+970 9 234 5678' }}">
+                                                    <input type="text" name="contact_phone" class="form-control"
+                                                        value="{{ $settings['contact_phone'] ?? '+970 9 234 5678' }}">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">هاتف الطوارئ / المنسق</label>
-                                                    <input type="text" name="contact_emergency" class="form-control" value="{{ $settings['contact_emergency'] ?? '+970 59 876 5432' }}">
+                                                    <input type="text" name="contact_emergency"
+                                                        class="form-control"
+                                                        value="{{ $settings['contact_emergency'] ?? '+970 59 876 5432' }}">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">رقم الفاكس</label>
-                                                    <input type="text" name="contact_fax" class="form-control" value="{{ $settings['contact_fax'] ?? '+970 9 234 5679' }}">
+                                                    <input type="text" name="contact_fax" class="form-control"
+                                                        value="{{ $settings['contact_fax'] ?? '+970 9 234 5679' }}">
                                                 </div>
                                             </div>
 
                                             <!-- البريد الإلكتروني -->
-                                            <div class="section-divider"><i class="bi bi-envelope-fill"></i> البريد الإلكتروني</div>
+                                            <div class="section-divider"><i class="bi bi-envelope-fill"></i> البريد
+                                                الإلكتروني</div>
                                             <div class="row g-3 mb-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">البريد العام</label>
-                                                    <input type="email" name="email_general" class="form-control" value="{{ $settings['email_general'] ?? 'info@kanaf.org' }}">
+                                                    <input type="email" name="email_general" class="form-control"
+                                                        value="{{ $settings['email_general'] ?? 'info@kanaf.org' }}">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">بريد الدعم والشكاوى</label>
-                                                    <input type="email" name="email_support" class="form-control" value="{{ $settings['email_support'] ?? 'support@kanaf.org' }}">
+                                                    <input type="email" name="email_support" class="form-control"
+                                                        value="{{ $settings['email_support'] ?? 'support@kanaf.org' }}">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">بريد المحاسبة والمالية</label>
-                                                    <input type="email" name="email_finance" class="form-control" value="{{ $settings['email_finance'] ?? 'finance@kanaf.org' }}">
+                                                    <input type="email" name="email_finance" class="form-control"
+                                                        value="{{ $settings['email_finance'] ?? 'finance@kanaf.org' }}">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">بريد التنسيق مع المانحين</label>
-                                                    <input type="email" name="email_donors" class="form-control" value="{{ $settings['email_donors'] ?? 'donors@kanaf.org' }}">
+                                                    <input type="email" name="email_donors" class="form-control"
+                                                        value="{{ $settings['email_donors'] ?? 'donors@kanaf.org' }}">
                                                 </div>
                                             </div>
 
                                             <!-- منصات التواصل الاجتماعي -->
-                                            <div class="section-divider"><i class="bi bi-share-fill"></i> منصات التواصل الاجتماعي</div>
+                                            <div class="section-divider"><i class="bi bi-share-fill"></i> منصات
+                                                التواصل الاجتماعي</div>
                                             <div class="row g-3 mb-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label"><i class="bi bi-facebook text-primary me-1"></i>فيسبوك</label>
-                                                    <input type="text" name="social_facebook" class="form-control" value="{{ $settings['social_facebook'] ?? 'kanaf.org.ps' }}">
+                                                    <label class="form-label"><i
+                                                            class="bi bi-facebook text-primary me-1"></i>فيسبوك</label>
+                                                    <input type="text" name="social_facebook" class="form-control"
+                                                        value="{{ $settings['social_facebook'] ?? 'kanaf.org.ps' }}">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label"><i class="bi bi-instagram text-danger me-1"></i>إنستغرام</label>
-                                                    <input type="text" name="social_instagram" class="form-control" value="{{ $settings['social_instagram'] ?? 'kanaf_care' }}">
+                                                    <label class="form-label"><i
+                                                            class="bi bi-instagram text-danger me-1"></i>إنستغرام</label>
+                                                    <input type="text" name="social_instagram"
+                                                        class="form-control"
+                                                        value="{{ $settings['social_instagram'] ?? 'kanaf_care' }}">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label"><i class="bi bi-twitter-x me-1"></i>تويتر / X</label>
-                                                    <input type="text" name="social_x" class="form-control" value="{{ $settings['social_x'] ?? 'kanaf_ps' }}">
+                                                    <label class="form-label"><i
+                                                            class="bi bi-twitter-x me-1"></i>تويتر / X</label>
+                                                    <input type="text" name="social_x" class="form-control"
+                                                        value="{{ $settings['social_x'] ?? 'kanaf_ps' }}">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label"><i class="bi bi-youtube text-danger me-1"></i>يوتيوب</label>
-                                                    <input type="text" name="social_youtube" class="form-control" value="{{ $settings['social_youtube'] ?? '' }}" placeholder="اختياري">
+                                                    <label class="form-label"><i
+                                                            class="bi bi-youtube text-danger me-1"></i>يوتيوب</label>
+                                                    <input type="text" name="social_youtube" class="form-control"
+                                                        value="{{ $settings['social_youtube'] ?? '' }}"
+                                                        placeholder="اختياري">
                                                 </div>
                                             </div>
 
                                             <!-- واتساب وتيليغرام -->
-                                            <div class="section-divider"><i class="bi bi-chat-dots-fill"></i> قنوات المراسلة الفورية</div>
+                                            <div class="section-divider"><i class="bi bi-chat-dots-fill"></i> قنوات
+                                                المراسلة الفورية</div>
                                             <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label"><i class="bi bi-whatsapp text-success me-1"></i>واتساب (خط التواصل)</label>
-                                                    <input type="text" name="social_whatsapp" class="form-control" value="{{ $settings['social_whatsapp'] ?? '970591234567' }}">
+                                                    <label class="form-label"><i
+                                                            class="bi bi-whatsapp text-success me-1"></i>واتساب (خط
+                                                        التواصل)</label>
+                                                    <input type="text" name="social_whatsapp" class="form-control"
+                                                        value="{{ $settings['social_whatsapp'] ?? '970591234567' }}">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label"><i class="bi bi-telegram text-info me-1"></i>تيليغرام</label>
-                                                    <input type="text" name="social_telegram" class="form-control" value="{{ $settings['social_telegram'] ?? 'kanaf_news' }}">
+                                                    <label class="form-label"><i
+                                                            class="bi bi-telegram text-info me-1"></i>تيليغرام</label>
+                                                    <input type="text" name="social_telegram" class="form-control"
+                                                        value="{{ $settings['social_telegram'] ?? 'kanaf_news' }}">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="save-bar">
-                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>حفظ فوري لقنوات الربط</span>
+                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>حفظ
+                                                فوري لقنوات الربط</span>
                                             <button type="submit" class="btn btn-primary-green px-4">
                                                 <i class="bi bi-floppy-fill me-2"></i>حفظ جهات الاتصال
                                             </button>
@@ -618,23 +693,30 @@
                             <div class="tab-pane fade" id="panel-notif">
                                 <div class="settings-panel">
                                     <div class="settings-panel-header">
-                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-bell-fill me-2" style="color:var(--primary-green)"></i>الإشعارات والتنبيهات</h5>
-                                        <p class="text-muted small mb-0 mt-1">تحكم في متى وكيف يتلقى المسؤولون والكافلون الإشعارات</p>
+                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-bell-fill me-2"
+                                                style="color:var(--primary-green)"></i>الإشعارات والتنبيهات</h5>
+                                        <p class="text-muted small mb-0 mt-1">تحكم في متى وكيف يتلقى المسؤولون
+                                            والكافلون الإشعارات</p>
                                     </div>
                                     <form action="{{ route('admin.settings.update') }}" method="POST">
                                         @csrf
                                         <div class="settings-panel-body">
-                                            <div class="section-divider"><i class="bi bi-person-lines-fill"></i> إشعارات المسؤولين</div>
+                                            <div class="section-divider"><i class="bi bi-person-lines-fill"></i>
+                                                إشعارات المسؤولين</div>
 
                                             <!-- إشعارات مخفية يتم إرسالها كـ 0 عند إلغاء تفعيل السويتش -->
                                             <input type="hidden" name="notify_new_sponsor" value="0">
                                             <div class="notif-row">
                                                 <div>
                                                     <div class="notif-label">تسجيل كافل جديد</div>
-                                                    <div class="notif-desc">إشعار فوري عند تسجيل كافل جديد في المنظومة</div>
+                                                    <div class="notif-desc">إشعار فوري عند تسجيل كافل جديد في المنظومة
+                                                    </div>
                                                 </div>
                                                 <div class="form-check form-switch ms-3">
-                                                    <input class="form-check-input" type="checkbox" name="notify_new_sponsor" value="1" {{ ($settings['notify_new_sponsor'] ?? '1') == '1' ? 'checked' : '' }} style="width:2.5em;height:1.3em;">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        name="notify_new_sponsor" value="1"
+                                                        {{ ($settings['notify_new_sponsor'] ?? '1') == '1' ? 'checked' : '' }}
+                                                        style="width:2.5em;height:1.3em;">
                                                 </div>
                                             </div>
 
@@ -642,10 +724,14 @@
                                             <div class="notif-row">
                                                 <div>
                                                     <div class="notif-label">وثيقة بانتظار المصادقة</div>
-                                                    <div class="notif-desc">تنبيه عند رفع وثيقة جديدة تحتاج مراجعة ومصادقة</div>
+                                                    <div class="notif-desc">تنبيه عند رفع وثيقة جديدة تحتاج مراجعة
+                                                        ومصادقة</div>
                                                 </div>
                                                 <div class="form-check form-switch ms-3">
-                                                    <input class="form-check-input" type="checkbox" name="notify_doc_auth" value="1" {{ ($settings['notify_doc_auth'] ?? '1') == '1' ? 'checked' : '' }} style="width:2.5em;height:1.3em;">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        name="notify_doc_auth" value="1"
+                                                        {{ ($settings['notify_doc_auth'] ?? '1') == '1' ? 'checked' : '' }}
+                                                        style="width:2.5em;height:1.3em;">
                                                 </div>
                                             </div>
 
@@ -653,10 +739,14 @@
                                             <div class="notif-row">
                                                 <div>
                                                     <div class="notif-label">دفعة مالية مستلمة</div>
-                                                    <div class="notif-desc">إشعار عند تأكيد استلام حوالة مالية جديدة</div>
+                                                    <div class="notif-desc">إشعار عند تأكيد استلام حوالة مالية جديدة
+                                                    </div>
                                                 </div>
                                                 <div class="form-check form-switch ms-3">
-                                                    <input class="form-check-input" type="checkbox" name="notify_payment_received" value="1" {{ ($settings['notify_payment_received'] ?? '1') == '1' ? 'checked' : '' }} style="width:2.5em;height:1.3em;">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        name="notify_payment_received" value="1"
+                                                        {{ ($settings['notify_payment_received'] ?? '1') == '1' ? 'checked' : '' }}
+                                                        style="width:2.5em;height:1.3em;">
                                                 </div>
                                             </div>
 
@@ -664,31 +754,45 @@
                                             <div class="notif-row">
                                                 <div>
                                                     <div class="notif-label">كفالة على وشك الانتهاء</div>
-                                                    <div class="notif-desc">تذكير قبل 30 يوماً من انتهاء مدة أي كفالة</div>
+                                                    <div class="notif-desc">تذكير قبل 30 يوماً من انتهاء مدة أي كفالة
+                                                    </div>
                                                 </div>
                                                 <div class="form-check form-switch ms-3">
-                                                    <input class="form-check-input" type="checkbox" name="notify_sponsorship_end" value="1" {{ ($settings['notify_sponsorship_end'] ?? '1') == '1' ? 'checked' : '' }} style="width:2.5em;height:1.3em;">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        name="notify_sponsorship_end" value="1"
+                                                        {{ ($settings['notify_sponsorship_end'] ?? '1') == '1' ? 'checked' : '' }}
+                                                        style="width:2.5em;height:1.3em;">
                                                 </div>
                                             </div>
 
-                                            <div class="section-divider"><i class="bi bi-send-fill"></i> قناة وتوقيت الإرسال</div>
+                                            <div class="section-divider"><i class="bi bi-send-fill"></i> قناة وتوقيت
+                                                الإرسال</div>
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">قناة الإرسال الافتراضية</label>
                                                     <select name="notification_channel" class="form-select">
-                                                        <option value="all" {{ ($settings['notification_channel'] ?? '') == 'all' ? 'selected' : '' }}>البريد الإلكتروني + واتساب</option>
-                                                        <option value="email" {{ ($settings['notification_channel'] ?? '') == 'email' ? 'selected' : '' }}>البريد الإلكتروني فقط</option>
-                                                        <option value="whatsapp" {{ ($settings['notification_channel'] ?? '') == 'whatsapp' ? 'selected' : '' }}>واتساب فقط</option>
+                                                        <option value="all"
+                                                            {{ ($settings['notification_channel'] ?? '') == 'all' ? 'selected' : '' }}>
+                                                            البريد الإلكتروني + واتساب</option>
+                                                        <option value="email"
+                                                            {{ ($settings['notification_channel'] ?? '') == 'email' ? 'selected' : '' }}>
+                                                            البريد الإلكتروني فقط</option>
+                                                        <option value="whatsapp"
+                                                            {{ ($settings['notification_channel'] ?? '') == 'whatsapp' ? 'selected' : '' }}>
+                                                            واتساب فقط</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">توقيت إرسال الإشعارات اليومية</label>
-                                                    <input type="time" name="notification_time" class="form-control" value="{{ $settings['notification_time'] ?? '09:00' }}">
+                                                    <input type="time" name="notification_time"
+                                                        class="form-control"
+                                                        value="{{ $settings['notification_time'] ?? '09:00' }}">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="save-bar">
-                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>تعديل خريطة التنبيهات</span>
+                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>تعديل
+                                                خريطة التنبيهات</span>
                                             <button type="submit" class="btn btn-primary-green px-4">
                                                 <i class="bi bi-floppy-fill me-2"></i>حفظ قنوات التنبيه
                                             </button>
@@ -700,12 +804,18 @@
                             <!-- ════ 4. المستخدمون والصلاحيات ════ -->
                             <div class="tab-pane fade" id="panel-users">
                                 <div class="settings-panel">
-                                    <div class="settings-panel-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <div
+                                        class="settings-panel-header d-flex align-items-center justify-content-between flex-wrap gap-2">
                                         <div>
-                                            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people-fill me-2"></i>إدارة المستخدمين والصلاحيات الحالية</h5>
-                                            <p class="text-muted small mb-0 mt-1">عرض أدوار فريق العمل ومستويات الوصول المسجلة حالياً</p>
+                                            <h5 class="fw-bold mb-0 text-dark"><i
+                                                    class="bi bi-people-fill me-2"></i>إدارة المستخدمين والصلاحيات
+                                                الحالية</h5>
+                                            <p class="text-muted small mb-0 mt-1">عرض أدوار فريق العمل ومستويات الوصول
+                                                المسجلة حالياً</p>
                                         </div>
-                                        <a href="{{ route('admin.users.index') }}" class="btn btn-primary-green btn-sm"><i class="bi bi-person-plus-fill me-1"></i>التحكم بالمستخدمين</a>
+                                        <a href="{{ route('admin.users.index') }}"
+                                            class="btn btn-primary-green btn-sm"><i
+                                                class="bi bi-person-plus-fill me-1"></i>التحكم بالمستخدمين</a>
                                     </div>
                                     <div class="settings-panel-body">
                                         <div class="table-responsive">
@@ -723,34 +833,51 @@
                                                         <tr>
                                                             <td>
                                                                 <div class="d-flex align-items-center gap-2">
-                                                                    <div style="width:36px;height:36px;background:var(--primary-green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;">
+                                                                    <div
+                                                                        style="width:36px;height:36px;background:var(--primary-green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;">
                                                                         {{ mb_substr($user->name, 0, 2) }}
                                                                     </div>
                                                                     <div>
-                                                                        <div class="fw-semibold">{{ $user->name }}</div>
-                                                                        <div class="text-muted" style="font-size:.75rem;">{{ $user->email }}</div>
+                                                                        <div class="fw-semibold">{{ $user->name }}
+                                                                        </div>
+                                                                        <div class="text-muted"
+                                                                            style="font-size:.75rem;">
+                                                                            {{ $user->email }}</div>
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                @if($user->role == 'admin')
-                                                                    <span class="role-badge" style="background:#fee2e2;color:#991b1b;"><i class="bi bi-shield-fill-check"></i>إداري عام</span>
+                                                                @if ($user->role == 'admin')
+                                                                    <span class="role-badge"
+                                                                        style="background:#fee2e2;color:#991b1b;"><i
+                                                                            class="bi bi-shield-fill-check"></i>إداري
+                                                                        عام</span>
                                                                 @elseif($user->role == 'financial')
-                                                                    <span class="role-badge" style="background:#ede9fe;color:#6d28d9;"><i class="bi bi-cash-stack"></i>مسؤول المالية</span>
+                                                                    <span class="role-badge"
+                                                                        style="background:#ede9fe;color:#6d28d9;"><i
+                                                                            class="bi bi-cash-stack"></i>مسؤول
+                                                                        المالية</span>
                                                                 @else
-                                                                    <span class="role-badge" style="background:#f1f5f9;color:#64748b;"><i class="bi bi-eye-fill"></i>مراقب للنظام</span>
+                                                                    <span class="role-badge"
+                                                                        style="background:#f1f5f9;color:#64748b;"><i
+                                                                            class="bi bi-eye-fill"></i>مراقب
+                                                                        للنظام</span>
                                                                 @endif
                                                             </td>
-                                                            <td><span class="text-muted small">{{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->diffForHumans() : 'لم يسجل دخول' }}</span></td>
+                                                            <td><span
+                                                                    class="text-muted small">{{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->diffForHumans() : 'لم يسجل دخول' }}</span>
+                                                            </td>
                                                             <td>
-                                                                <span class="badge {{ $user->status == 'active' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning' }} border">
+                                                                <span
+                                                                    class="badge {{ $user->status == 'active' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning' }} border">
                                                                     {{ $user->status == 'active' ? 'نشط' : 'معلق' }}
                                                                 </span>
                                                             </td>
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="4" class="text-center text-muted py-3">لا يوجد مستخدمين مسجلين حالياً.</td>
+                                                            <td colspan="4" class="text-center text-muted py-3">لا
+                                                                يوجد مستخدمين مسجلين حالياً.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
@@ -764,62 +891,83 @@
                             <div class="tab-pane fade" id="panel-payments">
                                 <div class="settings-panel">
                                     <div class="settings-panel-header">
-                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-cash-coin me-2"></i>إعدادات الدفع والكفالات المالية</h5>
-                                        <p class="text-muted small mb-0 mt-1">تحكم في قيم الكفالات وطرق الدفع والعملات المعتمدة</p>
+                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-cash-coin me-2"></i>إعدادات
+                                            الدفع والكفالات المالية</h5>
+                                        <p class="text-muted small mb-0 mt-1">تحكم في قيم الكفالات وطرق الدفع والعملات
+                                            المعتمدة</p>
                                     </div>
                                     <form action="{{ route('admin.settings.update') }}" method="POST">
                                         @csrf
                                         <div class="settings-panel-body">
-                                            <div class="section-divider"><i class="bi bi-currency-dollar"></i> قيم الكفالات الشهرية</div>
+                                            <div class="section-divider"><i class="bi bi-currency-dollar"></i> قيم
+                                                الكفالات الشهرية</div>
                                             <div class="row g-3 mb-3">
                                                 <div class="col-md-4">
                                                     <label class="form-label">كفالة أساسية (شهري)</label>
                                                     <div class="input-group">
                                                         <span class="input-group-text bg-light">$</span>
-                                                        <input type="number" name="pay_base_amount" class="form-control" value="{{ $settings['pay_base_amount'] ?? '30' }}">
+                                                        <input type="number" name="pay_base_amount"
+                                                            class="form-control"
+                                                            value="{{ $settings['pay_base_amount'] ?? '30' }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">كفالة شاملة (تعليم + صحة)</label>
                                                     <div class="input-group">
                                                         <span class="input-group-text bg-light">$</span>
-                                                        <input type="number" name="pay_full_amount" class="form-control" value="{{ $settings['pay_full_amount'] ?? '50' }}">
+                                                        <input type="number" name="pay_full_amount"
+                                                            class="form-control"
+                                                            value="{{ $settings['pay_full_amount'] ?? '50' }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">كفالة متميزة (كاملة)</label>
                                                     <div class="input-group">
                                                         <span class="input-group-text bg-light">$</span>
-                                                        <input type="number" name="pay_premium_amount" class="form-control" value="{{ $settings['pay_premium_amount'] ?? '75' }}">
+                                                        <input type="number" name="pay_premium_amount"
+                                                            class="form-control"
+                                                            value="{{ $settings['pay_premium_amount'] ?? '75' }}">
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="section-divider"><i class="bi bi-calendar-check-fill"></i> دورة الاستحقاق والعملة</div>
+                                            <div class="section-divider"><i class="bi bi-calendar-check-fill"></i>
+                                                دورة الاستحقاق والعملة</div>
                                             <div class="row g-3">
                                                 <div class="col-md-4">
                                                     <label class="form-label">يوم استحقاق الدفعة (من الشهر)</label>
-                                                    <input type="number" name="pay_due_day" class="form-control" min="1" max="28" value="{{ $settings['pay_due_day'] ?? '1' }}">
+                                                    <input type="number" name="pay_due_day" class="form-control"
+                                                        min="1" max="28"
+                                                        value="{{ $settings['pay_due_day'] ?? '1' }}">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">العملة الافتراضية</label>
                                                     <select name="pay_currency" class="form-select">
-                                                        <option value="USD" {{ ($settings['pay_currency'] ?? '') == 'USD' ? 'selected' : '' }}>USD — دولار أمريكي</option>
-                                                        <option value="EUR" {{ ($settings['pay_currency'] ?? '') == 'EUR' ? 'selected' : '' }}>EUR — يورو</option>
-                                                        <option value="SAR" {{ ($settings['pay_currency'] ?? '') == 'SAR' ? 'selected' : '' }}>SAR — ريال سعودي</option>
+                                                        <option value="USD"
+                                                            {{ ($settings['pay_currency'] ?? '') == 'USD' ? 'selected' : '' }}>
+                                                            USD — دولار أمريكي</option>
+                                                        <option value="EUR"
+                                                            {{ ($settings['pay_currency'] ?? '') == 'EUR' ? 'selected' : '' }}>
+                                                            EUR — يورو</option>
+                                                        <option value="SAR"
+                                                            {{ ($settings['pay_currency'] ?? '') == 'SAR' ? 'selected' : '' }}>
+                                                            SAR — ريال سعودي</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">مهلة السماح لتأخر الدفع</label>
                                                     <div class="input-group">
-                                                        <input type="number" name="pay_grace_period" class="form-control" value="{{ $settings['pay_grace_period'] ?? '7' }}">
+                                                        <input type="number" name="pay_grace_period"
+                                                            class="form-control"
+                                                            value="{{ $settings['pay_grace_period'] ?? '7' }}">
                                                         <span class="input-group-text bg-light">أيام</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="save-bar">
-                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>تحديث أسعار الصرف والكفالة</span>
+                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>تحديث
+                                                أسعار الصرف والكفالة</span>
                                             <button type="submit" class="btn btn-primary-green px-4">
                                                 <i class="bi bi-floppy-fill me-2"></i>حفظ تفاصيل الدفع
                                             </button>
@@ -832,59 +980,90 @@
                             <div class="tab-pane fade" id="panel-security">
                                 <div class="settings-panel">
                                     <div class="settings-panel-header">
-                                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-shield-lock-fill me-2"></i>الأمان والنسخ الاحتياطي</h5>
-                                        <p class="text-muted small mb-0 mt-1">إعدادات حماية البيانات والنسخ الاحتياطي الدوري للنظام</p>
+                                        <h5 class="fw-bold mb-0 text-dark"><i
+                                                class="bi bi-shield-lock-fill me-2"></i>الأمان والنسخ الاحتياطي</h5>
+                                        <p class="text-muted small mb-0 mt-1">إعدادات حماية البيانات والنسخ الاحتياطي
+                                            الدوري للنظام</p>
                                     </div>
                                     <form action="{{ route('admin.settings.update') }}" method="POST">
                                         @csrf
                                         <div class="settings-panel-body">
-                                            <div class="section-divider"><i class="bi bi-lock-fill"></i> معايير الأمان وجلسات العمل</div>
+                                            <div class="section-divider"><i class="bi bi-lock-fill"></i> معايير الأمان
+                                                وجلسات العمل</div>
                                             <div class="row g-3 mb-4">
                                                 <div class="col-md-6">
                                                     <label class="form-label">الحد الأدنى لطول كلمة المرور</label>
-                                                    <input type="number" name="security_password_len" class="form-control" value="{{ $settings['security_password_len'] ?? '8' }}" min="6" max="32">
+                                                    <input type="number" name="security_password_len"
+                                                        class="form-control"
+                                                        value="{{ $settings['security_password_len'] ?? '8' }}"
+                                                        min="6" max="32">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">صلاحية الجلسة (تسجيل الدخول)</label>
                                                     <select name="security_session_timeout" class="form-select">
-                                                        <option value="1" {{ ($settings['security_session_timeout'] ?? '') == '1' ? 'selected' : '' }}>ساعة واحدة</option>
-                                                        <option value="8" {{ ($settings['security_session_timeout'] ?? '8') == '8' ? 'selected' : '' }}>٨ ساعات</option>
-                                                        <option value="24" {{ ($settings['security_session_timeout'] ?? '') == '24' ? 'selected' : '' }}>٢٤ ساعة</option>
+                                                        <option value="1"
+                                                            {{ ($settings['security_session_timeout'] ?? '') == '1' ? 'selected' : '' }}>
+                                                            ساعة واحدة</option>
+                                                        <option value="8"
+                                                            {{ ($settings['security_session_timeout'] ?? '8') == '8' ? 'selected' : '' }}>
+                                                            ٨ ساعات</option>
+                                                        <option value="24"
+                                                            {{ ($settings['security_session_timeout'] ?? '') == '24' ? 'selected' : '' }}>
+                                                            ٢٤ ساعة</option>
                                                     </select>
                                                 </div>
                                             </div>
 
-                                            <div class="section-divider"><i class="bi bi-cloud-arrow-up-fill"></i> النسخ الاحتياطي التلقائي</div>
+                                            <div class="section-divider"><i class="bi bi-cloud-arrow-up-fill"></i>
+                                                النسخ الاحتياطي التلقائي</div>
                                             <div class="row g-3 mb-4">
                                                 <div class="col-md-6">
                                                     <label class="form-label">تكرار النسخ الاحتياطي التلقائي</label>
                                                     <select name="backup_frequency" class="form-select">
-                                                        <option value="daily" {{ ($settings['backup_frequency'] ?? '') == 'daily' ? 'selected' : '' }}>يومي</option>
-                                                        <option value="3days" {{ ($settings['backup_frequency'] ?? '3days') == '3days' ? 'selected' : '' }}>كل ٣ أيام</option>
-                                                        <option value="weekly" {{ ($settings['backup_frequency'] ?? '') == 'weekly' ? 'selected' : '' }}>أسبوعي</option>
+                                                        <option value="daily"
+                                                            {{ ($settings['backup_frequency'] ?? '') == 'daily' ? 'selected' : '' }}>
+                                                            يومي</option>
+                                                        <option value="3days"
+                                                            {{ ($settings['backup_frequency'] ?? '3days') == '3days' ? 'selected' : '' }}>
+                                                            كل ٣ أيام</option>
+                                                        <option value="weekly"
+                                                            {{ ($settings['backup_frequency'] ?? '') == 'weekly' ? 'selected' : '' }}>
+                                                            أسبوعي</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">مدة الاحتفاظ بالنسخ</label>
                                                     <select name="backup_retention" class="form-select">
-                                                        <option value="1month" {{ ($settings['backup_retention'] ?? '1month') == '1month' ? 'selected' : '' }}>شهر واحد</option>
-                                                        <option value="3months" {{ ($settings['backup_retention'] ?? '') == '3months' ? 'selected' : '' }}>٣ أشهر</option>
+                                                        <option value="1month"
+                                                            {{ ($settings['backup_retention'] ?? '1month') == '1month' ? 'selected' : '' }}>
+                                                            شهر واحد</option>
+                                                        <option value="3months"
+                                                            {{ ($settings['backup_retention'] ?? '') == '3months' ? 'selected' : '' }}>
+                                                            ٣ أشهر</option>
                                                     </select>
                                                 </div>
                                             </div>
 
                                             <!-- Danger Zone -->
                                             <div class="danger-zone">
-                                                <div class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i>منطقة الخطر الأساسية</div>
-                                                <p class="text-muted small mb-3">الإجراءات التالية لا يمكن التراجع عنها وتؤثر بشكل فوري على تخزين النظام.</p>
+                                                <div class="fw-bold text-danger mb-2"><i
+                                                        class="bi bi-exclamation-triangle-fill me-1"></i>منطقة الخطر
+                                                    الأساسية</div>
+                                                <p class="text-muted small mb-3">الإجراءات التالية لا يمكن التراجع عنها
+                                                    وتؤثر بشكل فوري على تخزين النظام.</p>
                                                 <div class="d-flex flex-wrap gap-2">
-                                                    <button type="button" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash2 me-1"></i>مسح سجلات التدقيق القديمة</button>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i>إعادة ضبط وضع المصنع</button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm"><i
+                                                            class="bi bi-trash2 me-1"></i>مسح سجلات التدقيق
+                                                        القديمة</button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm"><i
+                                                            class="bi bi-arrow-counterclockwise me-1"></i>إعادة ضبط وضع
+                                                        المصنع</button>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="save-bar">
-                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>حماية التشفير والنسخ مفعلة</span>
+                                            <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>حماية
+                                                التشفير والنسخ مفعلة</span>
                                             <button type="submit" class="btn btn-primary-green px-4">
                                                 <i class="bi bi-floppy-fill me-2"></i>حفظ إعدادات الأمان
                                             </button>
