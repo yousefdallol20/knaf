@@ -89,11 +89,11 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span
-                                class="text-small fw-bold">{{ auth()->user()->name }}</span>
+                            <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item text-small text-right" href="#"><i
+                            <li><a class="dropdown-item text-small text-right"
+                                    href="{{ route('admin.settings.index') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -171,7 +171,9 @@
                                                     <span class="text-caption text-muted">رقم الهوية:
                                                         {{ $family->national_id ?? '---' }}</span>
                                                 </td>
-                                                <td>{{ $family->housing?->current_displacement_destination ?? 'غير محدد' }}
+                                                <td>{{ $family->housing->current_displacement_destination ??
+                                                    ($family->guardian->housing->current_displacement_destination ??
+                                                        ($family->orphans->first()->housing->current_displacement_destination ?? 'غير محدد')) }}
                                                 </td>
                                                 <td class="font-monospace">
                                                     {{ $family->user?->phone ?? 'لا يوجد هاتف' }}</td>
@@ -389,7 +391,9 @@
                                             </tr>
                                             <tr>
                                                 <th>العنوان الحالي</th>
-                                                <td>{{ $family->housing->current_displacement_destination ?? 'غير محدد' }}
+                                                <td>{{ $family->housing->current_displacement_destination ??
+                                                    ($family->guardian->housing->current_displacement_destination ??
+                                                        ($family->orphans->first()->housing->current_displacement_destination ?? 'غير محدد')) }}
                                                 </td>
                                             </tr>
                                         </table>

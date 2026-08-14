@@ -24,7 +24,6 @@ class ResetPasswordNotification extends Notification
 
     public function toMail($notifiable)
     {
-        // بناء الرابط الذي سينقر عليه المستخدم من داخل الإيميل
         $url = route('password.reset', [
             'token' => $this->token,
             'email' => $notifiable->email,
@@ -32,10 +31,10 @@ class ResetPasswordNotification extends Notification
 
         return (new MailMessage)
             ->subject('استعادة كلمة المرور - منصة كَنَفْ')
-            ->greeting('مرحباً ' . $notifiable->name . ' 👋')
+            ->greeting('مرحباً ' . ($notifiable->name ?? 'المستخدم') . ' 👋')
             ->line('لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في منصة كَنَفْ.')
             ->action('إعادة تعيين كلمة المرور', $url)
-            ->line('هذا الرابط صالح لمدة 60 دقيقة فقط.')
+            ->line('هذا الرابط صالح لمدة 30 دقيقة فقط.')
             ->line('إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذه الرسالة وأمان حسابك غير متأثر.');
     }
 }

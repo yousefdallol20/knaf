@@ -17,7 +17,7 @@
         <div id="kanaf-sidebar">
             <div class="sidebar d-flex flex-column" id="kanaf-sidebar-wrapper">
                 <div class="brand">
-                    <!-- <img src="assets/images/logo.png" alt="كنف" height="35"> -->
+                    <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="كنف" height="35"> -->
                     <h5 class="text-primary-green mb-0 fw-bold d-inline-block">لوحة تحكّم كَنَفْ</h5>
                     <button type="button" class="btn-close btn-close-white d-lg-none ms-auto"
                         aria-label="إغلاق القائمة"
@@ -72,6 +72,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
                                 alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>

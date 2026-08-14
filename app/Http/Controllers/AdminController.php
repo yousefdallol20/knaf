@@ -20,6 +20,14 @@ use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
+// استدعاء ملفات الفالديشن الجديدة
+use App\Http\Requests\ApproveOrphanRequest;
+use App\Http\Requests\RejectOrphanRequest;
+use App\Http\Requests\UpdateSponsorRequest;
+use App\Http\Requests\RejectDocumentRequest;
+use App\Http\Requests\SendBroadcastRequest;
+use App\Http\Requests\UploadLogoRequest;
+
 class AdminController extends Controller
 {
     // عرض لوحة التحكم العامة للآدمن
@@ -55,7 +63,6 @@ class AdminController extends Controller
         }
 
         // 3️⃣ حساب الأيتام/الكفالات (الموقوفة أو المرفوضة)
-        // نبحث في جدول الكفالات وجدول الأيتام لتغطية كافة الحالات المرفوضة والموقوفة
         $pausedOrphansCount = orphans::whereIn('status', ['موقوف', 'موقوفة', 'مرفوض', 'مرفوضة'])->count();
         $pausedSponsorshipsCount = Sponsorship::whereIn('status', ['موقوف', 'موقوفة', 'مرفوض', 'مرفوضة'])->count();
 
@@ -102,14 +109,10 @@ class AdminController extends Controller
     }
 
     // 1️⃣ قبول الطفل وتحديد مبلغ الكفالة وإشعار الوصي
-    public function approveOrphan(Request $request, string $id)
+    public function approveOrphan(ApproveOrphanRequest $request, string $id)
     {
-        $request->validate([
-            'required_amount' => 'required|numeric|min:10',
-        ]);
-
         $orphan = orphans::findOrFail($id);
-        $orphan->status = 'بانتظار الكفالة'; // أو approved_unsponsored
+        $orphan->status = 'بانتظار الكفالة';
         $orphan->required_amount = $request->required_amount;
         $orphan->save();
 
@@ -130,19 +133,12 @@ class AdminController extends Controller
     }
 
     // 2️⃣ رفض الطفل وإشعار الوصي
-    public function rejectOrphan(Request $request, string $id)
+    public function rejectOrphan(RejectOrphanRequest $request, string $id)
     {
-        // 1. التحقق من سبب الرفض
-        $request->validate([
-            'reject_reason' => 'required|string|max:500',
-        ]);
-
-        // 2. تحديث حالة اليتيم إلى مرفوض
         $orphan = orphans::findOrFail($id);
         $orphan->status = 'مرفوض';
         $orphan->save();
 
-        // جلب الوصي المحدد بدقة لمنع الخلط بين الحسابات
         $guardian = guardian::find($orphan->guardian_id) ?? guardian::where('orphan_id', $orphan->id)->latest()->first();
 
         if ($guardian && $guardian->user_id) {
@@ -216,17 +212,9 @@ class AdminController extends Controller
         return view('admin.sponsors', compact('sponsors'));
     }
 
-    public function updateSponsor(Request $request, string $id)
+    public function updateSponsor(UpdateSponsorRequest $request, string $id)
     {
         $sponsor = Sponsor::findOrFail($id);
-
-        $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'required|email|unique:sponsors,email,' . $id,
-            'phone'   => 'required|string|unique:sponsors,phone,' . $id,
-            'country' => 'nullable|string|max:255',
-            'city'    => 'nullable|string|max:255',
-        ]);
 
         $sponsor->update([
             'name'    => $request->name,
@@ -250,7 +238,6 @@ class AdminController extends Controller
             $sponsorship->notes = $reason;
             $message = 'تم تعليق عقد الكفالة بنجاح.';
 
-            // إشعار الكافل المباشر
             if ($sponsorship->sponsor && $sponsorship->sponsor->user_id) {
                 $sponsorUser = User::find($sponsorship->sponsor->user_id);
                 if ($sponsorUser) {
@@ -262,7 +249,6 @@ class AdminController extends Controller
                 }
             }
 
-            // إشعار الوصي المباشر للطفل
             if ($sponsorship->orphan) {
                 $guardian = guardian::find($sponsorship->orphan->guardian_id) ?? guardian::where('orphan_id', $sponsorship->orphan->id)->latest()->first();
 
@@ -281,7 +267,6 @@ class AdminController extends Controller
             $sponsorship->status = 'نشط';
             $message = 'تم إعادة تفعيل عقد الكفالة بنجاح.';
 
-            // إشعار الكافل
             if ($sponsorship->sponsor && $sponsorship->sponsor->user_id) {
                 $sponsorUser = User::find($sponsorship->sponsor->user_id);
                 if ($sponsorUser) {
@@ -301,12 +286,10 @@ class AdminController extends Controller
 
     public function sponsorships_admin()
     {
-        // 1️⃣ جلب أحدث ID لكل يتيم
         $latestIds = Sponsorship::select(DB::raw('MAX(id) as id'))
             ->groupBy('orphan_id')
             ->pluck('id');
 
-        // 2️⃣ جلب الكفالات واستعمال paginate مباشرة للحفاظ على الـ Paginator Object
         $sponsorships = Sponsorship::with(['orphan', 'sponsor.user'])
             ->whereIn('id', $latestIds)
             ->latest()
@@ -336,7 +319,6 @@ class AdminController extends Controller
 
         $orphanName = $payment->orphan->name ?? 'الطفل';
 
-        // إشعار الكافل المباشر
         if ($payment->sponsor && $payment->sponsor->user_id) {
             $sponsorUser = User::find($payment->sponsor->user_id);
             if ($sponsorUser) {
@@ -348,7 +330,6 @@ class AdminController extends Controller
             }
         }
 
-        // إشعار الوصي المباشر
         if ($payment->orphan) {
             $guardian = guardian::find($payment->orphan->guardian_id) ?? guardian::where('orphan_id', $payment->orphan->id)->latest()->first();
 
@@ -369,12 +350,10 @@ class AdminController extends Controller
 
     public function delete_payment(string $id)
     {
-        // جلب المعاملة المالية مع العلاقات المطلوبة قبل حذفها
         $payment = Sponsorship::with(['orphan.guardian', 'sponsor.user'])->findOrFail($id);
 
         $orphanName = $payment->orphan->name ?? 'الطفل المكفول';
 
-        // 1️⃣ إشعار الكافل بحدث رفض/شطب المعاملة
         if ($payment->sponsor && $payment->sponsor->user_id) {
             $sponsorUser = User::find($payment->sponsor->user_id);
             if ($sponsorUser) {
@@ -386,7 +365,6 @@ class AdminController extends Controller
             }
         }
 
-        // 2️⃣ إشعار الوصي بالاعتذار وتوقع تأخير المستحقات
         if ($payment->orphan) {
             $guardian = guardian::find($payment->orphan->guardian_id)
                 ?? guardian::where('orphan_id', $payment->orphan->id)->latest()->first();
@@ -403,7 +381,6 @@ class AdminController extends Controller
             }
         }
 
-        // 3️⃣ حذف المعاملة المالية بعد إرسال الإشعارات
         $payment->delete();
 
         return redirect()->back()->with('success', 'تم شطب المعاملة المالية من السجل بنجاح وإشعار الكافل والوصي.');
@@ -425,7 +402,6 @@ class AdminController extends Controller
         $docTitle = $document->title ?? 'مستند جديد';
 
         if ($document->orphan) {
-            // 1️⃣ إرسال إشعار للوصي المباشر
             $guardian = guardian::find($document->orphan->guardian_id) ?? guardian::where('orphan_id', $document->orphan->id)->latest()->first();
 
             if ($guardian && $guardian->user_id) {
@@ -439,7 +415,6 @@ class AdminController extends Controller
                 }
             }
 
-            // 2️⃣ إرسال إشعار لكافل اليتيم
             $sponsorship = Sponsorship::with('sponsor')
                 ->where('orphan_id', $document->orphan->id)
                 ->first();
@@ -460,12 +435,8 @@ class AdminController extends Controller
     }
 
     // 8️⃣ رفض المستند المرفوع وإرسال الإشعار للوصي مباشرة
-    public function reject_document(Request $request, string $id)
+    public function reject_document(RejectDocumentRequest $request, string $id)
     {
-        $request->validate([
-            'rejection_reason' => 'nullable|string|max:500'
-        ]);
-
         $document = documents::with('orphan')->findOrFail($id);
         $reason = $request->input('rejection_reason') ?? 'عدم وضوح المستند أو وجود خطأ في البيانات المرفقة';
         $document->update(['status' => 'مرفوض']);
@@ -606,15 +577,8 @@ class AdminController extends Controller
         return view('admin.notifications', compact('broadcasts'));
     }
 
-    public function sendBroadcast(Request $request)
+    public function sendBroadcast(SendBroadcastRequest $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'user_type' => 'required|string',
-            'type' => 'required|string',
-            'body' => 'required|string',
-        ]);
-
         $users = User::where('role', $request->user_type)->get();
         if ($request->user_type === 'all') {
             $users = User::all();
@@ -690,12 +654,8 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'تم حفظ جميع التغييرات بنجاح.');
     }
 
-    public function uploadLogo(Request $request)
+    public function uploadLogo(UploadLogoRequest $request)
     {
-        $request->validate([
-            'org_logo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
-
         if ($request->hasFile('org_logo')) {
             $oldLogo = Setting::get('org_logo');
             if ($oldLogo) {

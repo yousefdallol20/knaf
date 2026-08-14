@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ChildRequest;
+use App\Http\Requests\UploadDocumentRequest;
+use App\Http\Requests\UpdateGuardianProfileRequest;
+use App\Http\Requests\UpdatePasswordRequest;
 use App\Models\AuditLog;
 use App\Models\documents;
 use App\Models\financial_data;
@@ -474,7 +477,7 @@ class GuardiansController extends Controller
             $orphan->story = $request->child_story;
             $orphan->data_acknowledgement = $request->has('legal_affirmation') ? 1 : 0;
 
-            $orphan->country = 'Palestine';
+            $orphan->country = $request->input('country', 'فلسطين');
             $orphan->city = $request->original_city ?? 'Gaza';
             $orphan->status = 'بانتظار القبول';
 
@@ -586,15 +589,11 @@ class GuardiansController extends Controller
         ]);
     }
 
-    public function upload_docs_store(Request $request)
+    /**
+     * حفظ المستند المرفوع بملف Request مستقل
+     */
+    public function upload_docs_store(UploadDocumentRequest $request)
     {
-        $request->validate([
-            'orphan_id' => 'required',
-            'doc_type'  => 'required',
-            'title'     => 'required',
-            'document'  => 'required|file|max:4096',
-        ]);
-
         $document = new documents;
         $document->title = $request->title;
         $document->doc_type = $request->doc_type;
@@ -723,7 +722,10 @@ class GuardiansController extends Controller
         ]);
     }
 
-    public function updateProfileFields(Request $request)
+    /**
+     * تحديث بيانات الملف الشخصي والصورة عبر Form Request مخصص
+     */
+    public function updateProfileFields(UpdateGuardianProfileRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -731,15 +733,6 @@ class GuardiansController extends Controller
         if (!$user) {
             return redirect()->route('login');
         }
-
-        $request->validate([
-            'name'                             => 'nullable|string|max:255',
-            'email'                            => 'nullable|email|max:255|unique:users,email,' . $user->id,
-            'phone'                            => 'nullable|string|unique:users,phone,' . $user->id,
-            'current_displacement_destination' => 'nullable|string|max:255',
-            'health_status'                    => 'nullable|string|max:500',
-            'profile_photo'                    => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
 
         if ($request->filled('name')) {
             $user->name = $request->name;
@@ -810,7 +803,10 @@ class GuardiansController extends Controller
         return redirect()->back()->with('success', 'تم تحديث البيانات والصورة بنجاح!');
     }
 
-    public function updatePassword(Request $request)
+    /**
+     * تغيير كلمة المرور عبر Form Request مخصص
+     */
+    public function updatePassword(UpdatePasswordRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -818,15 +814,6 @@ class GuardiansController extends Controller
         if (!$user) {
             return redirect()->route('login');
         }
-
-        $request->validate([
-            'current_password' => 'required',
-            'password'         => 'required|string|min:6|confirmed',
-        ], [
-            'current_password.required' => 'يرجى إدخال كلمة المرور الحالية',
-            'password.confirmed'        => 'كلمة المرور الجديدة غير مطابقة للتأكيد',
-            'password.min'              => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
-        ]);
 
         if (!Hash::check($request->current_password, $user->password)) {
             return redirect()->back()->withErrors(['current_password' => 'كلمة المرور الحالية غير صحيحة']);

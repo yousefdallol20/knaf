@@ -18,7 +18,7 @@
         <div id="kanaf-sidebar">
             <div class="sidebar d-flex flex-column" id="kanaf-sidebar-wrapper">
                 <div class="brand">
-                    <!-- <img src="assets/images/logo.png" alt="كنف" height="35"> -->
+                    <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="كنف" height="35"> -->
                     <h5 class="text-primary-green mb-0 fw-bold d-inline-block">لوحة تحكّم كَنَفْ</h5>
                     <button type="button" class="btn-close btn-close-white d-lg-none ms-auto"
                         aria-label="إغلاق القائمة"
@@ -72,6 +72,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
                                 alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
@@ -134,6 +135,7 @@
                                 <div class="position-relative profile-img-container" id="avatarDropdown"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                        onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
                                         id="profile-avatar-preview" alt=""
                                         class="rounded-circle border border-3 border-success shadow-xs" width="110"
                                         height="110" style="object-fit: cover;">
@@ -157,7 +159,7 @@
 
                             <h5 class="fw-bold text-dark mb-1" id="profile-guardian-name">{{ $user->name }}</h5>
                             <p class="text-muted text-small mb-3" id="profile-guardian-city">شريك وصية معتمدة |
-                                {{ old('current_displacement_destination', $user->guardian->housing->current_displacement_destination ?? '') }}
+                                {{ old('current_displacement_destination', $housing->current_displacement_destination ?? 'غير محدد') }}
                             </p>
 
                             <hr>
@@ -227,9 +229,9 @@
                                             الحالية</label>
                                         <input type="text" name="current_displacement_destination"
                                             id="p-guard-displacement" class="form-control"
-                                            value="{{ old('current_displacement_destination', $user->guardian->housing->current_displacement_destination ?? '') }}">
+                                            value="{{ old('current_displacement_destination', $housing->current_displacement_destination ?? '') }}">
                                     </div>
-
+                                    
                                     <div class="col-md-12">
                                         <label class="form-label text-small fw-semibold text-muted">الحالة الصحية
                                             للوصي</label>
@@ -296,6 +298,7 @@
                         data-bs-dismiss="modal" aria-label="Close"></button>
                     <!-- تعديل مسار الصورة هنا ليعرض صورة المستخدم الحالية بدقة بدلاً من الصورة الاستاتيكية -->
                     <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                        onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
                         id="modal-full-image" class="img-fluid rounded-4 shadow" style="max-height: 80vh;"
                         alt=" ">
                 </div>

@@ -88,6 +88,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('assets/images/Default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
                                 alt="User Photo" class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>

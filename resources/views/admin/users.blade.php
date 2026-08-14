@@ -16,7 +16,7 @@
         <!-- Sidebar -->
         <div class="sidebar d-flex flex-column" id="kanaf-sidebar-wrapper">
             <div class="brand">
-                <!-- <img src="assets/images/logo.png" alt="كنف" height="35"> -->
+                <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="كنف" height="35"> -->
                 <h5 class="text-primary-green mb-0 fw-bold d-inline-block">لوحة تحكّم كَنَفْ</h5>
                 <button type="button" class="btn-close btn-close-white d-lg-none ms-auto" aria-label="إغلاق القائمة"
                     onclick="document.getElementById('kanaf-sidebar-wrapper').classList.remove('show'); document.getElementById('kanaf-sidebar-backdrop').classList.remove('show');"></button>
@@ -96,7 +96,7 @@
                             <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item text-small text-right" href="#"><i
+                            <li><a class="dropdown-item text-small text-right" href="{{ route('admin.settings.index') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
                             <li>
                                 <hr class="dropdown-divider">

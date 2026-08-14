@@ -32,10 +32,10 @@
                             <a class="nav-link" href="{{ asset('orphans') }}">قائمة الأيتام</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ asset('sponsorship/step1') }}">خطوات الكفالة</a>
+                            <a class="nav-link" href="#">خطوات الكفالة</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ asset('contact') }}">اتصل بنا</a>
+                            <a class="nav-link" href="#">اتصل بنا</a>
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
@@ -159,7 +159,7 @@
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
                         <li><a href="{{ route('dashboard_admin') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-                        <li><a href="{{ asset('orphans.html') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ asset('{{ route('orphans') }}') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
                         </li>
                         <li><a href="../sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>

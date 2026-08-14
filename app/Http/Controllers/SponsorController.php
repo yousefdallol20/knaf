@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreManualPaymentRequest;
+use App\Http\Requests\UpdateSponsorProfileRequest;
+use App\Http\Requests\UpdateSponsorPasswordRequest;
 use App\Models\AuditLog;
-use Illuminate\Http\Request;
+use App\Models\documents;
+use App\Models\guardian;
 use App\Models\Sponsor;
 use App\Models\Sponsorship;
-use App\Models\Orphan;
-use App\Models\Document;
-use App\Models\documents;
-use App\Models\Financials;
-use App\Models\guardian;
-use App\Models\Housing;
 use App\Models\User;
 use App\Notifications\BroadcastAnnouncement;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; // تأكد من وجود هذا السطر في أعلى ملف الكنترولر
 
 class SponsorController extends Controller
 {
+    /**
+     * لوحة تحكم الكافل - عرض الإحصائيات العامة
+     */
     public function dashboard_sponsor()
     {
         $user = Auth::user();
@@ -49,7 +50,7 @@ class SponsorController extends Controller
             return $sponsorship->monthly_amount ?? $sponsorship->amount ?? $sponsorship->amount_paid ?? 50.00;
         });
 
-        // 3. إجمالي المدفوعات الخيرية الفعلية (جلبها من جدول sponsorships لحساب المبالغ المقبولة فقط)
+        // 3. إجمالي المدفوعات الخيرية الفعلية
         $totalPaid = Sponsorship::where('sponsor_id', $sponsor->id)
             ->whereIn('payment_status', ['paid', 'مؤكدة', 'مقبول', 'تم الموافقة'])
             ->sum('amount_paid');
@@ -69,7 +70,9 @@ class SponsorController extends Controller
         ));
     }
 
-    // عرض قائمة الكفالات بالكامل
+    /**
+     * عرض قائمة الكفالات بالكامل
+     */
     public function sponsorships()
     {
         $user = Auth::user();
@@ -85,7 +88,7 @@ class SponsorController extends Controller
             ->groupBy('orphan_id')
             ->pluck('id');
 
-        // 2️⃣ جلب البيانات واستخدام paginate للحفاظ على كائن التصفح (Pagination)
+        // 2️⃣ جلب البيانات واستخدام paginate للحفاظ على كائن التصفح
         $sponsorships = Sponsorship::with('orphan')
             ->whereIn('id', $latestIds)
             ->latest()
@@ -94,8 +97,9 @@ class SponsorController extends Controller
         return view('sponsor.sponsorships', compact('user', 'sponsorships'));
     }
 
-    // عرض تفاصيل كفالة يتيم محدد
-    // عرض تفاصيل كفالة يتيم محدد
+    /**
+     * عرض تفاصيل كفالة يتيم محدد
+     */
     public function sponsorship_detail(string $id)
     {
         $user = Auth::user();
@@ -111,14 +115,14 @@ class SponsorController extends Controller
             ->where('orphan_id', $id)
             ->firstOrFail();
 
-        // 2️⃣ جلب جميع عمليات الدفع المنجزة لهذا الطفل من قبل هذا الكافل (لتظهر كاملة في جدول سجل المدفوعات)
+        // 2️⃣ جلب جميع عمليات الدفع المنجزة لهذا الطفل من قبل هذا الكافل
         $allPayments = Sponsorship::where('sponsor_id', $sponsor->id)
             ->where('orphan_id', $id)
             ->latest()
             ->get();
 
-        // 3️⃣ جلب فقط المستندات والتقارير المعتمدة والمقبولة من الأدمن
-        $documents =  documents::where('orphan_id', $id)
+        // 3️⃣ جلب الوثائق المقبولة من الأدمن
+        $documents = documents::where('orphan_id', $id)
             ->whereIn('status', ['مقبول', 'موافق عليه', 'approved'])
             ->latest()
             ->get();
@@ -126,9 +130,9 @@ class SponsorController extends Controller
         return view('sponsor.sponsorship-detail', compact('user', 'sponsorship', 'allPayments', 'documents'));
     }
 
-    // عرض سجل المدفوعات والاشتراكات
-    // عرض سجل المدفوعات والاشتراكات للكافل
-    // عرض سجل المدفوعات مع الحسابات الديناميكية
+    /**
+     * عرض سجل المدفوعات والاشتراكات
+     */
     public function payments()
     {
         $user = Auth::user();
@@ -138,21 +142,17 @@ class SponsorController extends Controller
             return redirect()->route('login');
         }
 
-        // ترتيب الدفعات تصاعدياً (من الأقدم للأحدث / من 1 إلى الأعلى)
         $payments = Sponsorship::where('sponsor_id', $sponsor->id)
             ->with('orphan')
             ->oldest()
             ->get();
 
-        // حساب إجمالي المبالغ المقبولة/المؤكدة فقط
         $totalAmountPaid = $payments->whereIn('payment_status', ['paid', 'مؤكدة', 'مقبول', 'تم الموافقة'])
             ->sum('amount_paid');
 
-        // حساب عدد الدفعات المكتملة
         $completedPaymentsCount = $payments->whereIn('payment_status', ['paid', 'مؤكدة', 'مقبول', 'تم الموافقة'])
             ->count();
 
-        // قائمة الأيتام التابعين للكافل
         $orphans = Sponsorship::where('sponsor_id', $sponsor->id)
             ->with('orphan')
             ->get();
@@ -165,12 +165,14 @@ class SponsorController extends Controller
             'orphans'
         ));
     }
-    // تصدير كشف الحساب بصيغة CSV
+
+    /**
+     * تصدير كشف الحساب بصيغة CSV
+     */
     public function exportPaymentsCsv()
     {
         $sponsor = Sponsor::where('user_id', Auth::id())->firstOrFail();
 
-        // ترتيب تصاعدي لملف الـ CSV
         $payments = Sponsorship::where('sponsor_id', $sponsor->id)
             ->with('orphan')
             ->oldest()
@@ -216,7 +218,9 @@ class SponsorController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    // تحميل إيصال الدفع
+    /**
+     * تحميل إيصال الدفع
+     */
     public function downloadReceipt(string $id)
     {
         $sponsor = Sponsor::where('user_id', Auth::id())->firstOrFail();
@@ -240,39 +244,35 @@ class SponsorController extends Controller
             ->header('Content-Disposition', 'attachment; filename="Receipt-KNF-2026-' . $payment->id . '.txt"');
     }
 
-    // تسجيل دفعة فورية جديدة من الكافل
-    public function storeManualPayment(Request $request)
+    /**
+     * تسجيل دفعة فورية جديدة باستخدام Form Request
+     */
+    public function storeManualPayment(StoreManualPaymentRequest $request)
     {
-        $request->validate([
-            'orphan_id'      => 'required',
-            'amount_paid'    => 'required|numeric|min:1',
-            'payment_method' => 'required|string',
-        ]);
-
         $sponsor = Sponsor::where('user_id', Auth::id())->firstOrFail();
 
-        Sponsorship::create([
+        $sponsorship = Sponsorship::create([
             'sponsor_id'     => $sponsor->id,
             'orphan_id'      => $request->orphan_id,
             'amount_paid'    => $request->amount_paid,
             'payment_method' => $request->payment_method,
-            'payment_status' => 'pending', // تم تغييرها إلى pending لتفادي تعارض الـ ENUM أو طول السلسلة
+            'payment_status' => 'pending',
             'last_batch'     => now()->format('Y-m-d'),
             'start_date'     => now()->format('Y-m-d'),
         ]);
 
         AuditLog::create([
-            'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
+            'user_id' => Auth::id(),
             'action'  => 'دفع مستحقات',
-            'details' => 'تم دفع المستحقالت الخاصة بالطفل ' . $request->name . 'المتعلقة بالشهر الحال',
+            'details' => 'تم دفع المستحقات الخاصة بالطفل ' . ($sponsorship->orphan->name ?? $request->orphan_id) . ' المتعلقة بالشهر الحالي',
         ]);
 
-        // 🔔 إرسال إشعار للوصي (أهل الطفل) بوجود كفالة/دفعة من الكافل
-        $guardian = guardian::where('orphan_id', $request->orphan_id)->first();
-        if ($guardian) {
-            $guardianUser = User::find($guardian->user_id);
-            if (!$guardianUser && !empty($guardian->email)) {
-                $guardianUser = User::where('email', $guardian->email)->first();
+        // إرسال إشعار للوصي (أهل الطفل)
+        $guardianModel = guardian::where('orphan_id', $request->orphan_id)->first();
+        if ($guardianModel) {
+            $guardianUser = User::find($guardianModel->user_id);
+            if (!$guardianUser && !empty($guardianModel->email)) {
+                $guardianUser = User::where('email', $guardianModel->email)->first();
             }
 
             if ($guardianUser) {
@@ -282,7 +282,7 @@ class SponsorController extends Controller
                 $guardianUser->notify(new BroadcastAnnouncement(
                     'تم كفالة الطفل',
                     'تحديث',
-                    "تم تقديم كفالة/دفعة مالية جديدة لطفلكم ({$orphanName}) من قبل الكافل ({$sponsorName}) جزاه الله خيرا ."
+                    "تم تقديم كفالة/دفعة مالية جديدة لطفلكم ({$orphanName}) من قبل الكافل ({$sponsorName}) جزاه الله خيراً."
                 ));
             }
         }
@@ -290,7 +290,9 @@ class SponsorController extends Controller
         return redirect()->back()->with('success', 'تم تسجيل طلب الدفعة بنجاح وهي قيد مراجعة الأدمن الآن.');
     }
 
-    // عرض الوثائق والتقارير الدراسية/الصحية الخاصة بالأيتام المكفولين
+    /**
+     * عرض وثائق الأيتام المكفولين
+     */
     public function documentation()
     {
         $user = Auth::user();
@@ -300,10 +302,8 @@ class SponsorController extends Controller
             return redirect()->route('login');
         }
 
-        // جلب معرفات الأيتام المكفولين من قبل هذا الكفيل
         $orphanIds = Sponsorship::where('sponsor_id', $sponsor->id)->pluck('orphan_id');
 
-        // جلب المستندات الخاصة بهؤلاء الأيتام فقط
         $documents = documents::with('orphan')
             ->whereIn('orphan_id', $orphanIds)
             ->get();
@@ -311,18 +311,19 @@ class SponsorController extends Controller
         return view('sponsor.documentation', compact('user', 'documents'));
     }
 
-    // عرض صفحة الإشعارات للكافل
+    /**
+     * الإشعارات
+     */
     public function sponsorIndex()
     {
         /** @var User $user */
         $user = Auth::user();
 
-        // جلب إشعارات الكافل
         $notifications = $user->notifications()->paginate(10);
 
         return view('sponsor.notifications', compact('user', 'notifications'));
     }
-    // تحديد كل الإشعارات كمقروءة للكافل
+
     public function markAllRead()
     {
         /** @var User $user */
@@ -333,7 +334,9 @@ class SponsorController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    // عرض وتعديل الملف الشخصي للكفيل
+    /**
+     * عرض الصفحة الشخصية للكافل
+     */
     public function profile_sponser()
     {
         $user = Auth::user();
@@ -341,20 +344,19 @@ class SponsorController extends Controller
             return redirect()->route('login');
         }
 
-        // 1. البحث عن الكافل عبر العلاقة أولاً، أو بالإيميل إن لم يكن متصلاً بـ user_id
-        $sponsor = $user->sponsor
-            ?? Sponsor::where('email', $user->email)->first();
+        $sponsor = $user->sponsor ?? Sponsor::where('email', $user->email)->first();
 
-        // 2. إذا وجده بالإيميل ولم يربط بالـ user_id، نقوم بربطه تلقائياً
         if ($sponsor && !$sponsor->user_id) {
             $sponsor->update(['user_id' => $user->id]);
         }
 
-        // 3. تمرير الـ user والـ sponsor للـ View
         return view('sponsor.profile', compact('user', 'sponsor'));
     }
 
-    public function update_Profile_Fields(Request $request)
+    /**
+     * تحديث الملف الشخصي عبر Form Request مخصص
+     */
+    public function update_Profile_Fields(UpdateSponsorProfileRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -363,72 +365,19 @@ class SponsorController extends Controller
             return redirect()->route('login');
         }
 
-        // جلب معرف الكفيل المرتبط بالمستخدم الحالي بشكل آمن
-        $sponsorId = $user->sponsor ? $user->sponsor->id : null;
-
-        // 1. شروط التحقق المحدثة والمضمونة للاستثناء
-        $rules = [
-            'name'          => 'required|string|max:255',
-
-            'email'         => [
-                'required',
-                'email',
-                Rule::unique('users', 'email')->ignore($user->id),
-                Rule::unique('sponsors', 'email')->ignore($user->sponsor->id ?? null),
-            ],
-
-            'phone'         => [
-                'required',
-                'string',
-                Rule::unique('users', 'phone')->ignore($user->id),
-                Rule::unique('sponsors', 'phone')->ignore($user->sponsor->id ?? null),
-            ],
-
-            'country'       => 'required|string|max:255',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ];
-
-        // 2. رسائل الخطأ المخصصة باللغة العربية
-        $messages = [
-            'name.required'          => 'يرجى إدخال اسم الكافل بالكامل.',
-            'name.string'            => 'يجب أن يكون الاسم عبارة عن نص صحيح.',
-            'name.max'               => 'يجب ألا يتجاوز الاسم 255 حرفاً.',
-
-            'email.required'         => 'البريد الإلكتروني مطلوب ولا يمكن تركه فارغاً.',
-            'email.email'            => 'يرجى إدخال بريد إلكتروني صيغته صحيحة (مثال: example@mail.com).',
-            'email.unique'           => 'البريد الإلكتروني مُستخدم بالفعل من قِبل حساب آخر في النظام.',
-
-            'phone.required'         => 'رقم الهاتف مطلوب ولا يمكن تركه فارغاً.',
-            'phone.unique'           => 'رقم الجوال هذا مسجل مسبقاً لكافل أو مستخدم آخر في قاعدة البيانات.',
-
-            'country.required'       => 'يرجى إدخال دولة أو مدينة الإقامة الفعلية.',
-
-            'profile_photo.image'    => 'الملف المرفوع يجب أن يكون صورة فقط.',
-            'profile_photo.mimes'    => 'صيغ الصور المدعومة هي فقط: jpeg, png, jpg, gif.',
-            'profile_photo.max'      => 'حجم الصورة الشخصية يجب ألا يتجاوز 2 ميجابايت.',
-        ];
-
-        // تنفيذ عملية التحقق وتمرير الرسائل العربية
-        $request->validate($rules, $messages);
-
-        // 3. تحديث جدول الـ users
+        // 1. تحديث جدول الـ users
         $user->name = $request->name;
         $user->phone = $request->phone;
         $user->email = $request->email;
         $user->save();
 
-        // 4. تحديث بيانات جدول الـ sponsors المرتبط بالمستخدم الحالي
+        // 2. تحديث بيانات جدول الـ sponsors
         if ($user->sponsor) {
-
-            // معالجة ورفع الصورة الشخصية الجديدة في حال تم اختيارها
             if ($request->hasFile('profile_photo')) {
                 $file = $request->file('profile_photo');
                 $filename = 'sponsors_avatar_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-                // نقل الصورة للمجلد الموحد public/Uploads/sponsors
                 $file->move(public_path('Uploads/sponsors'), $filename);
 
-                // حفظ اسم الصورة الجديد
                 $user->sponsor->image = $filename;
             }
 
@@ -440,9 +389,9 @@ class SponsorController extends Controller
             $user->sponsor->save();
 
             AuditLog::create([
-                'user_id' => Auth::id(), // معرف الكفيل الذي قام بالتحديث
+                'user_id' => Auth::id(),
                 'action'  => 'تعديل بيانات كفيل',
-                'details' => 'قام الكفيل بتحديث بيانته الشخصية ',
+                'details' => 'قام الكفيل بتحديث بياناته الشخصية',
             ]);
         }
 
@@ -450,9 +399,9 @@ class SponsorController extends Controller
     }
 
     /**
-     * دالة تغيير كلمة المرور (الفورم الثاني)
+     * تغيير كلمة المرور عبر Form Request مخصص
      */
-    public function update_Password(Request $request)
+    public function update_Password(UpdateSponsorPasswordRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -461,29 +410,10 @@ class SponsorController extends Controller
             return redirect()->route('login');
         }
 
-        // 1. شروط التحقق من الحقول
-        $rules = [
-            'current_password' => 'required',
-            'password'         => 'required|string|min:6|confirmed', // confirmed تتطابق تلقائياً مع password_confirmation
-        ];
-
-        // 2. رسائل التحقق المخصصة باللغة العربية
-        $messages = [
-            'current_password.required' => 'حقل كلمة المرور الحالية مطلوب ولا يمكن تركه فارغاً.',
-            'password.required'         => 'يرجى إدخال كلمة المرور الجديدة.',
-            'password.min'              => 'يجب ألا تقل كلمة المرور الجديدة عن 6 رموز.',
-            'password.confirmed'        => 'تأكيد كلمة المرور الجديدة غير متطابق مع الحقل السابق.',
-        ];
-
-        // تنفيذ التحقق
-        $request->validate($rules, $messages);
-
-        // 3. التحقق من أن كلمة المرور الحالية صحيحة
         if (!Hash::check($request->current_password, $user->password)) {
             return redirect()->back()->withErrors(['current_password' => 'كلمة المرور الحالية التي أدخلتها غير صحيحة.']);
         }
 
-        // 4. تشفير وحفظ كلمة المرور الجديدة
         $user->password = Hash::make($request->password);
         $user->save();
 

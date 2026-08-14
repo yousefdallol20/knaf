@@ -562,11 +562,10 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span
-                                class="text-small fw-bold">{{ auth()->user()->name }}</span>
+                            <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item text-small text-right" href="profile.html"><i
+                            <li><a class="dropdown-item text-small text-right" href="{{ route('admin.settings.index') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -599,7 +598,8 @@
                     <!-- العمود الأيمن (اليتيم والقرار) -->
                     <div class="right-sidebar">
                         <div class="orphan-photo-card">
-                            <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}" alt=" ">
+                            <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}" alt=" "
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';">
                             <h2>{{ $orphan->name }}</h2>
                             <div style="margin-bottom: 15px;">
                                 @if (empty($orphan->status) || in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'جديد']))
@@ -885,19 +885,19 @@
                                             <span class="data-label" style="display:block; margin-bottom:4px;">جهة
                                                 الاستلام المالي</span>
                                             <strong
-                                                class="data-value">{{ $orphan->financial->official_receiving_entity ?? 'غير متوفر' }}</strong>
+                                                class="data-value">{{ $orphan->financial_data->official_receiving_entity ?? 'غير متوفر' }}</strong>
                                         </div>
                                         <div style="padding: 10px; border-bottom: 1px solid #f8f9fa;">
                                             <span class="data-label" style="display:block; margin-bottom:4px;">اسم
                                                 صاحب الحساب</span>
                                             <strong
-                                                class="data-value">{{ $orphan->financial->account_holder_name ?? 'غير متوفر' }}</strong>
+                                                class="data-value">{{ $orphan->financial_data->account_holder_name ?? 'غير متوفر' }}</strong>
                                         </div>
                                         <div style="padding: 10px; border-bottom: 1px solid #f8f9fa;">
                                             <span class="data-label" style="display:block; margin-bottom:4px;">رقم
                                                 الحساب / IBAN</span>
                                             <strong
-                                                class="data-value">{{ $orphan->financial->bank_account_or_iban ?? 'غير متوفر' }}</strong>
+                                                class="data-value">{{ $orphan->financial_data->bank_account_or_iban ?? 'غير متوفر' }}</strong>
                                         </div>
                                         <div style="padding: 10px; border-bottom: 1px solid #f8f9fa;">
                                             <span class="data-label" style="display:block; margin-bottom:4px;">مبلغ

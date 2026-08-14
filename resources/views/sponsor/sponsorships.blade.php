@@ -98,8 +98,8 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
-                                alt=" " class="rounded-circle" width="30" height="30"
-                                style="object-fit: cover;">
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"alt=" "
+                                class="rounded-circle" width="30" height="30" style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">

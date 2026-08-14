@@ -16,8 +16,8 @@
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
-                    <img src="assets/images/logo.png" alt="شعار كنف" height="50" width="110" id="nav-brand-logo"
-                        style="object-fit:contain;">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110"
+                        id="nav-brand-logo" style="object-fit:contain;">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
                     aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,141 +55,162 @@
         <section class="py-5" id="main-profile-container">
             <div class="container py-3">
 
-                    <!-- Real Profile Card Content (Hidden initially until JS loads) -->
-                    <div id="profile-content">
+                <!-- Real Profile Card Content (Hidden initially until JS loads) -->
+                <div id="profile-content">
 
-                        <nav aria-label="breadcrumb" class="mb-4">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('knaf') }}"
-                                        class="text-primary-green text-decoration-none">الرئيسية</a>
-                                </li>
-                                <li class="breadcrumb-item"><a href="{{ route('orphans') }}"
-                                        class="text-primary-green text-decoration-none">قائمة
-                                        الأيتام</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    {{ $orphan->name }}
-                                </li>
-                            </ol>
-                        </nav>
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ route('knaf') }}"
+                                    class="text-primary-green text-decoration-none">الرئيسية</a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="{{ route('orphans') }}"
+                                    class="text-primary-green text-decoration-none">قائمة
+                                    الأيتام</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                {{ $orphan->name }}
+                            </li>
+                        </ol>
+                    </nav>
 
-                        <div class="row g-4">
-                            <!-- Profile image and core call to action -->
-                            <div class="col-lg-5">
-                                <div class="bg-white p-4 rounded-4 shadow-sm border text-center">
-                                    <div class="position-relative mb-4">
-                                        <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}" alt=" "
-                                            class="img-fluid rounded-4 shadow-xs"
-                                            style="max-height:380px;object-fit:cover;width:100%;">
-                                        <span
-                                            class="badge bg-primary-green position-absolute top-0 end-0 m-3 px-3 py-2">
-                                            {{ $orphan->country }} - {{ $orphan->city }}
-                                        </span>
-                                    </div>
+                    <div class="row g-4">
+                        <!-- Profile image and core call to action -->
+                        <div class="col-lg-5">
+                            <div class="bg-white p-4 rounded-4 shadow-sm border text-center">
+                                <div class="position-relative mb-4">
+                                    <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}"
+                                        alt=" " class="img-fluid rounded-4 shadow-xs"
+                                        style="max-height:380px;object-fit:cover;width:100%;">
+                                    <span class="badge bg-primary-green position-absolute top-0 end-0 m-3 px-3 py-2">
+                                        {{ $orphan->country }} - {{ $orphan->city }}
+                                    </span>
+                                </div>
 
-                                    <div class="bg-light-gray-subtle p-3 rounded-3 mb-4 text-center">
-                                        <p class="text-muted text-small mb-1">المبلغ المطلوب للكفالة الشهرية الشاملة</p>
-                                        <div class="d-flex align-items-center justify-content-center gap-1">
-                                            <h3 class="fw-bold text-primary-green mb-0">
-                                                {{ $orphan->required_amount }}
-                                            </h3>
-                                            <span class="fs-5 text-muted">$ / شهرياً</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Action buttons -->
-                                    <div class="d-grid gap-2">
-                                        <a href="{{ route('step1', $orphan->id) }}" class="btn btn-secondary btn-lg py-3 fw-bold">
-                                            ابدأ كفالة الطفل الآن
-                                        </a>
-                                        <button class="btn btn-outline-primary btn-lg py-2"><i
-                                                class="bi bi-share me-2"></i> مشاركة الملف
-                                        </button>
+                                <div class="bg-light-gray-subtle p-3 rounded-3 mb-4 text-center">
+                                    <p class="text-muted text-small mb-1">المبلغ المطلوب للكفالة الشهرية الشاملة</p>
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <h3 class="fw-bold text-primary-green mb-0">
+                                            {{ $orphan->required_amount }}
+                                        </h3>
+                                        <span class="fs-5 text-muted">$ / شهرياً</span>
                                     </div>
                                 </div>
+
+                                <!-- Action buttons -->
+                                <div class="d-grid gap-2">
+                                    <a href="{{ route('step1', $orphan->id) }}"
+                                        class="btn btn-secondary btn-lg py-3 fw-bold">
+                                        ابدأ كفالة الطفل الآن
+                                    </a>    
+                                    <button class="btn btn-outline-primary btn-lg py-2"><i class="bi bi-share me-2"></i>
+                                        مشاركة الملف
+                                    </button>
+                                </div>
                             </div>
+                        </div>
 
-                            <!-- Description and history -->
-                            <div class="col-lg-7">
-                                <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border h-100">
-                                    <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-semibold"
-                                        id="child-status-badge">{{ $orphan->status }}</span>
-                                    <h1 class="fw-bold text-primary-green mb-3">
-                                        {{ $orphan->name }}
-                                    </h1>
-                                    <!-- Smart Humanitarian Classification Badges -->
-                                    <div class="d-flex flex-wrap gap-1 mb-3">
-
+                        <!-- Description and history -->
+                        <div class="col-lg-7">
+                            <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border h-100">
+                                <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-semibold"
+                                    id="child-status-badge">{{ $orphan->status }}</span>
+                                <h1 class="fw-bold text-primary-green mb-3">
+                                    {{ $orphan->name }}
+                                </h1>
+                                <!-- Smart Humanitarian Classification Badges -->
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    @if ($orphan->is_double_orphan)
                                         <span
                                             class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">
-                                            يتيم الأبوين
+                                            <i class="bi bi-heartbreak-fill me-1"></i> يتيم الأبوين
                                         </span>
+                                    @endif
 
+                                    @if ($orphan->is_sole_breadwinner)
                                         <span
-                                            class="badge bg-info-subtle text-dark border border-info-subtle px-3 py-2 rounded-pill">
-                                            أشد حاجة
+                                            class="badge bg-dark-subtle text-dark border border-dark-subtle px-3 py-2 rounded-pill">
+                                            <i class="bi bi-person-heart me-1"></i> ناجي وحيد
                                         </span>
+                                    @endif
 
+                                    @if ($orphan->is_critically_needy)
+                                        <span
+                                            class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> أشد حاجة
+                                        </span>
+                                    @endif
+
+                                    @if ($orphan->is_war_injured)
+                                        <span class="badge bg-danger text-white px-3 py-2 rounded-pill">
+                                            <i class="bi bi-bandaid-fill me-1"></i> مصاب حرب / جريح
+                                        </span>
+                                    @endif
+
+                                    @if ($orphan->has_chronic_disease)
+                                        <span
+                                            class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-3 py-2 rounded-pill">
+                                            <i class="bi bi-hospital-fill me-1"></i> مرض مزمن
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-muted mb-4">
+                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                    {{ $orphan->country }} - {{ $orphan->city }}
+                                </p>
+
+                                <hr class="my-4">
+
+                                <h4 class="fw-bold mb-3 text-dark"><i
+                                        class="bi bi-person-badge-fill me-2 text-primary-green"></i>
+                                    البيانات الشخصية</h4>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-sm-6">
+                                        <div class="p-3 bg-light rounded-3">
+                                            <span class="text-caption d-block">العمر الحالي</span>
+                                            <strong class="text-dark fs-5">
+                                                {{ $orphan->age }} سنوات
+                                            </strong>
+                                        </div>
                                     </div>
-                                    <p class="text-muted mb-4">
-                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                                        {{ $orphan->country }} - {{ $orphan->city }}
+                                    <div class="col-sm-6">
+                                        <div class="p-3 bg-light rounded-3">
+                                            <span class="text-caption d-block">الجنس</span>
+                                            <strong class="text-dark fs-5">
+                                                {{ $orphan->gender }}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="p-3 bg-light rounded-3">
+                                            <span class="text-caption d-block">المرحلة والمستوى التعليمي</span>
+                                            <strong class="text-dark fs-5">
+                                                {{ $orphan->education_level }}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="p-3 bg-light rounded-3">
+                                            <span class="text-caption d-block">الحالة الصحية العامة</span>
+                                            <strong class="text-dark fs-5">
+                                                {{ $orphan->health_status }}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="fw-bold mb-3 text-dark"><i
+                                        class="bi bi-chat-quote-fill me-2 text-primary-green"></i> قصة
+                                    وحكاية اليتيم</h4>
+                                <div class="p-4 bg-light rounded-4 border-start border-4 border-primary-green mb-0">
+                                    <p class="mb-0 text-muted lh-lg" style="text-align:justify;">
+                                        {{ $orphan->story }}
                                     </p>
-
-                                    <hr class="my-4">
-
-                                    <h4 class="fw-bold mb-3 text-dark"><i
-                                            class="bi bi-person-badge-fill me-2 text-primary-green"></i>
-                                        البيانات الشخصية</h4>
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-sm-6">
-                                            <div class="p-3 bg-light rounded-3">
-                                                <span class="text-caption d-block">العمر الحالي</span>
-                                                <strong class="text-dark fs-5">
-                                                    {{ $orphan->age }} سنوات
-                                                </strong>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="p-3 bg-light rounded-3">
-                                                <span class="text-caption d-block">الجنس</span>
-                                                <strong class="text-dark fs-5">
-                                                    {{ $orphan->gender }}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="p-3 bg-light rounded-3">
-                                                <span class="text-caption d-block">المرحلة والمستوى التعليمي</span>
-                                                <strong class="text-dark fs-5">
-                                                    {{ $orphan->education_level }}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="p-3 bg-light rounded-3">
-                                                <span class="text-caption d-block">الحالة الصحية العامة</span>
-                                                <strong class="text-dark fs-5">
-                                                    {{ $orphan->health_status }}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <h4 class="fw-bold mb-3 text-dark"><i
-                                            class="bi bi-chat-quote-fill me-2 text-primary-green"></i> قصة
-                                        وحكاية اليتيم</h4>
-                                    <div
-                                        class="p-4 bg-light rounded-4 border-start border-4 border-primary-green mb-0">
-                                        <p class="mb-0 text-muted lh-lg" style="text-align:justify;">
-                                            {{ $orphan->story }}
-                                        </p>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
     </main>
 
     <footer class="kanaf-footer py-5 mt-5 pb-0">
@@ -198,7 +219,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-info">
                         <div class="d-flex align-items-center gap-2 mb-3">
-                            <!-- <img src="assets/images/logo.png" alt="كنف" height="60" style="object-fit: cover;"> -->
+                            <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="كنف" height="60" style="object-fit: cover;"> -->
                             <h5 class="text-white mb-0 fw-bold">منصة كَنَفْ لكفالة الأيتام</h5>
                         </div>
                         <p class="text-white text-small">منصة تفاعلية رقمية موثوقة وآمنة تهدف لربط الكافلين بالأيتام
@@ -219,8 +240,10 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-                        <li><a href="orphans.html" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
+                        </li>
+                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
+                                للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>

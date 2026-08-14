@@ -195,7 +195,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
-          <img src="assets/images/logo.png" alt="شعار كنف" height="50" width="110" id="nav-brand-logo"
+          <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110" id="nav-brand-logo"
             style="object-fit:contain;">
           <!-- <span id="nav-brand-text">منصة كَنَفْ</span> -->
         </a>
@@ -209,7 +209,7 @@
               <a class="nav-link" href="{{ route('knaf') }}" id="nav-link-home">الرئيسية</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="orphans.html" id="nav-link-orphans">قائمة الأيتام</a>
+              <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="sponsorship/step1.html" id="nav-link-steps">خطوات الكفالة</a>
@@ -253,7 +253,7 @@
               يصنع الفارق الحقيقي كل يوم.
             </p>
             <div class="d-flex flex-wrap gap-3 hero-ctas" data-aos="fade-up" data-aos-delay="800">
-              <a href="orphans.html" class="btn btn-secondary btn-lg px-5 py-3 shadow-lg rounded-pill"> اكفل طفلاً
+              <a href="{{ route('orphans') }}" class="btn btn-secondary btn-lg px-5 py-3 shadow-lg rounded-pill"> اكفل طفلاً
                 الآن</a>
               <a href="#how-it-works" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">كيف تعمل كنف؟</a>
             </div>
@@ -825,7 +825,7 @@
               وتحفر اسمك في صفحات الخير.
             </p>
             <div class="d-flex flex-wrap gap-3 justify-content-center">
-              <a href="orphans.html" class="btn btn-secondary btn-lg px-5 py-3 rounded-pill shadow-lg"> اكفل طفلاً
+              <a href="{{ route('orphans') }}" class="btn btn-secondary btn-lg px-5 py-3 rounded-pill shadow-lg"> اكفل طفلاً
                 الآن</a>
               <a href="auth/register.html" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">انضم لشركاء
                 كنف</a>
@@ -842,7 +842,7 @@
         <div class="col-lg-4 col-md-6">
           <div class="footer-info">
             <div class="d-flex align-items-center gap-2 mb-3">
-              <!-- <img src="assets/images/logo.png" alt="كنف" height="60" style="object-fit: cover;"> -->
+              <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="كنف" height="60" style="object-fit: cover;"> -->
               <h5 class="text-white mb-0 fw-bold">منصة كَنَفْ لكفالة الأيتام</h5>
             </div>
             <p class="text-white text-small">منصة تفاعلية رقمية موثوقة وآمنة تهدف لربط الكافلين بالأيتام الأكثر احتياجاً
@@ -859,7 +859,7 @@
           <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
           <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
             <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-            <li><a href="orphans.html" class="text-white text-decoration-none">قائمة الأيتام للبحث</a></li>
+            <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a></li>
             <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء الكفالة</a></li>
             <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
           </ul>

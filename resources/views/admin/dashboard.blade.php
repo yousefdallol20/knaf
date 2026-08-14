@@ -106,7 +106,7 @@
                                 class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item text-small text-right" href="#"><i
+                            <li><a class="dropdown-item text-small text-right" href="{{ route('admin.settings.index') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
                             <li>
                                 <hr class="dropdown-divider">

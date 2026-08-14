@@ -38,7 +38,7 @@ return new class extends Migration
 
             $table->string('country'); // الدولة
             $table->string('city'); // المدينة
-            $table->enum('status', ['مرفوض', 'مكفول','بانتظار الكفالة', 'بانتظار القبول'])->default('بانتظار القبول'); //  حالة الكفالة (بانتظار الكفيل)
+            $table->enum('status', ['مرفوض', 'مكفول', 'بانتظار الكفالة', 'بانتظار القبول'])->default('بانتظار القبول'); //  حالة الكفالة (بانتظار الكفيل)
             $table->string('urgency_level')->nullable(); // مستوى الحاجة
 
             $table->decimal('required_amount', 8, 2)->default(50.00); // المبلغ المطلوب للكفالة

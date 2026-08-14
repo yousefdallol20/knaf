@@ -13,10 +13,11 @@ class HomeController extends Controller
         // 1. بدء الاستعلام واستثناء غير المقبولين
         $query = orphans::query()
             ->where('status', '!=', 'بانتظار القبول')
-            ->where('status', '!=', 'مرفوض');
+            ->where('status', '!=', 'مرفوض')
+            ->where('status', '!=', 'مكفول');
 
         // أو إذا كانت الحالات المقبولة محددة بوضوح استخدم whereIn:
-        // ->whereIn('status', ['بانتظار الكفالة', 'مكفول']);
+        // ->whereIn('status', ['بانتظار الكفالة']);
 
         // 2. البحث باسم اليتيم
         if ($request->filled('search')) {

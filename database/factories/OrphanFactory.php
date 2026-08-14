@@ -44,7 +44,7 @@ class OrphanFactory extends Factory
             'city' => $this->faker->randomElement(['غزة', 'خانيونس', 'رفح', 'دير البلح', 'شمال غزة']),
 
             // حل المشكلة: اختيار قيمة نصية صحيحة من الـ enum المعرف في الميجريشن[cite: 18]
-            'status' => $this->faker->randomElement(['مكفول', 'بانتظار الكفالة']),
+            'status' => $this->faker->randomElement(['بانتظار القبول']),
             'urgency_level' => $this->faker->randomElement(['متوسطة', 'حرجة', 'عاجلة جداً']),
             'required_amount' => $this->faker->randomElement([50.00, 75.00, 100.00, 150.00]),
         ];

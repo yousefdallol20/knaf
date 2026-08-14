@@ -75,6 +75,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
                                 alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
@@ -143,7 +144,7 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table text-right text-small">
+                                <table class="table text-right text-small align-middle">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -156,7 +157,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($orphan as $info)
+                                        @forelse ($orphan as $info)
                                             <tr>
                                                 <td class="fw-bold text-muted">#{{ $info->id }}</td>
                                                 <td>
@@ -164,8 +165,9 @@
                                                         <div>
                                                             <strong
                                                                 class="text-dark d-block text-small">{{ $info->name }}</strong>
-                                                            <span class="text-caption text-muted">{{ $info->gender }}
-                                                                | {{ $info->orphan_location_status }}
+                                                            <span class="text-caption text-muted">
+                                                                {{ $info->gender }} |
+                                                                {{ $info->orphan_location_status }}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -173,53 +175,73 @@
                                                 <td>{{ $info->age }} سنة</td>
                                                 <td>{{ $info->education_level }}</td>
                                                 <td class="fw-bold text-success">
-                                                    @if ($info->status == 'بانتظار القبول')
+                                                    @if ($info->status === 'بانتظار القبول')
                                                         <span class="text-muted fw-normal">لم يتم التحديد بعد</span>
                                                     @else
                                                         $ {{ $info->required_amount }} /شهرياً
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if ($info->status == 'بانتظار القبول')
-                                                        <span class="badge bg-warning text-dark"><i
-                                                                class="bi bi-clock-history me-1"></i> بانتظار
-                                                            القبول</span>
-                                                    @elseif($info->status == 'مرفوض')
-                                                        <span class="badge bg-danger"><i
-                                                                class="bi bi-x-circle me-1"></i> تم الرفض</span>
-                                                    @elseif($info->status == 'مكفول')
-                                                        <span class="badge bg-success"><i
-                                                                class="bi bi-check-circle me-1"></i>
-                                                            {{ $info->status }}</span>
-                                                    @elseif($info->status == 'بانتظار الكفالة')
-                                                        <span class="badge-kanaf badge-pending"><i
-                                                                class="bi bi-check-circle me-1"></i>
-                                                            {{ $info->status }}</span>
+                                                    @if ($info->status === 'بانتظار القبول')
+                                                        <span class="badge bg-warning text-dark">
+                                                            <i class="bi bi-clock-history me-1"></i> بانتظار القبول
+                                                        </span>
+                                                    @elseif ($info->status === 'مرفوض')
+                                                        <span class="badge bg-danger">
+                                                            <i class="bi bi-x-circle me-1"></i> تم الرفض
+                                                        </span>
+                                                    @elseif ($info->status === 'مكفول')
+                                                        <span class="badge bg-success">
+                                                            <i class="bi bi-check-circle me-1"></i>
+                                                            {{ $info->status }}
+                                                        </span>
+                                                    @elseif ($info->status === 'بانتظار الكفالة')
+                                                        <span class="badge-kanaf badge-pending">
+                                                            <i class="bi bi-check-circle me-1"></i>
+                                                            {{ $info->status }}
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-secondary">{{ $info->status }}</span>
                                                     @endif
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-2 justify-content-center">
                                                         <a href="#" class="btn btn-outline-secondary btn-sm"
                                                             data-bs-toggle="modal"
-                                                            data-bs-target="#modal-child-{{ $info->id }}"><i
-                                                                class="bi bi-eye"></i> تفاصيل</a>
+                                                            data-bs-target="#modal-child-{{ $info->id }}">
+                                                            <i class="bi bi-eye"></i> تفاصيل
+                                                        </a>
                                                         <a href="{{ route('children.edit', $info->id) }}"
-                                                            class="btn btn-outline-primary btn-sm"><i
-                                                                class="bi bi-pencil-square"></i> تعديل البيانات</a>
+                                                            class="btn btn-outline-primary btn-sm">
+                                                            <i class="bi bi-pencil-square"></i> تعديل البيانات
+                                                        </a>
                                                         <form action="{{ route('children.destroy', $info->id) }}"
                                                             method="POST" class="d-inline"
                                                             onsubmit="return confirm('هل أنت متأكد من حذف هذا اليتيم وكافة بياناته المرتبطة؟');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"
-                                                                class="btn btn-outline-danger btn-sm"><i
-                                                                    class="bi bi-trash"></i> شطب</button>
+                                                                class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-trash"></i> شطب
+                                                            </button>
                                                         </form>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        @endforeach
-
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center py-5 text-muted">
+                                                    <div
+                                                        class="d-flex flex-column align-items-center justify-content-center gap-2">
+                                                        <i
+                                                            class="bi bi-folder2-open display-6 text-secondary opacity-50"></i>
+                                                        <span class="fw-bold fs-6">لم يتم إضافة أي طفل بعد</span>
+                                                        <small class="text-muted">يمكنك إضافة أطفال جدد عبر الضغط على
+                                                            زر "إضافة طفل"</small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -313,8 +335,7 @@
                                                 <tr>
                                                     <th>التقييم</th>
                                                     <td>
-                                                        ({{ $info->rating ?? 1 }}/5)</span>
-
+                                                        ( {{ $info->rating ?? 1 }}/5 )
                                                     </td>
                                                 </tr>
                                                 <tr>

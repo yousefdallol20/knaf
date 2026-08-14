@@ -324,6 +324,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
                                 alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
@@ -764,7 +765,7 @@
                                                 @enderror
                                             </div>
 
-                                            <div class="col-12">
+                                            <div class="col-12" id="mother-death-details">
                                                 <div
                                                     class="row g-3 bg-light p-3 rounded-4 border border-danger-subtle">
                                                     <div class="col-md-4">
@@ -1602,7 +1603,29 @@
             }
             refreshUI();
         })();
+    document.addEventListener('DOMContentLoaded', function () {
+    const motherAliveYes = document.getElementById('mother-alive-yes');
+    const motherAliveNo = document.getElementById('mother-alive-no');
+    const motherDeathDetails = document.getElementById('mother-death-details');
+
+    function toggleMotherDetails() {
+        if (motherAliveNo && motherAliveNo.checked) {
+            motherDeathDetails.style.display = 'block';
+        } else {
+            motherDeathDetails.style.display = 'none';
+        }
+    }
+
+    if (motherAliveYes && motherAliveNo && motherDeathDetails) {
+        motherAliveYes.addEventListener('change', toggleMotherDetails);
+        motherAliveNo.addEventListener('change', toggleMotherDetails);
+
+        // تشغيل الدالة فور تحميل الصفحة للتحقق من التحديد المسبق (Prefill/Old Value)
+        toggleMotherDetails();
+    }
+});
     </script>
+
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 
