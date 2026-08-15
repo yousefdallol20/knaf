@@ -228,61 +228,48 @@ class AdminController extends Controller
     }
 
     // 5️⃣ تجميد/تفعيل حساب الكافل وإرسال إشعار له وللوصي
-    public function toggleSponsorStatus(Request $request, string $id)
-    {
-        $sponsorship = Sponsorship::with(['orphan', 'sponsor'])->findOrFail($id);
+   // 5️⃣ تجميد/تفعيل حساب الكافل وإرسال إشعار له
+public function toggleSponsorStatus(Request $request, string $id)
+{
+    // جلب الكفيل بناءً على الـ ID الممرر
+    $sponsor = Sponsor::findOrFail($id);
 
-        if ($sponsorship->status == 'نشط' || $sponsorship->status == 'ساري' || empty($sponsorship->status)) {
-            $sponsorship->status = 'موقوف';
-            $reason = $request->input('reason', 'تم تعليق العقد من قبل الإدارة');
-            $sponsorship->notes = $reason;
-            $message = 'تم تعليق عقد الكفالة بنجاح.';
+    if (($sponsor->status ?? 'active') === 'active') {
+        $sponsor->status = 'inactive';
+        $message = 'تم تجميد/تعليق حساب الكافل بنجاح.';
 
-            if ($sponsorship->sponsor && $sponsorship->sponsor->user_id) {
-                $sponsorUser = User::find($sponsorship->sponsor->user_id);
-                if ($sponsorUser) {
-                    $sponsorUser->notify(new BroadcastAnnouncement(
-                        'تعليق عقد الكفالة',
-                        'تنبيه',
-                        "تم تعليق عقد الكفالة الخاص بالطفل ({$sponsorship->orphan->name}). السبب: {$reason}"
-                    ));
-                }
-            }
-
-            if ($sponsorship->orphan) {
-                $guardian = guardian::find($sponsorship->orphan->guardian_id) ?? guardian::where('orphan_id', $sponsorship->orphan->id)->latest()->first();
-
-                if ($guardian && $guardian->user_id) {
-                    $guardianUser = User::find($guardian->user_id);
-                    if ($guardianUser) {
-                        $guardianUser->notify(new BroadcastAnnouncement(
-                            'إيقاف/تجميد الكفالة',
-                            'تنبيه',
-                            "تم تعليق عقد الكفالة للطفل ({$sponsorship->orphan->name})."
-                        ));
-                    }
-                }
-            }
-        } else {
-            $sponsorship->status = 'نشط';
-            $message = 'تم إعادة تفعيل عقد الكفالة بنجاح.';
-
-            if ($sponsorship->sponsor && $sponsorship->sponsor->user_id) {
-                $sponsorUser = User::find($sponsorship->sponsor->user_id);
-                if ($sponsorUser) {
-                    $sponsorUser->notify(new BroadcastAnnouncement(
-                        'إعادة تفعيل الكفالة',
-                        'تحديث',
-                        "تمت إعادة تفعيل عقد الكفالة للطفل ({$sponsorship->orphan->name}) بنجاح."
-                    ));
-                }
+        // إرسال إشعار للكافل
+        if ($sponsor->user_id) {
+            $user = User::find($sponsor->user_id);
+            if ($user) {
+                $user->notify(new BroadcastAnnouncement(
+                    'تعليق الحساب',
+                    'تنبيه',
+                    "مرحباً {$sponsor->name}، تم تعليق حسابك ككافل مؤقتاً. يرجى التواصل مع إدارة المنصة للمزيد من التفاصيل."
+                ));
             }
         }
+    } else {
+        $sponsor->status = 'active';
+        $message = 'تم إعادة تفعيل حساب الكافل بنجاح.';
 
-        $sponsorship->save();
-
-        return redirect()->back()->with('success', $message);
+        // إرسال إشعار للكافل
+        if ($sponsor->user_id) {
+            $user = User::find($sponsor->user_id);
+            if ($user) {
+                $user->notify(new BroadcastAnnouncement(
+                    'تنشيط الحساب',
+                    'تحديث',
+                    "مرحباً {$sponsor->name}، تم إعادة تنشيط حسابك بنجاح. يمكنك الآن متابعة كفالاتك والخدمات المتاحة."
+                ));
+            }
+        }
     }
+
+    $sponsor->save();
+
+    return redirect()->back()->with('success', $message);
+}
 
     public function sponsorships_admin()
     {
