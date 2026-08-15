@@ -35,7 +35,7 @@
                             <a class="nav-link" href="sponsorship/step1.html" id="nav-link-steps">خطوات الكفالة</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="contact.html" id="nav-link-contact">اتصل بنا</a>
+                            <a class="nav-link" href="{{ route('contact') }}" id="nav-link-contact">اتصل بنا</a>
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">

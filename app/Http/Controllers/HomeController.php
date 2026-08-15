@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMail;
 use App\Models\orphans;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
@@ -48,5 +50,25 @@ class HomeController extends Controller
     {
         $orphan = orphans::findOrFail($id);
         return view('orphan-profile', compact('orphan'));
+    }
+    public function contact()
+    {
+        return view('contact');
+    }
+
+    public function sendContactEmail(Request $request)
+    {
+        $data = $request->validate([
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email',
+            'phone'   => 'nullable|string|max:50',
+            'type'    => 'required|string',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        Mail::to('yousifdallol2021@gmail.com')->send(new ContactMail($data));
+
+        return back()->with('success', 'تم إرسال استفسارك بنجاح، وسنقوم بالرد عليك في أقرب وقت ممكن.');
     }
 }

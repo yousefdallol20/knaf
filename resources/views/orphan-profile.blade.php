@@ -35,7 +35,7 @@
                             <a class="nav-link" href="sponsorship/step1.html" id="nav-link-steps">خطوات الكفالة</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="contact.html" id="nav-link-contact">اتصل بنا</a>
+                            <a class="nav-link" href="{{ route('contact') }}" id="nav-link-contact">اتصل بنا</a>
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
@@ -100,7 +100,7 @@
                                     <a href="{{ route('step1', $orphan->id) }}"
                                         class="btn btn-secondary btn-lg py-3 fw-bold">
                                         ابدأ كفالة الطفل الآن
-                                    </a>    
+                                    </a>
                                     <button class="btn btn-outline-primary btn-lg py-2"><i class="bi bi-share me-2"></i>
                                         مشاركة الملف
                                     </button>

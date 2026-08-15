@@ -27,6 +27,8 @@ Route::get('/knaf', function () {
 Route::get('/orphans', [HomeController::class, 'orphans'])->name('orphans');
 Route::get('/orphans_details/{id}', [HomeController::class, 'orphans_details'])->name('orphans_details');
 
+Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::post('/contact', [HomeController::class, 'sendContactEmail'])->name('contact.send');
 
 // ===================================================
 // ================== Guest / Auth Routes ============
