@@ -96,8 +96,8 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('Uploads/parents/default.png') }}"
-                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                            <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('Uploads/orphans/default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                 alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
@@ -157,8 +157,8 @@
                             <div class="dropdown d-inline-block mb-3">
                                 <div class="position-relative profile-img-container" id="avatarDropdown"
                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('Uploads/parents/default.png') }}"
-                                        onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                                    <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('Uploads/orphans/default.png') }}"
+                                        onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                         id="profile-avatar-preview" alt=" "
                                         class="rounded-circle border border-3 border-success shadow-xs" width="110"
                                         height="110" style="object-fit: cover;">
@@ -300,7 +300,7 @@
                         class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow-none"
                         data-bs-dismiss="modal" aria-label="Close"></button>
                     <!-- تعديل مسار الصورة هنا ليعرض صورة المستخدم الحالية بدقة بدلاً من الصورة الاستاتيكية -->
-                    <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
+                    <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/orphans/default.png') }}"
                         id="modal-full-image" class="img-fluid rounded-4 shadow" style="max-height: 80vh;"
                         alt=" ">
                 </div>

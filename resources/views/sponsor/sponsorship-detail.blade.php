@@ -88,10 +88,9 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
-
-                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"alt="رمز" class="rounded-circle" width="30" height="30"
-                                style="object-fit: cover;">
+                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/orphans/default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"alt="رمز"
+                                class="rounded-circle" width="30" height="30" style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
@@ -131,17 +130,16 @@
                     <div class="row g-4">
                         @php
                             $orphan = $sponsorship->orphan;
-                            // جلب المبلغ إما من الكفالة أو من اليتيم مباشرة
                             $amountDisplay =
-                                $sponsorship->amount ??
-                                ($sponsorship->amount_paid ??
-                                    ($sponsorship->required_amount ?? ($orphan ? $orphan->required_amount : 0)));
+                                $orphan->required_amount ??
+                                ($sponsorship->amount_paid ?? ($sponsorship->amount ?? 0.0));
                         @endphp
 
                         <!-- Left sidebar in detail workspace: Child core card -->
                         <div class="col-lg-4">
                             <div class="bg-white p-4 rounded-4 border shadow-sm text-center">
-                                <img src="{{ asset('Uploads/orphans/' . ($orphan->personal_photo_path ?? 'default.jpg')) }}"
+                                <img src="{{ asset('Uploads/orphans/' . ($orphan->personal_photo_path ?? 'default.png')) }}"
+                                    onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                     alt="" class="img-fluid rounded-4 mb-3 border shadow-xs"
                                     style="max-height:250px;object-fit:cover;width:100%;">
                                 <h4 class="fw-bold text-dark mb-1">
@@ -175,12 +173,10 @@
                                     </div>
                                 </div>
                                 <div class="d-grid gap-2">
-                                    <!-- تفعيل زر سداد الكفالة ليأخذك مباشرة لخطوة السداد -->
                                     <a href="{{ route('step1', $orphan->id ?? $sponsorship->orphan_id) }}"
                                         class="btn btn-secondary fw-bold py-2">
                                         <i class="bi bi-wallet2 me-1"></i> سداد استحقاق الكفالة القادمة
                                     </a>
-                                    <!-- تفعيل زر مشاهدة الملف التفصيلي لليتيم -->
                                     <a href="{{ route('orphans_details', $orphan->id ?? $sponsorship->orphan_id) }}"
                                         id="btn-view-public" class="btn btn-outline-primary py-2 btn-sm">
                                         مشاهدة الملف التفصيلي
@@ -242,7 +238,7 @@
                                                             <td>{{ $payment->last_batch ?? $payment->created_at->format('Y-m-d') }}
                                                             </td>
                                                             <td class="fw-bold text-success">
-                                                                ${{ number_format($payment->amount_paid ?? ($payment->amount ?? ($sponsorship->orphan->required_amount ?? 50)), 2) }}
+                                                                ${{ number_format($payment->amount_paid > 50 ? $payment->amount_paid : $sponsorship->orphan->required_amount, 2) }}
                                                             </td>
                                                             <td>
                                                                 {{ $payment->payment_method == 'card' ? 'بطاقة إلكترونية' : ($payment->payment_method == 'bank_transfer' ? 'تحويل بنكي' : $payment->payment_method ?? 'بطاقة إلكترونية') }}

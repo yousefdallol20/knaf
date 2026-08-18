@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateSponsorPasswordRequest;
 use App\Models\AuditLog;
 use App\Models\documents;
 use App\Models\guardian;
+use App\Models\orphans;
 use App\Models\Sponsor;
 use App\Models\Sponsorship;
 use App\Models\User;
@@ -45,9 +46,12 @@ class SponsorController extends Controller
             ->get()
             ->unique('orphan_id');
 
-        // 2. مبلغ الدعم الشهري المتوقع
+        // 2. مبلغ الدعم الشهري المتوقع (مجموع المبالغ المطلوبة للأيتام المكفولين)
         $monthlySupportAmount = $sponsorships->sum(function ($sponsorship) {
-            return $sponsorship->monthly_amount ?? $sponsorship->amount ?? $sponsorship->amount_paid ?? 50.00;
+            return $sponsorship->orphan->required_amount
+                ?? $sponsorship->amount_paid
+                ?? $sponsorship->amount
+                ?? 0.00;
         });
 
         // 3. إجمالي المدفوعات الخيرية الفعلية
@@ -250,11 +254,13 @@ class SponsorController extends Controller
     public function storeManualPayment(StoreManualPaymentRequest $request)
     {
         $sponsor = Sponsor::where('user_id', Auth::id())->firstOrFail();
+        // جلب بيانات اليتيم لمعرفة المبلغ المطلوب
+        $orphan = orphans::findOrFail($request->orphan_id);
 
         $sponsorship = Sponsorship::create([
             'sponsor_id'     => $sponsor->id,
             'orphan_id'      => $request->orphan_id,
-            'amount_paid'    => $request->amount_paid,
+            'amount_paid'    => $request->amount_paid ?? $orphan->required_amount ?? 0.00,
             'payment_method' => $request->payment_method,
             'payment_status' => 'pending',
             'last_batch'     => now()->format('Y-m-d'),

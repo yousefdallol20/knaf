@@ -228,48 +228,46 @@ class AdminController extends Controller
     }
 
     // 5️⃣ تجميد/تفعيل حساب الكافل وإرسال إشعار له وللوصي
-   // 5️⃣ تجميد/تفعيل حساب الكافل وإرسال إشعار له
-public function toggleSponsorStatus(Request $request, string $id)
-{
-    // جلب الكفيل بناءً على الـ ID الممرر
-    $sponsor = Sponsor::findOrFail($id);
+    public function toggleSponsorStatus(Request $request, string $id)
+    {
+        // جلب الكفيل بناءً على الـ ID الممرر
+        $sponsor = Sponsor::findOrFail($id);
 
-    if (($sponsor->status ?? 'active') === 'active') {
-        $sponsor->status = 'inactive';
-        $message = 'تم تجميد/تعليق حساب الكافل بنجاح.';
+        if (($sponsor->status ?? 'active') === 'active') {
+            $sponsor->status = 'inactive';
+            $message = 'تم تجميد/تعليق حساب الكافل بنجاح.';
 
-        // إرسال إشعار للكافل
-        if ($sponsor->user_id) {
-            $user = User::find($sponsor->user_id);
-            if ($user) {
-                $user->notify(new BroadcastAnnouncement(
-                    'تعليق الحساب',
-                    'تنبيه',
-                    "مرحباً {$sponsor->name}، تم تعليق حسابك ككافل مؤقتاً. يرجى التواصل مع إدارة المنصة للمزيد من التفاصيل."
-                ));
+            if ($sponsor->user_id) {
+                $user = User::find($sponsor->user_id);
+                if ($user) {
+                    $user->notify(new BroadcastAnnouncement(
+                        'تعليق الحساب',
+                        'تنبيه',
+                        "مرحباً {$sponsor->name}، تم تعليق حسابك ككافل مؤقتاً. يرجى التواصل مع إدارة المنصة للمزيد من التفاصيل."
+                    ));
+                }
+            }
+        } else {
+            $sponsor->status = 'active';
+            $message = 'تم إعادة تفعيل حساب الكافل بنجاح.';
+
+            // إرسال إشعار للكافل
+            if ($sponsor->user_id) {
+                $user = User::find($sponsor->user_id);
+                if ($user) {
+                    $user->notify(new BroadcastAnnouncement(
+                        'تنشيط الحساب',
+                        'تحديث',
+                        "مرحباً {$sponsor->name}، تم إعادة تنشيط حسابك بنجاح. يمكنك الآن متابعة كفالاتك والخدمات المتاحة."
+                    ));
+                }
             }
         }
-    } else {
-        $sponsor->status = 'active';
-        $message = 'تم إعادة تفعيل حساب الكافل بنجاح.';
 
-        // إرسال إشعار للكافل
-        if ($sponsor->user_id) {
-            $user = User::find($sponsor->user_id);
-            if ($user) {
-                $user->notify(new BroadcastAnnouncement(
-                    'تنشيط الحساب',
-                    'تحديث',
-                    "مرحباً {$sponsor->name}، تم إعادة تنشيط حسابك بنجاح. يمكنك الآن متابعة كفالاتك والخدمات المتاحة."
-                ));
-            }
-        }
+        $sponsor->save();
+
+        return redirect()->back()->with('success', $message);
     }
-
-    $sponsor->save();
-
-    return redirect()->back()->with('success', $message);
-}
 
     public function sponsorships_admin()
     {

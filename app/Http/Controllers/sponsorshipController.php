@@ -10,6 +10,7 @@ use App\Models\Sponsor;
 use App\Models\Sponsorship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SponsorshipController extends Controller
 {
@@ -115,70 +116,42 @@ class SponsorshipController extends Controller
      */
     public function step3(ProcessSponsorshipStep3Request $request)
     {
-        $step2Data = session('sponsorship_step2');
-        if (!$step2Data) {
-            return redirect()->route('create_step2');
-        }
-
-        // فحص الحماية النهائي لحالة اليتيم لمنع Double Submission
-        $orphan = orphans::findOrFail($request->orphan_id);
-        if ($orphan->status === 'مكفول') {
-            session()->forget('sponsorship_step2');
-            return redirect()->route('sponsorships')->with('warning', 'هذا اليتيم مكفول بالفعل.');
-        }
-
-        $user = Auth::user();
-        $sponsor = Sponsor::where('user_id', $user->id)->first();
-
-        $phoneToSave = ($sponsor && $sponsor->phone)
-            ? $sponsor->phone
-            : ($user->phone ?? $request->phone ?? $step2Data['phone'] ?? null);
-
-        // إنشاء أو تحديث حساب الكافل
-        $sponsor = Sponsor::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'name'    => $step2Data['name'],
-                'email'   => $user->email,
-                'phone'   => $phoneToSave,
-                'country' => $step2Data['country'],
-                'city'    => $step2Data['city'],
-                'status'  => 'active'
-            ]
-        );
-
-        $receiptPath = null;
-        if ($request->hasFile('bank_receipt_file')) {
-            $receiptPath = $request->file('bank_receipt_file')->store('receipts', 'public');
-        }
-
-        // إنشاء سجل الكفالة
-        Sponsorship::create([
-            'orphan_id'             => $request->orphan_id,
-            'sponsor_id'            => $sponsor->id,
-            'amount_paid'           => $request->amount_paid,
-            'start_date'            => now(),
-            'last_batch'            => now(),
-            'payment_method'        => $request->payment_method,
-            'payment_status'        => $request->payment_method == 'card' ? 'paid' : 'pending',
-            'transaction_id'        => $request->transaction_id,
-            'bank_reference_number' => $request->bank_reference_number,
-            'bank_receipt_file'     => $receiptPath,
+        $request->validate([
+            'orphan_id'      => 'required|exists:orphans,id',
+            'sponsor_id'     => 'required|exists:sponsors,id',
+            'payment_method' => 'required|in:card,manual',
         ]);
 
-        // تحديث حالة اليتيم إلى "مكفول"
-        $orphan->update(['status' => 'مكفول']);
+        $orphan  = orphans::findOrFail($request->orphan_id);
+        $sponsor = Sponsor::findOrFail($request->sponsor_id);
 
-        // تفريغ الجلسة
-        session()->forget('sponsorship_step2');
+        // تحديد المبلغ المطلوب ديناميكياً من بيانات اليتيم (وفي حال عدم وجوده يتم اعتماد قيمة افتراضية)
+        $amountPaid = $request->amount_paid ?? $orphan->required_amount ?? 50.00;
 
-        // تسجيل العملية في السجل
-        AuditLog::create([
-            'user_id' => Auth::id(),
-            'action'  => 'كفالة جديدة',
-            'details' => 'تم كفالة الطفل ' . ($orphan->name ?? ('رقم ' . $orphan->id)),
-        ]);
+        DB::beginTransaction();
+        try {
+            // 1. إنشاء سجل الكفالة الجديد
+            $sponsorship = Sponsorship::create([
+                'orphan_id'      => $orphan->id,
+                'sponsor_id'     => $sponsor->id,
+                'amount_paid' => $orphan->required_amount ?? $request->amount_paid,
+                'start_date'     => now(),
+                'payment_method' => $request->payment_method,
+                'payment_status' => $request->payment_method == 'card' ? 'paid' : 'pending',
+            ]);
 
-        return redirect()->route('sponsorships')->with('success', 'تمت عملية الكفالة بنجاح!');
+            // 2. تحديث حالة اليتيم إلى مكفول
+            $orphan->update([
+                'status' => 'مكفول',
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('sponsorships.index')
+                ->with('success', 'تم إتمام عملية الكفالة بنجاح.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'حدث خطأ أثناء معالجة الكفالة: ' . $e->getMessage());
+        }
     }
 }

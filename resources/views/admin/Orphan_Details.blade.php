@@ -565,7 +565,8 @@
                             <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item text-small text-right" href="{{ route('admin.settings.index') }}"><i
+                            <li><a class="dropdown-item text-small text-right"
+                                    href="{{ route('admin.settings.index') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -599,7 +600,7 @@
                     <div class="right-sidebar">
                         <div class="orphan-photo-card">
                             <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}" alt=" "
-                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';">
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';">
                             <h2>{{ $orphan->name }}</h2>
                             <div style="margin-bottom: 15px;">
                                 @if (empty($orphan->status) || in_array($orphan->status, ['pending_approval', 'بانتظار الموافقة', 'جديد']))

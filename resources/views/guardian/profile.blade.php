@@ -72,7 +72,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
-                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                 alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
@@ -135,7 +135,7 @@
                                 <div class="position-relative profile-img-container" id="avatarDropdown"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
-                                        onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                                        onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                         id="profile-avatar-preview" alt=""
                                         class="rounded-circle border border-3 border-success shadow-xs" width="110"
                                         height="110" style="object-fit: cover;">
@@ -231,7 +231,7 @@
                                             id="p-guard-displacement" class="form-control"
                                             value="{{ old('current_displacement_destination', $housing->current_displacement_destination ?? '') }}">
                                     </div>
-                                    
+
                                     <div class="col-md-12">
                                         <label class="form-label text-small fw-semibold text-muted">الحالة الصحية
                                             للوصي</label>
@@ -298,7 +298,7 @@
                         data-bs-dismiss="modal" aria-label="Close"></button>
                     <!-- تعديل مسار الصورة هنا ليعرض صورة المستخدم الحالية بدقة بدلاً من الصورة الاستاتيكية -->
                     <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
-                        onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                        onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                         id="modal-full-image" class="img-fluid rounded-4 shadow" style="max-height: 80vh;"
                         alt=" ">
                 </div>

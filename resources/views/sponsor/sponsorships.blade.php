@@ -97,8 +97,8 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/parents/default.png') }}"
-                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"alt=" "
+                            <img src="{{ $user->sponsor && $user->sponsor->image ? asset('Uploads/sponsors/' . $user->sponsor->image) : asset('Uploads/orphans/default.png') }}"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"alt=" "
                                 class="rounded-circle" width="30" height="30" style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
                         </button>
@@ -171,6 +171,7 @@
                                                 <td>
                                                     <div class="d-flex align-items-center gap-3">
                                                         <img src="{{ asset('Uploads/orphans/' . ($info->orphan->personal_photo_path ?? 'default.png')) }}"
+                                                            onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                                             class="rounded-circle shadow-xs" width="40"
                                                             height="40" style="object-fit:cover;">
 
@@ -190,7 +191,7 @@
 
                                                 <td>
                                                     <strong>$
-                                                        {{ number_format($info->amount ?? ($info->amount_paid ?? ($info->orphan->required_amount ?? 0)), 2) }}</strong>
+                                                        {{ number_format($info->orphan->required_amount ?? ($info->amount_paid ?? ($info->amount ?? 0)), 2) }}</strong>
                                                     / شهر
                                                 </td>
 

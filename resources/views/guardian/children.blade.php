@@ -75,7 +75,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $user->guardian && $user->guardian->image ? asset('Uploads/guardians/' . $user->guardian->image) : asset('Uploads/guardians/default.png') }}"
-                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                 alt=" " class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
@@ -263,7 +263,9 @@
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="text-center mb-4">
-                                <div><img src="{{ asset('Uploads/orphans/' . $info->personal_photo_path) }}"
+                                <div><img
+                                        src="{{ $info && $info->personal_photo_path ? asset('Uploads/orphans/' . $info->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
+                                        onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                         style="width:100px;height:100px;font-size:32px;border-radius: 100%">
                                 </div>
                                 <h4 class="fw-bold">{{ $info->name }}</h4>

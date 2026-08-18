@@ -88,7 +88,7 @@
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ $sponsor && $sponsor->image ? asset('Uploads/sponsors/' . $sponsor->image) : asset('assets/images/Default.png') }}"
-                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                 alt="User Photo" class="rounded-circle" width="30" height="30"
                                 style="object-fit: cover;">
                             <span class="text-small fw-bold">{{ $user->name }}</span>
@@ -226,78 +226,78 @@
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const ctx = document.getElementById('payment-chart');
-        if (!ctx) return;
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('payment-chart');
+            if (!ctx) return;
 
-        const labels = @json($chartLabels) || ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
-        const dataValues = @json($chartData) || [650, 650, 650, 950, 950, 950];
+            const labels = @json($chartLabels) || ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
+            const dataValues = @json($chartData) || [0, 0, 0, 0, 0, 50];
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'المدفوعات الشهرية لشراكة الكفالة ($)',
-                    data: dataValues,
-                    borderColor: '#114b2d',
-                    backgroundColor: 'rgba(17, 75, 45, 0.05)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#f59e0b',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            font: {
-                                family: 'inherit',
-                                size: 13
-                            }
-                        }
-                    },
-                    tooltip: {
-                        rtl: true,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': $' + context.raw;
-                            }
-                        }
-                    }
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'المدفوعات الشهرية لشراكة الكفالة ($)',
+                        data: dataValues,
+                        borderColor: '#114b2d',
+                        backgroundColor: 'rgba(17, 75, 45, 0.05)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 1000,
-                        ticks: {
-                            stepSize: 100,
-                            callback: function(value) {
-                                return value.toLocaleString();
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'inherit',
+                                    size: 13
+                                }
                             }
                         },
-                        grid: {
-                            color: '#f0f0f0'
+                        tooltip: {
+                            rtl: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.raw;
+                                }
+                            }
                         }
                     },
-                    x: {
-                        grid: {
-                            display: false
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 100,
+                            ticks: {
+                                stepSize: 20,
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: '#f0f0f0'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
                         }
                     }
                 }
-            }
+            });
         });
-    });
     </script>
 </body>
 

@@ -155,7 +155,7 @@
                                                         <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center fw-bold text-success"
                                                             style="width:40px;height:40px;font-size:14px;">
                                                             <img src="{{ asset('Uploads/orphans/' . $info->personal_photo_path) }}"
-                                                                onerror="this.onerror=null;this.src='{{ asset('Uploads/parents/default.png') }}';"
+                                                                onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                                                 alt="" class="rounded-circle border"
                                                                 style="width: 40px; height: 40px; object-fit: cover;">
                                                         </div>

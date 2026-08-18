@@ -220,8 +220,9 @@
                         <div class="mb-3">
                             <label class="form-label fw-bold">المبلغ ($)</label>
                             <input type="number" step="0.01" name="amount_paid" class="form-control"
-                                value="50.00" required>
-                        </div>
+                                value="{{ $orphans->first()?->orphan?->required_amount ?? '' }}"
+                                placeholder="أدخل مبلغ الكفالة" required>
+                        </div>  
                         <div class="mb-3">
                             <label class="form-label fw-bold">وسيلة الدفع</label>
                             <select name="payment_method" class="form-select" required>
