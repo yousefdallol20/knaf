@@ -158,9 +158,10 @@
                             </div>
 
                             <h5 class="fw-bold text-dark mb-1" id="profile-guardian-name">{{ $user->name }}</h5>
-                            <p class="text-muted text-small mb-3" id="profile-guardian-city">شريك وصية معتمدة |
-                                {{ old('current_displacement_destination', $housing->current_displacement_destination ?? 'غير محدد') }}
-                            </p>
+                           <!-- التعديل هنا: إزالة old() لعرض القيمة المحدثة فوراً من قاعدة البيانات -->
+<p class="text-muted text-small mb-3" id="profile-guardian-city">شريك وصية معتمدة |
+    {{ $housing->current_displacement_destination ?? 'غير محدد' }}
+</p>
 
                             <hr>
                             <div class="text-right text-small">
@@ -229,7 +230,7 @@
                                             الحالية</label>
                                         <input type="text" name="current_displacement_destination"
                                             id="p-guard-displacement" class="form-control"
-                                            value="{{ old('current_displacement_destination', $housing->current_displacement_destination ?? '') }}">
+                                            value="{{ $housing->current_displacement_destination ?? '' }}">
                                     </div>
 
                                     <div class="col-md-12">

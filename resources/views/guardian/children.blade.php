@@ -175,7 +175,10 @@
                                                 <td>{{ $info->age }} سنة</td>
                                                 <td>{{ $info->education_level }}</td>
                                                 <td class="fw-bold text-success">
-                                                    @if ($info->status === 'بانتظار القبول')
+                                                    @if ($info->status === 'مرفوض')
+                                                        <span class="text-danger fw-normal">تم حجب المبلغ بسبب
+                                                            الرفض</span>
+                                                    @elseif ($info->status === 'بانتظار القبول')
                                                         <span class="text-muted fw-normal">لم يتم التحديد بعد</span>
                                                     @else
                                                         $ {{ $info->required_amount }} /شهرياً
@@ -356,7 +359,10 @@
                                                 <tr>
                                                     <th width="25%">المبلغ الشهري</th>
                                                     <td>
-                                                        @if ($info->status == 'بانتظار القبول')
+                                                        @if ($info->status === 'مرفوض')
+                                                            <span class="text-danger fw-bold">تم حجب المبلغ بسبب
+                                                                الرفض</span>
+                                                        @elseif ($info->status === 'بانتظار القبول')
                                                             <span class="text-muted">لم يتم التحديد بعد</span>
                                                         @else
                                                             $ {{ $info->required_amount }}

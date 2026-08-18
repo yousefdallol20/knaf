@@ -21,12 +21,19 @@
             </div>
 
             <div class="card-body p-4">
+                @php
+                    // جلب التقييم المخصص للطفل، وفي حال عدم وجوده يتم فرض 5 كقيمة افتراضية
+                    $rating = $info->rating ?? 5;
+                @endphp
+
                 <div class="mb-2 d-flex align-items-center gap-1">
-                    <i class="bi bi-star-fill text-secondary-gold" style="font-size: 0.85rem;"></i>
-                    <i class="bi bi-star-fill text-secondary-gold" style="font-size: 0.85rem;"></i>
-                    <i class="bi bi-star-fill text-secondary-gold" style="font-size: 0.85rem;"></i>
-                    <i class="bi bi-star-fill text-secondary-gold" style="font-size: 0.85rem;"></i>
-                    <i class="bi bi-star-fill text-secondary-gold" style="font-size: 0.85rem;"></i>
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <= $rating)
+                            <i class="bi bi-star-fill text-secondary-gold" style="font-size: 0.85rem;"></i>
+                        @else
+                            <i class="bi bi-star text-muted opacity-50" style="font-size: 0.85rem;"></i>
+                        @endif
+                    @endfor
                 </div>
 
                 <h5 class="fw-black text-dark mb-2">{{ $info->first_name ?? $info->name }}</h5>

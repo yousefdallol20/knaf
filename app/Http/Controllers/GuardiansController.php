@@ -722,9 +722,6 @@ class GuardiansController extends Controller
         ]);
     }
 
-    /**
-     * تحديث بيانات الملف الشخصي والصورة عبر Form Request مخصص
-     */
     public function updateProfileFields(UpdateGuardianProfileRequest $request)
     {
         /** @var \App\Models\User $user */
@@ -734,6 +731,7 @@ class GuardiansController extends Controller
             return redirect()->route('login');
         }
 
+        // 1. تحديث بيانات المستخدم
         if ($request->filled('name')) {
             $user->name = $request->name;
         }
@@ -745,9 +743,10 @@ class GuardiansController extends Controller
         }
         $user->save();
 
-        if ($user->guardian) {
-            $guardian = $user->guardian;
+        // 2. جلب الوصي
+        $guardian = $user->guardian ?? Guardian::where('user_id', $user->id)->first();
 
+        if ($guardian) {
             if ($request->hasFile('profile_photo')) {
                 $file = $request->file('profile_photo');
                 $filename = 'guardian_avatar_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -765,25 +764,29 @@ class GuardiansController extends Controller
 
             $guardian->save();
 
-            if ($request->filled('current_displacement_destination')) {
+            // 3. تحديث السكن الحقيقي المرتبط بالوصي أو بأي من أطفاله
+            if ($request->has('current_displacement_destination')) {
                 $orphanIds = orphans::where('guardian_id', $guardian->id)->pluck('id');
-                $firstOrphanId = $orphanIds->first();
 
+                // جلب نفس السجل الذي يتم استعراضه في صفحة الـ profile بالضبط
                 $housing = Housing::where('guardian_id', $guardian->id)
-                    ->when($orphanIds->isNotEmpty(), function ($q) use ($orphanIds) {
-                        $q->orWhereIn('orphan_id', $orphanIds);
+                    ->when($orphanIds->isNotEmpty(), function ($query) use ($orphanIds) {
+                        $query->orWhereIn('orphan_id', $orphanIds);
                     })
+                    ->latest()
                     ->first();
 
                 if ($housing) {
-                    $housing->update([
-                        'guardian_id'                      => $guardian->id,
-                        'current_displacement_destination' => $request->current_displacement_destination
-                    ]);
-                } elseif ($firstOrphanId) {
+                    // تحديث السجل الموجود فعلياً
+                    $housing->current_displacement_destination = $request->current_displacement_destination;
+                    if (!$housing->guardian_id) {
+                        $housing->guardian_id = $guardian->id;
+                    }
+                    $housing->save();
+                } else {
+                    // إنشاء سجل جديد في حال عدم وجود أي سكن مسبق
                     Housing::create([
                         'guardian_id'                      => $guardian->id,
-                        'orphan_id'                        => $firstOrphanId,
                         'current_displacement_destination' => $request->current_displacement_destination,
                         'current_housing_type'             => 'غير محدد',
                         'housing_condition'                => 'غير محدد',
@@ -800,7 +803,7 @@ class GuardiansController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'تم تحديث البيانات والصورة بنجاح!');
+        return redirect()->route('profile')->with('success', 'تم تحديث البيانات والصورة بنجاح!');
     }
 
     /**
