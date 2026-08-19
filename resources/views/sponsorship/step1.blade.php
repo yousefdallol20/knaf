@@ -39,10 +39,10 @@
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
-                        <a href="auth/login.html" class="btn btn-outline-light px-4 rounded-pill"
+                        <a href=" {{ route('login') }}" class="btn btn-outline-light px-4 rounded-pill"
                             id="nav-btn-login">تسجيل
                             الدخول</a>
-                        <a href="auth/register.html" class="btn btn-secondary px-4 rounded-pill fw-bold"
+                        <a href=" {{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold"
                             id="nav-btn-register">ابدأ
                             الكفالة الآن</a>
                     </div>
@@ -90,7 +90,8 @@
 
                                 <div class="row align-items-center bg-light p-4 rounded-4 mb-4 g-4">
                                     <div class="col-md-3 text-center">
-                                        <img src="{{ asset('Uploads/orphans/' . $orphan->image) }}" alt=" "
+                                        <img src="{{ $orphan->orphan && $orphan->orphan->personal_photo_path ? asset('Uploads/orphans/' . $orphan->orphan->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
+                                            onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                             class="img-fluid rounded-circle shadow-xs"
                                             style="width:120px;height:120px;object-fit:cover;">
                                     </div>
@@ -190,12 +191,15 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
+                        </li>
+                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
+                                للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
-                        <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
+                        <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
+                                المستخدمين</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">

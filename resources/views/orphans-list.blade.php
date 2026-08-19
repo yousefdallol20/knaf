@@ -36,7 +36,7 @@
                     @endfor
                 </div>
 
-                <h5 class="fw-black text-dark mb-2">{{ $info->first_name ?? $info->name }}</h5>
+                <h5 class="fw-black text-dark mb-2">{{ $info->first_name }}</h5>
 
                 <div class="d-flex flex-wrap gap-1 mb-3">
                     @if ($info->is_double_orphan)

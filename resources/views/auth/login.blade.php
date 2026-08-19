@@ -169,12 +169,15 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
+                        </li>
+                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
+                                للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
-                        <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
+                        <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
+                                المستخدمين</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">

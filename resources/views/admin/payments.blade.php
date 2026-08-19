@@ -68,7 +68,7 @@
             </ul>
 
             <div class="p-3 border-top mt-auto">
-                <a href="{{ url('/') }}"
+                <a href="{{ route('dashboard_admin') }}"
                     class="btn btn-outline-primary w-full d-flex align-items-center justify-content-center gap-2 py-2">
                     <i class="bi bi-arrow-right-short fs-5"></i>
                     <span>العودة للرئيسية</span>

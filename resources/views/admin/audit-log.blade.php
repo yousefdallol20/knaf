@@ -69,7 +69,7 @@
 
             <!-- Back to main public site link -->
             <div class="p-3 border-top mt-auto">
-                <a href="{{ url('/') }}"
+                <a href="{{ route('dashboard_admin') }}"
                     class="btn btn-outline-primary w-full d-flex align-items-center justify-content-center gap-2 py-2">
                     <i class="bi bi-arrow-right-short fs-5"></i>
                     <span>العودة للرئيسية</span>
@@ -94,7 +94,8 @@
                             <span class="text-small fw-bold">{{ auth()->user()->name }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item text-small text-right" href="{{ route('admin.settings.index') }}"><i
+                            <li><a class="dropdown-item text-small text-right"
+                                    href="{{ route('admin.settings.index') }}"><i
                                         class="bi bi-gear-fill me-2 text-muted"></i> إعدادات حسابي</a></li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -132,9 +133,15 @@
                                 <h5 class="fw-bold text-dark mb-0"><i class="bi bi-shield-fill text-danger me-1"></i>
                                     أرشيف وسجلات
                                     التدقيق والأمن للمنظومة (Compliance Logs)</h5>
-                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash-fill"></i> أرشفة
-                                    وتطهير السجلات
-                                    القديمة</button>
+                                <form action="{{ route('admin.audit.clear') }}" method="POST"
+                                    onsubmit="return confirm('هل أنت تأكد من رغبتك في تفريغ وتطهير جميع السجلات؟ لا يمكن التراجع عن هذه الخطوة.');"
+                                    class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash-fill me-1"></i> أرشفة وتطهير السجلات القديمة
+                                    </button>
+                                </form>
                             </div>
 
                             <div class="table-responsive">

@@ -76,8 +76,8 @@
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110" id="nav-brand-logo"
-                        style="object-fit:contain;">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110"
+                        id="nav-brand-logo" style="object-fit:contain;">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
                     aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -222,11 +222,13 @@
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
                         <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
                         </li>
-                        <li><a href="{{ asset('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ asset('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
+                                للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
-                        <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
+                        <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
+                                المستخدمين</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -292,7 +294,7 @@
                         }
                     })
                     .then(response => response
-                .text()) // تحويل النتيجة المرتجعة لنص HTML (الذي يمثله كود ملف الـ partial)
+                        .text()) // تحويل النتيجة المرتجعة لنص HTML (الذي يمثله كود ملف الـ partial)
                     .then(html => {
                         // استبدال كروت الأيتام الحالية بالـ HTML الجديد القادم من لارافيل
                         gridContainer.innerHTML = html;

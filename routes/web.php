@@ -20,9 +20,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/knaf', function () {
-    return view('index');
-})->name('knaf');
+// Route::get('/knaf', function () {
+//     return view('index');
+// })->name('knaf');
+Route::get('/knaf', [HomeController::class, 'knaf'])->name('knaf');
 
 Route::get('/orphans', [HomeController::class, 'orphans'])->name('orphans');
 Route::get('/orphans_details/{id}', [HomeController::class, 'orphans_details'])->name('orphans_details');
@@ -71,7 +72,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/upload_docs', [GuardiansController::class, 'upload_docs'])->name('upload_docs');
         Route::post('/upload_docs_store', [GuardiansController::class, 'upload_docs_store'])->name('upload_docs_store');
+
         Route::get('/received_payments', [GuardiansController::class, 'received_payments'])->name('received_payments');
+        Route::post('/report-missing-payment', [GuardiansController::class, 'reportMissingPayment'])->name('guardian.report_missing_payment');
 
         Route::get('/notifications', [GuardiansController::class, 'notifications'])->name('guardian.notifications');
         Route::post('/guardian/notifications/mark-all-read', [GuardiansController::class, 'markAllRead'])->name('guardian_notifications.markAllRead');
@@ -108,8 +111,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/payments/store-manual', [SponsorController::class, 'storeManualPayment'])->name('payments.store.manual');
 
         Route::get('documentation', [SponsorController::class, 'documentation'])->name('documentation');
+        Route::get('/sponsor/document/view/{id}', [SponsorController::class, 'viewDocument'])->name('documents.view');
+        Route::get('/sponsor/document/download/{id}', [SponsorController::class, 'downloadDocument'])->name('documents.download');
+
         Route::get('/notifications/sponsor', [SponsorController::class, 'sponsorIndex'])->name('notifications');
         Route::post('/notifications/mark-all-read', [SponsorController::class, 'markAllRead'])->name('notifications.markAllRead');
+
         Route::get('profile_sponser', [SponsorController::class, 'profile_sponser'])->name('profile_sponser');
         Route::post('/update_Profile_Fields', [SponsorController::class, 'update_Profile_Fields'])->name('update_Profile_Fields');
         Route::post('/update_Password', [SponsorController::class, 'update_Password'])->name('update_Password');
@@ -169,7 +176,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/reports/download/{file}', [AdminController::class, 'download_ready_report'])->name('reports_download');
 
         Route::get('/admin/audit-logs', [AdminController::class, 'audit_logs_admin'])->name('audit_admin');
-
+        Route::delete('/admin/audit-logs/clear', [AdminController::class, 'clearAuditLogs'])->name('admin.audit.clear');
 
         Route::get('/admin/notifications', [AdminController::class, 'adminIndex'])->name('admin.notifications.index');
         Route::post('/admin/notifications/send', [AdminController::class, 'sendBroadcast'])->name('admin.notifications.send');

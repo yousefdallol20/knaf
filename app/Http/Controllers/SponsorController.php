@@ -248,6 +248,8 @@ class SponsorController extends Controller
             ->header('Content-Disposition', 'attachment; filename="Receipt-KNF-2026-' . $payment->id . '.txt"');
     }
 
+
+
     /**
      * تسجيل دفعة فورية جديدة باستخدام Form Request
      */
@@ -315,6 +317,68 @@ class SponsorController extends Controller
             ->get();
 
         return view('sponsor.documentation', compact('user', 'documents'));
+    }
+
+    /**
+     * تنزيل وثيقة/تقرير يتيم
+     */
+    public function downloadDocument(string $id)
+    {
+        $sponsor = Sponsor::where('user_id', Auth::id())->firstOrFail();
+        $orphanIds = Sponsorship::where('sponsor_id', $sponsor->id)->pluck('orphan_id');
+
+        $document = documents::whereIn('orphan_id', $orphanIds)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        // جلب المسار من file_path أو file
+        $path = $document->file_path ?? $document->file;
+        $relativePath = ltrim(str_replace('\\', '/', $path), '/');
+
+        // التحقق من المسار مباشرة من المجلد العام
+        $filePath = public_path($relativePath);
+
+        // محاولة بديلة في حال كان الاسم فقط مخزناً بدون مجلد
+        if (!file_exists($filePath) || !is_file($filePath)) {
+            $filePath = public_path('Uploads/document/' . $relativePath);
+        }
+
+        if (file_exists($filePath) && is_file($filePath)) {
+            return response()->download($filePath);
+        }
+
+        return redirect()->back()->with('error', 'الملف غير موجود على السيرفر: ' . $relativePath);
+    }
+
+    /**
+     * معاينة/عرض الوثيقة في المتصفح
+     */
+    public function viewDocument(string $id)
+    {
+        $sponsor = Sponsor::where('user_id', Auth::id())->firstOrFail();
+        $orphanIds = Sponsorship::where('sponsor_id', $sponsor->id)->pluck('orphan_id');
+
+        $document = documents::whereIn('orphan_id', $orphanIds)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        // جلب المسار من file_path أو file
+        $path = $document->file_path ?? $document->file;
+        $relativePath = ltrim(str_replace('\\', '/', $path), '/');
+
+        // التحقق من المسار مباشرة من المجلد العام
+        $filePath = public_path($relativePath);
+
+        // محاولة بديلة في حال كان الاسم فقط مخزناً بدون مجلد
+        if (!file_exists($filePath) || !is_file($filePath)) {
+            $filePath = public_path('Uploads/document/' . $relativePath);
+        }
+
+        if (file_exists($filePath) && is_file($filePath)) {
+            return response()->file($filePath);
+        }
+
+        return redirect()->back()->with('error', 'الملف غير موجود على السيرفر: ' . $relativePath);
     }
 
     /**

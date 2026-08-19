@@ -558,15 +558,19 @@
                                             <label class="form-label"><i
                                                     class="bi bi-activity me-1 text-primary-green"></i> الحالة الصحية
                                                 للوصي</label>
-                                            <select name="guardian_health_status" class="form-select">
+                                            <!-- أُضيف id="guardian_health_status" -->
+                                            <select name="guardian_health_status" id="guardian_health_status"
+                                                class="form-select">
                                                 <option value="" selected disabled>قم بتحديد الحالة الصحية للوصي
                                                     :</option>
                                                 <option value="سليم"
                                                     {{ old('guardian_health_status', $prefill['guardian_health_status'] ?? '') == 'سليم' ? 'selected' : '' }}>
-                                                    سليم معافى</option>
+                                                    سليم معافى
+                                                </option>
                                                 <option value="مريض"
                                                     {{ old('guardian_health_status', $prefill['guardian_health_status'] ?? '') == 'مريض' ? 'selected' : '' }}>
-                                                    يعاني من مرض / حالة صحية خاصة</option>
+                                                    يعاني من مرض / حالة صحية خاصة
+                                                </option>
                                             </select>
                                             @error('guardian_health_status')
                                                 <span class="error-msg"
@@ -574,7 +578,9 @@
                                             @enderror
                                         </div>
 
-                                        <div class="col-12">
+                                        <!-- أُضيف id="guardian-health-details-wrapper" ومخفي افتراضياً -->
+                                        <div class="col-12" id="guardian-health-details-wrapper"
+                                            style="display: none;">
                                             <div
                                                 class="p-3 bg-light-subtle rounded-3 border border-danger-subtle mt-1">
                                                 <label class="form-label text-danger"><i
@@ -1622,6 +1628,47 @@
 
                 // تشغيل الدالة فور تحميل الصفحة للتحقق من التحديد المسبق (Prefill/Old Value)
                 toggleMotherDetails();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // كود إظهار/إخفاء تفاصيل الأم
+            const motherAliveYes = document.getElementById('mother-alive-yes');
+            const motherAliveNo = document.getElementById('mother-alive-no');
+            const motherDeathDetails = document.getElementById('mother-death-details');
+
+            function toggleMotherDetails() {
+                if (motherAliveNo && motherAliveNo.checked) {
+                    motherDeathDetails.style.display = 'block';
+                } else {
+                    motherDeathDetails.style.display = 'none';
+                }
+            }
+
+            if (motherAliveYes && motherAliveNo && motherDeathDetails) {
+                motherAliveYes.addEventListener('change', toggleMotherDetails);
+                motherAliveNo.addEventListener('change', toggleMotherDetails);
+                toggleMotherDetails();
+            }
+
+            // --- كود إظهار/إخفاء تفاصيل مرض الوصي الجديد ---
+            const guardianHealthSelect = document.getElementById('guardian_health_status');
+            const guardianHealthDetailsWrapper = document.getElementById('guardian-health-details-wrapper');
+
+            function toggleGuardianHealthDetails() {
+                if (guardianHealthSelect && guardianHealthDetailsWrapper) {
+                    if (guardianHealthSelect.value === 'مريض') {
+                        guardianHealthDetailsWrapper.style.display = 'block';
+                    } else {
+                        guardianHealthDetailsWrapper.style.display = 'none';
+                    }
+                }
+            }
+
+            if (guardianHealthSelect) {
+                guardianHealthSelect.addEventListener('change', toggleGuardianHealthDetails);
+                // تشغيل الدالة فور التحميل للتحقق من البيانات السابقة (old / prefill)
+                toggleGuardianHealthDetails();
             }
         });
     </script>

@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProcessSponsorshipStep2Request;
 use App\Http\Requests\ProcessSponsorshipStep3Request;
 use App\Models\AuditLog;
+use App\Models\guardian;
 use App\Models\orphans;
 use App\Models\Sponsor;
 use App\Models\Sponsorship;
+use App\Models\User;
+use App\Notifications\BroadcastAnnouncement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -144,6 +147,26 @@ class SponsorshipController extends Controller
             $orphan->update([
                 'status' => 'مكفول',
             ]);
+
+            // 3. إرسال إشعار للوصي الخاص بالطفل
+            $guardianModel = guardian::where('id', $orphan->guardian_id)
+                ->orWhere('user_id', $orphan->guardian_id)
+                ->first();
+
+            if ($guardianModel) {
+                $guardianUser = User::find($guardianModel->user_id);
+
+                if ($guardianUser) {
+                    $orphanName  = $orphan->name ?? 'طفلكم';
+                    $sponsorName = $sponsor->name ?? 'أحد فاعلي الخير';
+
+                    $guardianUser->notify(new BroadcastAnnouncement(
+                        'تم كفالة الطفل',
+                        'تحديث',
+                        "تمت كفالة الطفل ({$orphanName}) بنجاح من قبل الكافل ({$sponsorName})، جزاه الله خيراً."
+                    ));
+                }
+            }
 
             DB::commit();
 

@@ -174,14 +174,33 @@
                                                     <span>|</span>
                                                     <span>{{ $info->education_level }}</span>
                                                 </div>
-                                                <span
-                                                    class="badge bg-success text-caption mb-3">{{ $info->status }}</span>
+                                                <span>
+                                                    @if ($info->status == 'بانتظار القبول')
+                                                        <span class="badge bg-warning text-dark"><i
+                                                                class="bi bi-clock-history me-1"></i> بانتظار
+                                                            القبول</span>
+                                                    @elseif($info->status == 'مرفوض')
+                                                        <span class="badge bg-danger"><i
+                                                                class="bi bi-x-circle me-1"></i> تم
+                                                            الرفض</span>
+                                                    @elseif($info->status == 'مكفول')
+                                                        <span class="badge bg-success"><i
+                                                                class="bi bi-check-circle me-1"></i>
+                                                            {{ $info->status }}</span>
+                                                    @elseif($info->status == 'بانتظار الكفالة')
+                                                        <span class="badge-kanaf badge-pending"><i
+                                                                class="bi bi-check-circle me-1"></i>
+                                                            {{ $info->status }}</span>
+                                                    @endif
+                                                </span>
+                                                <br>
+                                                <br>
                                             </div>
                                             <div class="border-top pt-2 d-flex gap-1 justify-content-end">
                                                 <a href="{{ route('children.edit', $info->id) }}"
                                                     class="btn btn-outline-primary btn-sm px-2 text-caption">تعديل
                                                     الملف</a>
-                                                <a href="upload_docs.html?id=1"
+                                                <a href="{{ route('upload_docs', ['id' => $info->id]) }}"
                                                     class="btn btn-primary btn-sm px-2 text-white text-caption">رفع
                                                     تقرير</a>
                                             </div>

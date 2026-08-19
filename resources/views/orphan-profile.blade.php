@@ -77,8 +77,9 @@
                         <div class="col-lg-5">
                             <div class="bg-white p-4 rounded-4 shadow-sm border text-center">
                                 <div class="position-relative mb-4">
-                                    <img src="{{ asset('Uploads/orphans/' . $orphan->personal_photo_path) }}"
-                                        alt=" " class="img-fluid rounded-4 shadow-xs"
+                                    <img src="{{ $orphan->personal_photo_path ? asset('Uploads/orphans/' . $orphan->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
+                                        onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
+                                        alt="Orphan Image" alt=" " class="img-fluid rounded-4 shadow-xs"
                                         style="max-height:380px;object-fit:cover;width:100%;">
                                     <span class="badge bg-primary-green position-absolute top-0 end-0 m-3 px-3 py-2">
                                         {{ $orphan->country }} - {{ $orphan->city }}
@@ -101,9 +102,27 @@
                                         class="btn btn-secondary btn-lg py-3 fw-bold">
                                         ابدأ كفالة الطفل الآن
                                     </a>
-                                    <button class="btn btn-outline-primary btn-lg py-2"><i class="bi bi-share me-2"></i>
-                                        مشاركة الملف
+                                    <!-- زر المشاركة -->
+                                    <button type="button" id="share-btn" class="btn btn-outline-primary btn-lg py-2">
+                                        <i class="bi bi-share me-2"></i> مشاركة الملف
                                     </button>
+
+                                    <!-- Toast تنبيه نسخ الرابط احترافي (يظهر في أسفل اليسار) -->
+                                    <div class="toast-container position-fixed bottom-0 start-0 p-3"
+                                        style="z-index: 1080;">
+                                        <div id="shareToast"
+                                            class="toast align-items-center text-bg-success border-0 shadow-lg"
+                                            role="alert" aria-live="assertive" aria-atomic="true">
+                                            <div class="d-flex">
+                                                <div class="toast-body d-flex align-items-center gap-2">
+                                                    <i class="bi bi-check-circle-fill fs-5"></i>
+                                                    <span>تم نسخ رابط ملف الطفل بنجاح! يمكنك مشاركته الآن.</span>
+                                                </div>
+                                                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                                    data-bs-dismiss="toast" aria-label="Close"></button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -247,7 +266,8 @@
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
-                        <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
+                        <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
+                                المستخدمين</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -282,6 +302,54 @@
     </footer>
 
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shareBtn = document.getElementById('share-btn');
+            const toastElement = document.getElementById('shareToast');
+            const shareToast = toastElement ? new bootstrap.Toast(toastElement, {
+                delay: 3000
+            }) : null;
+
+            if (shareBtn) {
+                shareBtn.addEventListener('click', async () => {
+                    const shareData = {
+                        title: 'كفالة الطفل: {{ $orphan->name }} - منصة كنف',
+                        text: 'ساهم في كفالة الطفل {{ $orphan->name }} (العمر: {{ $orphan->age }} سنوات) عبر منصة كنف.',
+                        url: window.location.href
+                    };
+
+                    // 1. تجربة مشاركة الرابط عبر واجهة النظام المباشرة (Mobile / Web Share API)
+                    if (navigator.share) {
+                        try {
+                            await navigator.share(shareData);
+                        } catch (err) {
+                            if (err.name !== 'AbortError') {
+                                copyToClipboard();
+                            }
+                        }
+                    } else {
+                        // 2. البديل عند فتح الموقع من الكمبيوتر: النسخ مع إظهار Toast أنيق
+                        copyToClipboard();
+                    }
+                });
+            }
+
+            function copyToClipboard() {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    if (shareToast) shareToast.show();
+                }).catch(() => {
+                    // حل بديل في حال المتصفحات القديمة
+                    const dummy = document.createElement('input');
+                    document.body.appendChild(dummy);
+                    dummy.value = window.location.href;
+                    dummy.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(dummy);
+                    if (shareToast) shareToast.show();
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

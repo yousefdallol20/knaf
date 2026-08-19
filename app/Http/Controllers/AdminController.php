@@ -618,6 +618,15 @@ class AdminController extends Controller
         return view('admin.audit-log', compact('logs'));
     }
 
+    // أرشفة وتطهير السجلات (تفريغ سجلات التدقيق)
+    public function clearAuditLogs()
+    {
+        // حذف كافة السجلات الموجودة في جدول AuditLog
+        AuditLog::truncate();
+
+        return redirect()->back()->with('success', 'تمت أرشفة وتطهير جميع سجلات التدقيق بنجاح.');
+    }
+
     public function permissions()
     {
         return view('admin.permissions');

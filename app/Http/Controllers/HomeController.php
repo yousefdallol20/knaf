@@ -10,6 +10,21 @@ use Illuminate\Support\Facades\Mail;
 class HomeController extends Controller
 {
 
+
+    public function knaf()
+    {
+        $sponsoredCount = orphans::where('status', 'مكفول')->count();
+        $citiesCount = orphans::distinct('city')->count('city');
+
+        // جلب 3 أيتام فقط
+        $orphans = orphans::whereNotIn('status', ['بانتظار القبول', 'مرفوض', 'مكفول'])
+            ->latest()
+            ->take(3)
+            ->get();
+    
+        return view('index', compact('sponsoredCount', 'citiesCount', 'orphans'));
+    }
+
     public function orphans(Request $request)
     {
         // 1. بدء الاستعلام واستثناء غير المقبولين

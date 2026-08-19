@@ -668,6 +668,23 @@ class GuardiansController extends Controller
     }
 
     /**
+     * إرسال طلب تدقيق حوالة مفقودة وتسجيله في AuditLog
+     */
+    public function reportMissingPayment(Request $request)
+    {
+        $user = Auth::user();
+
+        // كتابة سجل السحب والتدقيق في AuditLog
+        AuditLog::create([
+            'user_id' => $user->id, //
+            'action'  => 'طلب تدقيق حوالة مفقودة', //[cite: 33]
+            'details' => 'قام الوصي (' . $user->name . ') بتقديم طلب تدقيق بسبب عدم ظهور حوالة الشهر الحالي (' . now()->format('F Y') . ').', //[cite: 33]
+        ]);
+
+        return redirect()->back()->with('success', 'تم إرسال طلب تدقيق الحوالة بنجاح، وسيتم مراجعته من قبل الإدارة.');
+    }
+
+    /**
      * الإشعارات
      */
     public function notifications()

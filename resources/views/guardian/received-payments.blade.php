@@ -141,10 +141,14 @@
                                     <i class="bi bi-wallet2 text-primary-green me-1"></i> أرشيف سدادات الحوالات
                                     المستحقة للأيتام
                                 </h5>
-                                <a href="{{ route('guardian.notifications') }}"
-                                    class="btn btn-outline-success btn-sm">
-                                    <i class="bi bi-ticket-detailed"></i> طلب تدقيق حوالة مفقودة
-                                </a>
+                                <form action="{{ route('guardian.report_missing_payment') }}" method="POST"
+                                    class="d-inline"
+                                    onsubmit="return confirm('هل أنت تأكد من تقديم طلب تدقيق لحوالة الشهر الحالي المفقودة؟');">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-success btn-sm">
+                                        <i class="bi bi-ticket-detailed"></i> طلب تدقيق حوالة مفقودة
+                                    </button>
+                                </form>
                             </div>
 
                             <div class="table-responsive">

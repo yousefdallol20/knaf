@@ -15,7 +15,8 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('dashboard_admin') }}">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4"
+                    href="{{ route('dashboard_admin') }}">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110"
                         id="nav-brand-logo" style="object-fit:contain;">
                 </a>
@@ -39,8 +40,9 @@
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
-                        <a href="login.html" class="btn btn-outline-light px-4 rounded-pill">تسجيل الدخول</a>
-                        <a href="register.html" class="btn btn-secondary px-4 rounded-pill fw-bold">ابدأ الكفالة
+                        <a href="{{ route('login') }}" class="btn btn-outline-light px-4 rounded-pill">تسجيل الدخول</a>
+                        <a href="{{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold">ابدأ
+                            الكفالة
                             الآن</a>
                     </div>
                 </div>
@@ -158,12 +160,15 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="{{ route('dashboard_admin') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ route('dashboard_admin') }}" class="text-white text-decoration-none">الصفحة
+                                الرئيسية</a></li>
+                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
+                                للبحث</a>
                         </li>
                         <li><a href="../sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
-                        <li><a href="login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
+                        <li><a href="{{ route('login') }}" class="text-white text-decoration-none">دخول
+                                المستخدمين</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">

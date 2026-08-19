@@ -8,6 +8,35 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
+    <style>
+        .kanaf-table-card .btn-sm {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+
+        .kanaf-table-card .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: #ffffff;
+        }
+
+        .kanaf-table-card .btn-danger:hover {
+            background-color: #bb2d3b;
+            border-color: #b02a37;
+            transform: translateY(-1px);
+        }
+
+        /* ستايل زر مشطوب بلون أحمر خفيف مريح للعين */
+        .btn-struck-out {
+            background-color: #fde8e8 !important;
+            color: #e53e3e !important;
+            border: 1px solid #f8b4b4 !important;
+            font-weight: 600;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
@@ -193,39 +222,58 @@
                                                             الإثبات</span>
                                                     @endif
                                                 </td>
-                                                <td>
-                                                    <div class="d-flex gap-2 justify-content-center">
+                                                <td class="text-center">
+                                                    <div
+                                                        class="d-flex gap-1 justify-content-center align-items-center">
+                                                        {{-- حالة المصادقة --}}
                                                         @if (($family->status ?? '') == 'مصدق' || ($family->user?->status ?? '') == 'مصدق')
-                                                            <button class="btn btn-outline-secondary btn-sm" disabled>
-                                                                <i class="bi bi-shield-check"></i> مصدق عليه
+                                                            <button
+                                                                class="btn btn-sm btn-light text-muted border px-2 py-1"
+                                                                disabled style="font-size: 0.78rem;">
+                                                                <i class="bi bi-shield-check me-1 text-success"></i>
+                                                                مصدق
                                                             </button>
                                                         @else
                                                             <form id="approve-form-{{ $family->id }}"
                                                                 action="{{ route('admin.families.approve', $family->id) }}"
                                                                 method="POST" class="d-inline">
                                                                 @csrf
-                                                                <button type="button" class="btn btn-success btn-sm"
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-success px-2 py-1 shadow-sm"
+                                                                    style="font-size: 0.78rem;"
                                                                     onclick="confirmApprove('approve-form-{{ $family->id }}')">
-                                                                    <i class="bi bi-shield-check"></i> مصادقة
+                                                                    <i class="bi bi-shield-check me-1"></i> مصادقة
                                                                 </button>
                                                             </form>
                                                         @endif
 
-                                                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                                        {{-- زر التفاصيل --}}
+                                                        <button
+                                                            class="btn btn-sm btn-warning text-dark px-2 py-1 shadow-sm"
+                                                            style="font-size: 0.78rem;" data-bs-toggle="modal"
                                                             data-bs-target="#modal{{ $family->id }}">
-                                                            <i class="bi bi-eye"></i> تفاصيل
+                                                            <i class="bi bi-eye me-1"></i> تفاصيل
                                                         </button>
 
-                                                        <form id="reject-form-{{ $family->id }}"
-                                                            action="{{ route('admin.families.reject', $family->id) }}"
-                                                            method="POST" class="d-inline">
-                                                            @csrf
-                                                            <button type="button"
-                                                                class="btn btn-outline-danger btn-sm"
-                                                                onclick="confirmReject('reject-form-{{ $family->id }}')">
-                                                                <i class="bi bi-trash"></i> شطب
+                                                        {{-- حالة الشطب / الرفض --}}
+                                                        @if (($family->status ?? '') == 'مرفوض')
+                                                            <button class="btn btn-sm btn-struck-out px-2 py-1"
+                                                                disabled style="font-size: 0.78rem;">
+                                                                <i class="bi bi-x-circle me-1"></i> مشطوب
                                                             </button>
-                                                        </form>
+                                                        @else
+                                                            <form id="reject-form-{{ $family->id }}"
+                                                                action="{{ route('admin.families.reject', $family->id) }}"
+                                                                method="POST" class="d-inline">
+                                                                @csrf
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-danger px-2 py-1 shadow-sm"
+                                                                    style="font-size: 0.78rem;"
+                                                                    onclick="confirmReject('reject-form-{{ $family->id }}')">
+                                                                    <i class="bi bi-trash me-1"></i> شطب
+                                                                </button>
+                                                            </form>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -477,6 +525,36 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById(formId).submit();
+                }
+            });
+        }
+
+        function confirmReject(formId) {
+            const form = document.getElementById(formId);
+            const btn = form.querySelector('button');
+
+            Swal.fire({
+                title: 'هل أنت متأكد من شطب/رفض الملف؟',
+                text: "سيتم تغيير حالة الملف إلى مرفوض وإشعار الوصي بالنتيجة.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash me-1"></i> نعم، شطب',
+                cancelButtonText: 'تراجع',
+                customClass: {
+                    popup: 'rounded-4 shadow'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // تغيير ستايل الزر لإظهار أنه تم الضغط عليه وجاري الشطب
+                    btn.classList.add('disabled', 'btn-rejected-active');
+                    btn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> جاري الشطب...';
+                    btn.style.pointerEvents = 'none';
+
+                    // إرسال النموذج بعد التأكيد مباشرة
+                    form.submit();
                 }
             });
         }

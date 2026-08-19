@@ -173,7 +173,7 @@
                                     </div>
                                 </div>
                                 <div class="d-grid gap-2">
-                                    <a href="{{ route('step1', $orphan->id ?? $sponsorship->orphan_id) }}"
+                                    <a href="{{ route('payments') }}"
                                         class="btn btn-secondary fw-bold py-2">
                                         <i class="bi bi-wallet2 me-1"></i> سداد استحقاق الكفالة القادمة
                                     </a>

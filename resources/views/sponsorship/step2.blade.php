@@ -39,10 +39,10 @@
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
-                        <a href="auth/login.html" class="btn btn-outline-light px-4 rounded-pill"
+                        <a href=" {{ route('login') }}" class="btn btn-outline-light px-4 rounded-pill"
                             id="nav-btn-login">تسجيل
                             الدخول</a>
-                        <a href="auth/register.html" class="btn btn-secondary px-4 rounded-pill fw-bold"
+                        <a href=" {{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold"
                             id="nav-btn-register">ابدأ
                             الكفالة الآن</a>
                     </div>
@@ -95,7 +95,8 @@
                                             الاسم الكامل المطابق للهوية الوطنية
                                         </label>
                                         <input type="text" id="sponsor-name" name="name" class="form-control py-2"
-                                            placeholder="الاسم الرباعي هنا..." value="{{ old('name', $sponsor->name ?? $user->name) }}" required>
+                                            placeholder="الاسم الرباعي هنا..."
+                                            value="{{ old('name', $sponsor->name ?? $user->name) }}" required>
                                         <div class="invalid-feedback">يرجى كتابة الاسم الرباعي الصحيح الخاص بك باللغة
                                             العربية.</div>
 
@@ -127,7 +128,8 @@
                                         </label>
                                         <input type="tel" id="sponsor-phone" name="phone"
                                             class="form-control py-2" placeholder="05xxxxxxxx" pattern="^05[0-9]{8}$"
-                                            value="{{ old('phone', $user->phone ?? $sponsor->phone ?? '') }}" required>
+                                            value="{{ old('phone', $user->phone ?? ($sponsor->phone ?? '')) }}"
+                                            required>
                                         <small class="text-muted text-caption d-block mt-1">صيغة الجوال المعتمدة:
                                             05xxxxxxxx</small>
                                         <div class="invalid-feedback">يرجى إدخال جوال سعودي صالح يتكون من 10 أرقام
@@ -215,12 +217,15 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
+                        </li>
+                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
+                                للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
-                        <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
+                        <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
+                                المستخدمين</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">

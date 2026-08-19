@@ -200,11 +200,11 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-2 justify-content-center">
-                                                        <button class="btn btn-outline-primary btn-sm"><i
+                                                        <a href="{{ route('admin.permissions.index' ) }}"
+                                                            class="btn btn-outline-primary btn-sm"><i
                                                                 class="bi bi-person-gear"></i> تغيير
-                                                            الصلاحية</button>
+                                                            الصلاحية</a>
 
-                                                        <!-- نموذج تعديل حالة الحساب ديناميكياً -->
                                                         <!-- نموذج تعديل حالة الحساب ديناميكياً -->
                                                         <form
                                                             action="{{ route('admin.users.toggleStatus', $user->id) }}"

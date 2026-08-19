@@ -39,10 +39,10 @@
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
-                        <a href="auth/login.html" class="btn btn-outline-light px-4 rounded-pill"
+                        <a href=" {{ route('login') }}" class="btn btn-outline-light px-4 rounded-pill"
                             id="nav-btn-login">تسجيل
                             الدخول</a>
-                        <a href="auth/register.html" class="btn btn-secondary px-4 rounded-pill fw-bold"
+                        <a href=" {{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold"
                             id="nav-btn-register">ابدأ
                             الكفالة الآن</a>
                     </div>
@@ -62,87 +62,105 @@
                                 والإحسان الشامل
                             </p>
 
-                           <form id="register-form" method="POST" action="{{ route('register') }}"
-    class="needs-validation" novalidate
-    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
-    @csrf
+                            <form id="register-form" method="POST" action="{{ route('register') }}"
+                                class="needs-validation" novalidate
+                                onsubmit="this.querySelector('button[type=submit]').disabled = true;">
+                                @csrf
 
-    <!-- أزرار اختيار نوع الحساب -->
-    <div class="row mb-4">
-        <div class="col-6">
-            <div class="form-check form-check-inline p-3 border rounded-3 w-100 text-start bg-light cursor-pointer">
-                <input class="form-check-input" type="radio" name="role"
-                    id="role-sponsor" value="sponsor"
-                    {{ old('role', 'sponsor') == 'sponsor' ? 'checked' : '' }}>
-                <label class="form-check-label fw-bold text-dark block text-small cursor-pointer"
-                    for="role-sponsor">أنا كافل جديد</label>
-                <p class="text-muted text-caption mb-0">أريد تصفح الأيتام وكفالتهم مباشرة.</p>
-            </div>
-        </div>
-        <div class="col-6">
-            <div class="form-check form-check-inline p-3 border rounded-3 w-100 text-start bg-light cursor-pointer">
-                <input class="form-check-input" type="radio" name="role"
-                    id="role-guardian" value="guardian"
-                    {{ old('role') == 'guardian' ? 'checked' : '' }}>
-                <label class="form-check-label fw-bold text-dark block text-small cursor-pointer"
-                    for="role-guardian">أنا وصي يتيم</label>
-                <p class="text-muted text-caption mb-0">أريد تسجيل أطفالنا اليتامى لطلب كفلاء.</p>
-            </div>
-        </div>
-    </div>
+                                <!-- أزرار اختيار نوع الحساب -->
+                                <div class="row mb-4">
+                                    <div class="col-6">
+                                        <div
+                                            class="form-check form-check-inline p-3 border rounded-3 w-100 text-start bg-light cursor-pointer">
+                                            <input class="form-check-input" type="radio" name="role"
+                                                id="role-sponsor" value="sponsor"
+                                                {{ old('role', 'sponsor') == 'sponsor' ? 'checked' : '' }}>
+                                            <label
+                                                class="form-check-label fw-bold text-dark block text-small cursor-pointer"
+                                                for="role-sponsor">أنا كافل جديد</label>
+                                            <p class="text-muted text-caption mb-0">أريد تصفح الأيتام وكفالتهم مباشرة.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div
+                                            class="form-check form-check-inline p-3 border rounded-3 w-100 text-start bg-light cursor-pointer">
+                                            <input class="form-check-input" type="radio" name="role"
+                                                id="role-guardian" value="guardian"
+                                                {{ old('role') == 'guardian' ? 'checked' : '' }}>
+                                            <label
+                                                class="form-check-label fw-bold text-dark block text-small cursor-pointer"
+                                                for="role-guardian">أنا وصي يتيم</label>
+                                            <p class="text-muted text-caption mb-0">أريد تسجيل أطفالنا اليتامى لطلب
+                                                كفلاء.</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-    <div class="row g-3 text-start mb-4">
-        <div class="col-md-12">
-            <label for="reg-name" class="form-label text-small fw-semibold text-muted">الاسم الكامل المطابق للهوية</label>
-            <input type="text" class="form-control @error('name') is-invalid @enderror"
-                id="reg-name" name="name" value="{{ old('name') }}"
-                placeholder="الاسم الكامل باللغة العربية" required>
-            @error('name')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+                                <div class="row g-3 text-start mb-4">
+                                    <div class="col-md-12">
+                                        <label for="reg-name" class="form-label text-small fw-semibold text-muted">الاسم
+                                            الكامل المطابق للهوية</label>
+                                        <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                            id="reg-name" name="name" value="{{ old('name') }}"
+                                            placeholder="الاسم الكامل باللغة العربية" required>
+                                        @error('name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-        <div class="col-md-6">
-            <label for="reg-email" class="form-label text-small fw-semibold text-muted">البريد الإلكتروني</label>
-            <input type="email" class="form-control @error('email') is-invalid @enderror"
-                id="reg-email" name="email" value="{{ old('email') }}"
-                placeholder="example@domain.com" required>
-            @error('email')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+                                    <div class="col-md-6">
+                                        <label for="reg-email"
+                                            class="form-label text-small fw-semibold text-muted">البريد
+                                            الإلكتروني</label>
+                                        <input type="email"
+                                            class="form-control @error('email') is-invalid @enderror" id="reg-email"
+                                            name="email" value="{{ old('email') }}"
+                                            placeholder="example@domain.com" required>
+                                        @error('email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-        <div class="col-md-6">
-            <label for="reg-phone" class="form-label text-small fw-semibold text-muted">رقم الجوال لتلقي التوثيق</label>
-            <input type="tel" class="form-control @error('phone') is-invalid @enderror"
-                id="reg-phone" name="phone" value="{{ old('phone') }}"
-                placeholder="05xxxxxxxx" required>
-            @error('phone')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+                                    <div class="col-md-6">
+                                        <label for="reg-phone"
+                                            class="form-label text-small fw-semibold text-muted">رقم الجوال لتلقي
+                                            التوثيق</label>
+                                        <input type="tel"
+                                            class="form-control @error('phone') is-invalid @enderror" id="reg-phone"
+                                            name="phone" value="{{ old('phone') }}" placeholder="05xxxxxxxx"
+                                            required>
+                                        @error('phone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-        <div class="col-md-6">
-            <label for="reg-pass" class="form-label text-small fw-semibold text-muted">كلمة المرور</label>
-            <input type="password" class="form-control @error('password') is-invalid @enderror"
-                id="reg-pass" name="password"
-                placeholder="أدخل 6 خانات رموز وأحرف على الأقل" required>
-            @error('password')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+                                    <div class="col-md-6">
+                                        <label for="reg-pass"
+                                            class="form-label text-small fw-semibold text-muted">كلمة المرور</label>
+                                        <input type="password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            id="reg-pass" name="password"
+                                            placeholder="أدخل 6 خانات رموز وأحرف على الأقل" required>
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-        <div class="col-md-6">
-            <label for="reg-confirm" class="form-label text-small fw-semibold text-muted">تأكيد كلمة المرور</label>
-            <input type="password" class="form-control" id="reg-confirm"
-                name="password_confirmation" placeholder="تطابق كلمة المرور" required>
-        </div>
-    </div>
+                                    <div class="col-md-6">
+                                        <label for="reg-confirm"
+                                            class="form-label text-small fw-semibold text-muted">تأكيد كلمة
+                                            المرور</label>
+                                        <input type="password" class="form-control" id="reg-confirm"
+                                            name="password_confirmation" placeholder="تطابق كلمة المرور" required>
+                                    </div>
+                                </div>
 
-    <button type="submit" class="btn btn-primary w-full py-2 fw-bold fs-5 shadow-xs mb-3">
-        إنشاء وتوثيق حسابي
-    </button>
-</form>
+                                <button type="submit"
+                                    class="btn btn-primary w-full py-2 fw-bold fs-5 shadow-xs mb-3">
+                                    إنشاء وتوثيق حسابي
+                                </button>
+                            </form>
 
                         </div>
                     </div>
@@ -178,12 +196,15 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a></li>
-                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام للبحث</a>
+                        <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
+                        </li>
+                        <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
+                                للبحث</a>
                         </li>
                         <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
-                        <li><a href="auth/login.html" class="text-white text-decoration-none">دخول المستخدمين</a></li>
+                        <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
+                                المستخدمين</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">

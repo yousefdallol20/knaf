@@ -64,7 +64,7 @@
             </ul>
 
             <div class="p-3 border-top mt-auto">
-                <a href="{{ route('knaf') }}"
+                <a href="{{ route('dashboard_sponsor') }}"
                     class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 rounded-pill">
                     <i class="bi bi-arrow-right-short fs-5"></i>
                     <span>العودة للرئيسية</span>
@@ -193,7 +193,8 @@
                                         <div
                                             class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3 border">
                                             <div class="d-flex align-items-center gap-3">
-                                                <img src="{{ $sponsorship->orphan->personal_photo_path ? asset('Uploads/orphans/' . $sponsorship->orphan->personal_photo_path) : asset('assets/images/Default.png') }}"
+                                                <img src="{{ $sponsorship->orphan && $sponsorship->orphan->personal_photo_path ? asset('Uploads/orphans/' . $sponsorship->orphan->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
+                                                    onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                                     class="rounded-circle shadow-xs" width="45" height="45"
                                                     style="object-fit:cover;">
                                                 <div>

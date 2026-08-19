@@ -90,7 +90,15 @@
         </div>
 
         <!-- Main Workspace Area -->
-        <div class="main-content"><!-- Top header bar -->
+        <div class="main-content">
+
+            @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+            <!-- Top header bar -->
             <div class="dashboard-header">
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-primary d-lg-none" type="button"
@@ -161,32 +169,43 @@
                 <div class="row g-4" id="docsContainer">
                     @foreach ($documents as $document)
                         <div class="col-lg-4 col-md-6 mb-4" data-category="{{ $document->doc_type }}">
-                            <div class="kanaf-card bg-white h-100 p-4 border shadow-sm">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <span class="badge bg-success rounded-pill px-3 py-1">معتمد</span>
-                                    <span class="text-muted small">{{ $document->date }}</span>
-                                </div>
-
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="rounded-3 d-flex align-items-center justify-content-center"
-                                        style="width:50px;height:50px;background:#eef8f2;">
-                                        <i class="bi bi-journal-check text-success fs-3"></i>
+                            <div
+                                class="kanaf-card bg-white h-100 p-4 border shadow-sm rounded-4 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="badge bg-success rounded-pill px-3 py-1">معتمد</span>
+                                        <span class="text-muted small">{{ $document->date }}</span>
                                     </div>
 
-                                    <div>
-                                        <h6 class="fw-bold mb-0">{{ $document->title }}</h6>
-                                        <span class="text-primary-green fw-semibold">للطفل:
-                                            {{ $document->orphan?->name }}</span>
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                                            style="width:50px;height:50px;background:#eef8f2;">
+                                            <i class="bi bi-journal-check text-success fs-3"></i>
+                                        </div>
+
+                                        <div>
+                                            <h6 class="fw-bold mb-0">{{ $document->title }}</h6>
+                                            <span class="text-primary-green fw-semibold">للطفل:
+                                                {{ $document->orphan?->name }}</span>
+                                        </div>
                                     </div>
+
+                                    <p class="text-muted small">
+                                        تم رفع التقرير ومراجعته واعتماده من قبل فريق كنف.
+                                    </p>
                                 </div>
 
-                                <p class="text-muted small">
-                                    تم رفع التقرير ومراجعته واعتماده من قبل فريق كنف.
-                                </p>
+                                <div
+                                    class="mt-4 border-top pt-3 d-flex align-items-center justify-content-between gap-2">
+                                    <!-- زر عرض التقرير -->
+                                    <a href="{{ route('documents.view', $document->id) }}" target="_blank"
+                                        class="btn btn-outline-primary btn-sm rounded-pill">
+                                        <i class="bi bi-eye"></i> عرض
+                                    </a>
 
-                                <div class="mt-4 border-top pt-3 d-flex justify-content-between">
-                                    <span class="text-muted small">الحجم: 1.4 MB</span>
-                                    <a href="#" class="btn btn-primary btn-sm">
+                                    <!-- زر تنزيل التقرير -->
+                                    <a href="{{ route('documents.download', $document->id) }}"
+                                        class="btn btn-primary btn-sm rounded-pill">
                                         <i class="bi bi-download"></i> تنزيل التقرير
                                     </a>
                                 </div>
@@ -214,14 +233,9 @@
             var cards = document.querySelectorAll('#docsContainer [data-category]');
             var noResultsMsg = document.getElementById('noResultsMsg');
 
-            // [للفحص والتأكد] سيطبع لك في Console المتصفح هل عثر على العناصر أم لا
-            console.log('تم العثور على أزرار عدد:', filterButtons.length);
-            console.log('تم العثور على كروت عدد:', cards.length);
-
             filterButtons.forEach(function(btn) {
                 btn.addEventListener('click', function() {
 
-                    // 1. تبديل كلاس النشط (active) بين الأزرار
                     filterButtons.forEach(function(b) {
                         b.classList.remove('active');
                     });
@@ -230,15 +244,11 @@
                     var filterValue = this.getAttribute('data-filter').trim().toLowerCase();
                     var visibleCount = 0;
 
-                    console.log('القسم المختار حالياً للفلترة:', filterValue);
-
-                    // 2. المرور على الكروت وإظهارها أو إخفائها بقوة الـ !important
                     cards.forEach(function(card) {
                         var cardCategory = card.getAttribute('data-category');
                         cardCategory = cardCategory ? cardCategory.trim().toLowerCase() :
-                            '';
+                        '';
 
-                        // شرط مرن: يدعم كلمة all أو الكل، أو التطابق التام بين مخرج الداتابيز وقيمة الزر
                         var matches = (filterValue === 'all' || filterValue === 'الكل' ||
                             cardCategory === filterValue);
 
@@ -250,7 +260,6 @@
                         }
                     });
 
-                    // 3. التحكم في رسالة "لا توجد نتائج"
                     if (noResultsMsg) {
                         if (visibleCount === 0) {
                             noResultsMsg.classList.remove('d-none');
@@ -262,7 +271,6 @@
             });
         });
     </script>
-
 
 </body>
 
