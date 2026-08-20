@@ -1302,32 +1302,38 @@
                                             </div>
 
                                             <div class="col-md-6">
-    <label class="form-label">الحالة الصحية لليتيم</label>
-    <!-- أُضيف id="child_health_status" -->
-    <select name="child_health_status" id="child_health_status" class="form-select">
-        <option value="" selected disabled>قم بتحديد الحالة الصحية :</option>
-        <option value="طبيعي"
-            {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'طبيعي' ? 'selected' : '' }}>
-            طبيعي معافى</option>
-        <option value="حالة صحية خاصة"
-            {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'حالة صحية خاصة' ? 'selected' : '' }}>
-            يعاني من حالة صحية خاصة أو إصابة</option>
-    </select>
-    @error('child_health_status')
-        <span class="error-msg" style="color: rgb(255, 0, 0)">{{ $message }}</span>
-    @enderror
-</div>
+                                                <label class="form-label">الحالة الصحية لليتيم</label>
+                                                <!-- أُضيف id="child_health_status" -->
+                                                <select name="child_health_status" id="child_health_status"
+                                                    class="form-select">
+                                                    <option value="" selected disabled>قم بتحديد الحالة الصحية :
+                                                    </option>
+                                                    <option value="طبيعي"
+                                                        {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'طبيعي' ? 'selected' : '' }}>
+                                                        طبيعي معافى</option>
+                                                    <option value="حالة صحية خاصة"
+                                                        {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'حالة صحية خاصة' ? 'selected' : '' }}>
+                                                        يعاني من حالة صحية خاصة أو إصابة</option>
+                                                </select>
+                                                @error('child_health_status')
+                                                    <span class="error-msg"
+                                                        style="color: rgb(255, 0, 0)">{{ $message }}</span>
+                                                @enderror
+                                            </div>
 
-<div class="col-md-6">
-    <label class="form-label text-danger">وصف الحالة الصحية والاحتياجات الطبية بالأرقام</label>
-    <!-- أُضيف id="child_medical_needs" -->
-    <input type="text" name="child_medical_needs" id="child_medical_needs" class="form-control"
-        placeholder="مثال: بحاجة لطرف اصطناعي وعلاج طبيعي"
-        value="{{ old('child_medical_needs', $prefill['child_medical_needs'] ?? '') }}">
-    @error('child_medical_needs')
-        <span class="error-msg" style="color: rgb(255, 0, 0)">{{ $message }}</span>
-    @enderror
-</div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-danger">وصف الحالة الصحية والاحتياجات
+                                                    الطبية بالأرقام</label>
+                                                <!-- أُضيف id="child_medical_needs" -->
+                                                <input type="text" name="child_medical_needs"
+                                                    id="child_medical_needs" class="form-control"
+                                                    placeholder="مثال: بحاجة لطرف اصطناعي وعلاج طبيعي"
+                                                    value="{{ old('child_medical_needs', $prefill['child_medical_needs'] ?? '') }}">
+                                                @error('child_medical_needs')
+                                                    <span class="error-msg"
+                                                        style="color: rgb(255, 0, 0)">{{ $message }}</span>
+                                                @enderror
+                                            </div>
 
                                             <div class="col-12">
                                                 <label class="form-label">قصة اليتيم والاحتياجات المعيشية اليومية لربطه
@@ -1504,24 +1510,24 @@
         };
 
         // تفاصيل ودعم حقل الاحتياجات الطبية لليتيم
-const childHealthSelect = document.getElementById('child_health_status');
-const childMedicalNeedsInput = document.getElementById('child_medical_needs');
+        const childHealthSelect = document.getElementById('child_health_status');
+        const childMedicalNeedsInput = document.getElementById('child_medical_needs');
 
-function toggleChildMedicalNeeds() {
-    if (childHealthSelect && childMedicalNeedsInput) {
-        if (childHealthSelect.value === 'طبيعي' || childHealthSelect.value === '') {
-            childMedicalNeedsInput.disabled = true;
-            childMedicalNeedsInput.value = ''; // مسح القيمة إن وجدت عند تحويله لطبيعي
-        } else {
-            childMedicalNeedsInput.disabled = false;
+        function toggleChildMedicalNeeds() {
+            if (childHealthSelect && childMedicalNeedsInput) {
+                if (childHealthSelect.value === 'طبيعي' || childHealthSelect.value === '') {
+                    childMedicalNeedsInput.disabled = true;
+                    childMedicalNeedsInput.value = ''; // مسح القيمة إن وجدت عند تحويله لطبيعي
+                } else {
+                    childMedicalNeedsInput.disabled = false;
+                }
+            }
         }
-    }
-}
 
-if (childHealthSelect) {
-    childHealthSelect.addEventListener('change', toggleChildMedicalNeeds);
-    toggleChildMedicalNeeds(); // تشغيل التحقق تلقائياً عند تحميل الصفحة
-}
+        if (childHealthSelect) {
+            childHealthSelect.addEventListener('change', toggleChildMedicalNeeds);
+            toggleChildMedicalNeeds(); // تشغيل التحقق تلقائياً عند تحميل الصفحة
+        }
 
         function validateStep(step) {
             const names = requiredByStep[step] || [];

@@ -102,7 +102,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="index.html">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110"
                         id="nav-brand-logo" style="object-fit:contain;">
                 </a>

@@ -90,7 +90,7 @@
 
                                 <div class="row align-items-center bg-light p-4 rounded-4 mb-4 g-4">
                                     <div class="col-md-3 text-center">
-                                        <img src="{{ $orphan->orphan && $orphan->orphan->personal_photo_path ? asset('Uploads/orphans/' . $orphan->orphan->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
+                                        <img src="{{ $orphan && $orphan->personal_photo_path ? asset('Uploads/orphans/' . $orphan->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
                                             onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                             class="img-fluid rounded-circle shadow-xs"
                                             style="width:120px;height:120px;object-fit:cover;">

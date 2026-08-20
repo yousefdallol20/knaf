@@ -85,7 +85,7 @@
                                         <h5 class="fw-bold text-dark mb-3">ملخص الكفالة</h5>
 
                                         <div class="d-flex align-items-center gap-2 mb-3">
-                                            <img src="{{ $orphan->orphan && $orphan->orphan->personal_photo_path ? asset('Uploads/orphans/' . $orphan->orphan->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
+                                            <img src="{{ $orphan && $orphan->personal_photo_path ? asset('Uploads/orphans/' . $orphan->personal_photo_path) : asset('Uploads/orphans/default.png') }}"
                                                 onerror="this.onerror=null;this.src='{{ asset('Uploads/orphans/default.png') }}';"
                                                 class="rounded-circle shadow-xs"
                                                 style="width:50px;height:50px;object-fit:cover;">

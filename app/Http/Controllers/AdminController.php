@@ -35,7 +35,9 @@ class AdminController extends Controller
     {
         // 1️⃣ الكروت الإحصائية
         $totalOrphansCount = orphans::count();
-        $activeSponsorshipsCount = Sponsorship::whereIn('status', ['نشط', 'ساري', 'مكفول'])->count();
+        $activeSponsorshipsCount = Sponsorship::whereIn('status', ['نشط', 'ساري', 'مكفول'])
+            ->distinct('orphan_id')
+            ->count('orphan_id');
 
         // حوالات الشهر الحالي
         $currentMonthPaymentsSum = Sponsorship::where('payment_status', 'paid')
@@ -208,7 +210,9 @@ class AdminController extends Controller
 
     public function showSponsors()
     {
-        $sponsors = Sponsor::withCount('sponsorships')->paginate(10);
+        $sponsors = Sponsor::withCount(['sponsorships as sponsorships_count' => function ($query) {
+            $query->select(DB::raw('count(distinct(orphan_id))'));
+        }])->paginate(10);
         return view('admin.sponsors', compact('sponsors'));
     }
 
