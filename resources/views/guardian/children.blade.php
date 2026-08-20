@@ -111,22 +111,19 @@
 
                 {{-- 1. عرض رسالة النجاح --}}
                 @if (Session::has('success'))
-                    {{-- تم تصحيح الكلاس إلى alert-success وتطوير التصميم بـ Bootstrap --}}
                     <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 p-3 mb-4"
                         role="alert">
                         <i class="bi bi-check-circle-fill me-2"></i>
-                        {{ Session::get('success') }} {{-- جلب نص الرسالة التي أرسلها الكنترولر --}}
+                        {{ Session::get('success') }}
                     </div>
                 @endif
 
                 {{-- 2. عرض رسالة الخطأ القادمة من السيرفر (Catch Exception) --}}
                 @if ($errors->has('error'))
-                    {{-- تم تعديل الكلمة إلى 'error' لتطابق ما يرسله الكنترولر --}}
-                    {{-- تم تصحيح الكلاس إلى alert-danger --}}
                     <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 p-3 mb-4"
                         role="alert">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        {{ $errors->first('error') }} {{-- جلب نص الخطأ التقني القادم من السيرفر --}}
+                        {{ $errors->first('error') }}
                     </div>
                 @endif
 
@@ -387,7 +384,6 @@
                                 </div>
 
                                 <!-- ===== قسم الشهادات والوثائق ===== -->
-                                <!-- ===== قسم الشهادات والوثائق ===== -->
                                 <div class="col-12">
                                     <div class="card border-0 shadow-sm">
                                         <div
@@ -567,7 +563,6 @@
                                                     </div>
                                                 @endif
 
-                                                {{-- 6. التقارير والشهادات الإضافية من جدول documents --}}
                                                 {{-- 6. التقارير والشهادات الإضافية المقبولة فقط من الأدمن --}}
                                                 @foreach ($document as $documents)
                                                     @if ($documents->orphan_id == $info->id && $documents->status == 'مقبول')
@@ -628,7 +623,6 @@
                                     </div>
                                 </div>
                                 <!-- ===== نهاية قسم الشهادات والوثائق ===== -->
-                                <!-- ===== نهاية قسم الشهادات ===== -->
 
                             </div>
                         </div>

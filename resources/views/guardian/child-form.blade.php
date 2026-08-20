@@ -450,13 +450,14 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label"><i
-                                                    class="bi bi-card-text me-1 text-primary-green"></i> رقم الهوية
-                                                الشخصية</label>
+                                            <label class="form-label">
+                                                <i class="bi bi-card-text me-1 text-primary-green"></i> رقم الهوية
+                                                الشخصية
+                                            </label>
                                             <input type="text" name="guardian_national_id" class="form-control"
                                                 placeholder="9 خانات رقمية"
                                                 value="{{ old('guardian_national_id', $prefill['guardian_national_id'] ?? '') }}"
-                                                {{ !empty($prefill['guardian_national_id']) ? 'readonly' : '' }}>
+                                                {{ $isEdit ? 'readonly' : '' }}>
                                             @error('guardian_national_id')
                                                 <span class="error-msg"
                                                     style="color: rgb(255, 0, 0)">{{ $message }}</span>
@@ -595,7 +596,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <label class="form-label"><i
                                                     class="bi bi-cash-stack me-1 text-primary-green"></i> مصدر الدخل
                                                 للعائلة</label>
@@ -859,7 +860,8 @@
 
                                         <div class="col-md-6">
                                             <label class="form-label">حالة وصلاحية السكن</label>
-                                            <select name="housing_condition" class="form-select">
+                                            <select name="housing_condition" id="housing_condition"
+                                                class="form-select">
                                                 <option value="" selected disabled>قم بتحديد حالة السكن :
                                                 </option>
                                                 <option value="صالح للسكن"
@@ -875,7 +877,7 @@
                                             @enderror
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-12" id="housing-damage-wrapper" style="display: none;">
                                             <div
                                                 class="p-3 bg-light-subtle rounded-3 border border-danger-subtle mt-1">
                                                 <label class="form-label text-danger">وصف أضرار وتصدعات المسكن
@@ -1300,34 +1302,32 @@
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label">الحالة الصحية لليتيم</label>
-                                                <select name="child_health_status" class="form-select">
-                                                    <option value="" selected disabled>قم بتحديد الحالة الصحية :
-                                                    </option>
-                                                    <option value="طبيعي"
-                                                        {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'طبيعي' ? 'selected' : '' }}>
-                                                        طبيعي معافى</option>
-                                                    <option value="حالة صحية خاصة"
-                                                        {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'حالة صحية خاصة' ? 'selected' : '' }}>
-                                                        يعاني من حالة صحية خاصة أو إصابة</option>
-                                                </select>
-                                                @error('child_health_status')
-                                                    <span class="error-msg"
-                                                        style="color: rgb(255, 0, 0)">{{ $message }}</span>
-                                                @enderror
-                                            </div>
+    <label class="form-label">الحالة الصحية لليتيم</label>
+    <!-- أُضيف id="child_health_status" -->
+    <select name="child_health_status" id="child_health_status" class="form-select">
+        <option value="" selected disabled>قم بتحديد الحالة الصحية :</option>
+        <option value="طبيعي"
+            {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'طبيعي' ? 'selected' : '' }}>
+            طبيعي معافى</option>
+        <option value="حالة صحية خاصة"
+            {{ old('child_health_status', $prefill['child_health_status'] ?? '') == 'حالة صحية خاصة' ? 'selected' : '' }}>
+            يعاني من حالة صحية خاصة أو إصابة</option>
+    </select>
+    @error('child_health_status')
+        <span class="error-msg" style="color: rgb(255, 0, 0)">{{ $message }}</span>
+    @enderror
+</div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label text-danger">وصف الحالة الصحية والاحتياجات
-                                                    الطبية بالأرقام</label>
-                                                <input type="text" name="child_medical_needs" class="form-control"
-                                                    placeholder="مثال: بحاجة لطرف اصطناعي وعلاج طبيعي"
-                                                    value="{{ old('child_medical_needs', $prefill['child_medical_needs'] ?? '') }}">
-                                                @error('child_medical_needs')
-                                                    <span class="error-msg"
-                                                        style="color: rgb(255, 0, 0)">{{ $message }}</span>
-                                                @enderror
-                                            </div>
+<div class="col-md-6">
+    <label class="form-label text-danger">وصف الحالة الصحية والاحتياجات الطبية بالأرقام</label>
+    <!-- أُضيف id="child_medical_needs" -->
+    <input type="text" name="child_medical_needs" id="child_medical_needs" class="form-control"
+        placeholder="مثال: بحاجة لطرف اصطناعي وعلاج طبيعي"
+        value="{{ old('child_medical_needs', $prefill['child_medical_needs'] ?? '') }}">
+    @error('child_medical_needs')
+        <span class="error-msg" style="color: rgb(255, 0, 0)">{{ $message }}</span>
+    @enderror
+</div>
 
                                             <div class="col-12">
                                                 <label class="form-label">قصة اليتيم والاحتياجات المعيشية اليومية لربطه
@@ -1440,7 +1440,7 @@
         const form = document.getElementById('kanaf-multi-wizard');
         const isEdit = {{ $isEdit ? 'true' : 'false' }};
 
-        // الحقول المطلوبة لكل خطوة (تطابق قواعد required في ChildRequest على السيرفر)
+        // الحقول المطلوبة لكل خطوة (تم إزالة child_rating لعدم وجوده بالفورم)
         const requiredByStep = {
             1: ['guardian_name', 'guardian_national_id', 'guardian_birth_date', 'guardian_relationship',
                 'guardian_marital_status', 'guardian_health_status'
@@ -1452,11 +1452,11 @@
             4: ['financial_entity', 'account_holder_name', 'iban_or_account_number', 'family_financial_rating'],
             5: ['child_first_name', 'child_full_name', 'child_national_id', 'child_birth_date', 'child_age',
                 'child_gender', 'child_education_status', 'child_presence_status', 'child_health_status',
-                'child_rating', 'legal_affirmation'
+                'legal_affirmation'
             ],
         };
 
-        // خريطة كل الحقول لخطواتها (تُستخدم للقفز لأول خطوة فيها خطأ بعد العودة من السيرفر)
+        // خريطة الحقول للقفز لأول خطوة تحتوي على خطأ سيرفر
         const fieldStep = {
             guardian_name: 1,
             guardian_national_id: 1,
@@ -1503,7 +1503,26 @@
             legal_affirmation: 5,
         };
 
-        // تحقق من اكتمال الحقول المطلوبة في خطوة معيّنة قبل الانتقال أو الإرسال
+        // تفاصيل ودعم حقل الاحتياجات الطبية لليتيم
+const childHealthSelect = document.getElementById('child_health_status');
+const childMedicalNeedsInput = document.getElementById('child_medical_needs');
+
+function toggleChildMedicalNeeds() {
+    if (childHealthSelect && childMedicalNeedsInput) {
+        if (childHealthSelect.value === 'طبيعي' || childHealthSelect.value === '') {
+            childMedicalNeedsInput.disabled = true;
+            childMedicalNeedsInput.value = ''; // مسح القيمة إن وجدت عند تحويله لطبيعي
+        } else {
+            childMedicalNeedsInput.disabled = false;
+        }
+    }
+}
+
+if (childHealthSelect) {
+    childHealthSelect.addEventListener('change', toggleChildMedicalNeeds);
+    toggleChildMedicalNeeds(); // تشغيل التحقق تلقائياً عند تحميل الصفحة
+}
+
         function validateStep(step) {
             const names = requiredByStep[step] || [];
             for (const name of names) {
@@ -1540,12 +1559,8 @@
         }
 
         function navigateStep(direction) {
-            // عند التقدّم أو الإرسال تحقق من الخطوة الحالية أولاً
-            if (direction === 1 && !validateStep(currentStep)) {
-                return;
-            }
+            if (direction === 1 && !validateStep(currentStep)) return;
 
-            // في الخطوة الأخيرة الضغط على "حفظ واعتماد" يُرسل الفورم فعلياً للسيرفر
             if (currentStep === totalSteps && direction === 1) {
                 form.submit();
                 return;
@@ -1558,7 +1573,6 @@
             refreshUI();
         }
 
-        // إعادة احتساب حالة كل الخطوات والمؤشرات من currentStep (يصحّح خلل التنقل للخلف)
         function refreshUI() {
             for (let i = 1; i <= totalSteps; i++) {
                 document.getElementById(`step-form-${i}`).classList.toggle('active', i === currentStep);
@@ -1596,7 +1610,7 @@
             document.getElementById('step-progress').style.width = stepPct + '%';
         }
 
-        // بعد العودة من السيرفر بأخطاء تحقق: اقفز لأول خطوة تحتوي على حقل خاطئ
+        // القفز التلقائي للخطوة التي تعود بأخطاء validation من السيرفر
         const erroredFields = @json($errors->keys());
         (function initWizard() {
             if (erroredFields && erroredFields.length) {
@@ -1609,30 +1623,10 @@
             }
             refreshUI();
         })();
+
+        // معالجة إظهار وإخفاء الحقول المشروطة عند تجهيز الـ DOM
         document.addEventListener('DOMContentLoaded', function() {
-            const motherAliveYes = document.getElementById('mother-alive-yes');
-            const motherAliveNo = document.getElementById('mother-alive-no');
-            const motherDeathDetails = document.getElementById('mother-death-details');
-
-            function toggleMotherDetails() {
-                if (motherAliveNo && motherAliveNo.checked) {
-                    motherDeathDetails.style.display = 'block';
-                } else {
-                    motherDeathDetails.style.display = 'none';
-                }
-            }
-
-            if (motherAliveYes && motherAliveNo && motherDeathDetails) {
-                motherAliveYes.addEventListener('change', toggleMotherDetails);
-                motherAliveNo.addEventListener('change', toggleMotherDetails);
-
-                // تشغيل الدالة فور تحميل الصفحة للتحقق من التحديد المسبق (Prefill/Old Value)
-                toggleMotherDetails();
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // كود إظهار/إخفاء تفاصيل الأم
+            // 1. تفاصيل وفاة الأم
             const motherAliveYes = document.getElementById('mother-alive-yes');
             const motherAliveNo = document.getElementById('mother-alive-no');
             const motherDeathDetails = document.getElementById('mother-death-details');
@@ -1651,24 +1645,36 @@
                 toggleMotherDetails();
             }
 
-            // --- كود إظهار/إخفاء تفاصيل مرض الوصي الجديد ---
+            // 2. تفاصيل حالة الوصي الصحية
             const guardianHealthSelect = document.getElementById('guardian_health_status');
             const guardianHealthDetailsWrapper = document.getElementById('guardian-health-details-wrapper');
 
             function toggleGuardianHealthDetails() {
                 if (guardianHealthSelect && guardianHealthDetailsWrapper) {
-                    if (guardianHealthSelect.value === 'مريض') {
-                        guardianHealthDetailsWrapper.style.display = 'block';
-                    } else {
-                        guardianHealthDetailsWrapper.style.display = 'none';
-                    }
+                    guardianHealthDetailsWrapper.style.display = (guardianHealthSelect.value === 'مريض') ? 'block' :
+                        'none';
                 }
             }
 
             if (guardianHealthSelect) {
                 guardianHealthSelect.addEventListener('change', toggleGuardianHealthDetails);
-                // تشغيل الدالة فور التحميل للتحقق من البيانات السابقة (old / prefill)
                 toggleGuardianHealthDetails();
+            }
+
+            // 3. تفاصيل أضرار السكن
+            const housingConditionSelect = document.getElementById('housing_condition');
+            const housingDamageWrapper = document.getElementById('housing-damage-wrapper');
+
+            function toggleHousingDamageDetails() {
+                if (housingConditionSelect && housingDamageWrapper) {
+                    housingDamageWrapper.style.display = (housingConditionSelect.value === 'غير صالح') ? 'block' :
+                        'none';
+                }
+            }
+
+            if (housingConditionSelect) {
+                housingConditionSelect.addEventListener('change', toggleHousingDamageDetails);
+                toggleHousingDamageDetails();
             }
         });
     </script>

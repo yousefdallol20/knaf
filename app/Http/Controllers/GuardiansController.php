@@ -134,12 +134,15 @@ class GuardiansController extends Controller
                 $existingParents = Parents::where('orphan_id', $latestOrphan->id)->first();
             }
         }
+        $statusMap = ['weak' => 'حالة ضعيفة', 'medium' => 'حالة متوسطة', 'good' => 'حالة جيدة'];
 
         $prefill = [
             // الوصي
             'guardian_name'           => $existingGuardian->name ?? $user->name,
             'guardian_national_id'    => $existingGuardian->national_id ?? '',
             'guardian_birth_date'     => isset($existingGuardian->birth_date) ? substr((string)$existingGuardian->birth_date, 0, 10) : '',
+            'guardian_id_image'       => $existingGuardian->guardian_id_image ?? null,
+            'guardian_legal_document' => $existingGuardian->legal_guardianship_document ?? null,
             'guardian_relationship'   => $existingGuardian->kinship_relation ?? '',
             'guardian_marital_status' => $existingGuardian->marital_status ?? '',
             'guardian_health_status'  => $existingGuardian->health_status ?? '',
@@ -147,11 +150,14 @@ class GuardiansController extends Controller
             'family_income_source'    => $existingGuardian->income_source ?? '',
 
             // بيانات الأب
-            'father_name'         => $existingParents->name ?? '',
-            'father_national_id'  => $existingParents->national_id ?? '',
-            'father_death_date'   => isset($existingParents->death_date) ? substr((string)$existingParents->death_date, 0, 10) : '',
-            'father_death_reason' => $existingParents->death_reason ?? '',
-            'mother_alive'        => isset($existingParents) ? ($existingParents->is_mother_alive ? 'yes' : 'no') : 'yes',
+            'father_name'               => $existingParents->name ?? '',
+            'father_national_id'        => $existingParents->national_id ?? '',
+            'father_death_date'         => isset($existingParents->death_date) ? substr((string)$existingParents->death_date, 0, 10) : '',
+            'father_death_reason'       => $existingParents->death_reason ?? '',
+            'child_photo'               => $orphan->personal_photo_path ?? null,
+            'child_birth_certificate'   => $orphan->birth_certificate_path ?? null,
+            'father_death_certificate'  => $existingParents->death_certificate ?? null,
+            'mother_alive'              => isset($existingParents) ? ($existingParents->is_mother_alive ? 'yes' : 'no') : 'yes',
 
             // السكن والنزوح
             'housing_type'                     => $existingHousing->current_housing_type ?? '',
@@ -165,6 +171,9 @@ class GuardiansController extends Controller
             'financial_entity'        => $existingFinancial->official_receiving_entity ?? '',
             'account_holder_name'     => $existingFinancial->account_holder_name ?? '',
             'iban_or_account_number'  => $existingFinancial->bank_account_or_iban ?? '',
+            'family_financial_rating' => isset($existingFinancial->family_financial_status)
+                ? ($statusMap[$existingFinancial->family_financial_status] ?? $existingFinancial->family_financial_status)
+                : '',
         ];
 
         return view('guardian.child-form', [
@@ -189,7 +198,14 @@ class GuardiansController extends Controller
         $f = $orphan->financial_data;
 
         $genderMap = ['ذكر', 'أنثى'];
-        $ratingMap = ['حالة ضعيفة',  'حالة متوسطة', 'حالة جيدة'];
+        $ratingMap = [
+            'weak'         => 'حالة ضعيفة',
+            'medium'       => 'حالة متوسطة',
+            'good'         => 'حالة جيدة',
+            'حالة ضعيفة'   => 'حالة ضعيفة',
+            'حالة متوسطة'  => 'حالة متوسطة',
+            'حالة جيدة'    => 'حالة جيدة',
+        ];
         $d = fn($v) => $v ? substr((string) $v, 0, 10) : null;
 
         $prefill = [
@@ -220,14 +236,19 @@ class GuardiansController extends Controller
             'guardian_health_status'  => $g->health_status ?? null,
             'guardian_health_details' => $g->health_details ?? null,
             'family_income_source'    => $g->income_source ?? null,
+            'guardian_id_image'       => $g->guardian_id_image ?? null,
+            'guardian_legal_document' => $g->legal_guardianship_document ?? null,
 
-            'father_name'         => $p->name ?? null,
-            'father_national_id'  => $p->national_id ?? null,
-            'father_death_date'   => $d($p->death_date ?? null),
-            'father_death_reason' => $p->death_reason ?? null,
-            'mother_alive'        => isset($p) ? ($p->is_mother_alive ? 'yes' : 'no') : 'yes',
-            'mother_death_date'   => $d($p->mother_death_date ?? null),
-            'mother_death_reason' => $p->mother_death_reason ?? null,
+            'father_name'              => $p->name ?? null,
+            'father_national_id'       => $p->national_id ?? null,
+            'father_death_date'        => $d($p->death_date ?? null),
+            'father_death_reason'      => $p->death_reason ?? null,
+            'mother_alive'             => isset($p) ? ($p->is_mother_alive ? 'yes' : 'no') : 'yes',
+            'mother_death_date'        => $d($p->mother_death_date ?? null),
+            'mother_death_reason'      => $p->mother_death_reason ?? null,
+            'child_photo'              => $orphan->personal_photo_path ?? null,
+            'child_birth_certificate'  => $orphan->birth_certificate_path ?? null,
+            'father_death_certificate' => $p->death_certificate ?? null,
 
             'housing_type'                     => $h->current_housing_type ?? null,
             'housing_condition'                => $h->housing_condition ?? null,
@@ -248,6 +269,9 @@ class GuardiansController extends Controller
     /**
      * تحديث بيانات طفل محدد
      */
+    /**
+     * تحديث بيانات طفل محدد مع مزامنة البيانات العائلية لكافة إخوته
+     */
     public function update(ChildRequest $request, string $id)
     {
         $orphan = orphans::findOrFail($id);
@@ -257,7 +281,7 @@ class GuardiansController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. تحديث بيانات اليتيم
+            // 1. تحديث بيانات الطفل الفردية
             $orphan->first_name = $request->child_first_name;
             $orphan->name = $request->child_full_name;
             $orphan->rating = $request->input('child_rating');
@@ -291,7 +315,7 @@ class GuardiansController extends Controller
             }
             $orphan->rating = $orphan->is_double_orphan + $orphan->is_sole_breadwinner + $orphan->is_critically_needy + $orphan->is_war_injured + $orphan->has_chronic_disease;
 
-            // 2. تحديث بيانات الوصي
+            // 2. تحديث بيانات الوصي العامة (تُطبق على كل العائلة تلقائياً)
             $guardian = Guardian::firstOrNew(['user_id' => Auth::id()]);
             $guardian->user_id = Auth::id();
             $guardian->name = $request->guardian_name;
@@ -323,59 +347,81 @@ class GuardiansController extends Controller
             $orphan->guardian_id = $guardian->id;
             $orphan->save();
 
-            // 3. تحديث بيانات الوالدين
-            $parent = Parents::firstOrNew(['orphan_id' => $orphan->id]);
-            $parent->name = $request->father_name;
-            $parent->national_id = $request->father_national_id;
-            $parent->death_date = $request->father_death_date;
-            $parent->death_reason = $request->father_death_reason;
-            $parent->is_mother_alive = ($request->mother_alive == 'yes') ? 1 : 0;
-            $parent->mother_death_date = $request->mother_death_date;
-            $parent->mother_death_reason = $request->mother_death_reason;
-            $parent->orphan_id = $orphan->id;
-
+            // معالجة صور المرفقات العائلية لمرة واحدة قبل المزامنة
+            $uploadedFatherDeath = null;
             if ($request->hasFile('father_death_certificate')) {
-                $fDeath = 'father_death_' . time() . '.' . $request->father_death_certificate->extension();
-                $request->father_death_certificate->move(public_path('Uploads/parents'), $fDeath);
-                $parent->death_certificate = $fDeath;
-            } elseif (!$parent->death_certificate) {
-                $parent->death_certificate = 'default.pdf';
+                $uploadedFatherDeath = 'father_death_' . time() . '.' . $request->father_death_certificate->extension();
+                $request->father_death_certificate->move(public_path('Uploads/parents'), $uploadedFatherDeath);
             }
 
+            $uploadedMotherDeath = null;
             if ($request->hasFile('mother_death_certificate')) {
-                $mDeath = 'mother_death_' . time() . '.' . $request->mother_death_certificate->extension();
-                $request->mother_death_certificate->move(public_path('Uploads/parents'), $mDeath);
-                $parent->mother_death_certificate = $mDeath;
+                $uploadedMotherDeath = 'mother_death_' . time() . '.' . $request->mother_death_certificate->extension();
+                $request->mother_death_certificate->move(public_path('Uploads/parents'), $uploadedMotherDeath);
             }
-            $parent->save();
 
-            // 4. تحديث بيانات السكن
-            $housing = Housing::firstOrNew(['orphan_id' => $orphan->id]);
-            $housing->current_housing_type = $request->housing_type;
-            $housing->housing_condition = $request->housing_condition;
-            $housing->damage_description = $request->housing_damage_details;
-            $housing->original_city = $request->original_city;
-            $housing->current_displacement_destination = $request->current_displacement_destination;
-            $housing->detailed_current_address = $request->current_address_details;
-            $housing->orphan_id = $orphan->id;
-            $housing->save();
+            // 3. جلب جميع الأطفال المنسوبين لهذا الوصي لتحديث بياناتهم المشتركة
+            $familyOrphanIds = orphans::where('guardian_id', $guardian->id)->pluck('id');
 
-            // 5. تحديث البيانات المالية
-            $financial = financial_data::firstOrNew(['orphan_id' => $orphan->id]);
-            $financial->official_receiving_entity = $request->financial_entity;
-            $financial->account_holder_name = $request->account_holder_name;
-            $financial->bank_account_or_iban = $request->iban_or_account_number;
-            $statusMap = ['حالة ضعيفة' => 'weak', 'حالة متوسطة' => 'medium', 'حالة جيدة' => 'good'];
-            $financial->family_financial_status = $statusMap[$request->family_financial_rating] ?? 'weak';
-            $financial->orphan_id = $orphan->id;
-            $financial->save();
+            foreach ($familyOrphanIds as $orphanId) {
+                // تحديث بيانات الوالدين لجميع الأبناء
+                $parent = Parents::firstOrNew(['orphan_id' => $orphanId]);
+                $parent->name = $request->father_name;
+                $parent->national_id = $request->father_national_id;
+                $parent->death_date = $request->father_death_date;
+                $parent->death_reason = $request->father_death_reason;
+                $parent->is_mother_alive = ($request->mother_alive == 'yes') ? 1 : 0;
+                $parent->mother_death_date = $request->mother_death_date;
+                $parent->mother_death_reason = $request->mother_death_reason;
+                $parent->orphan_id = $orphanId;
+
+                if ($uploadedFatherDeath) {
+                    $parent->death_certificate = $uploadedFatherDeath;
+                } elseif (!$parent->death_certificate) {
+                    $parent->death_certificate = 'default.pdf';
+                }
+
+                if ($uploadedMotherDeath) {
+                    $parent->mother_death_certificate = $uploadedMotherDeath;
+                }
+                $parent->save();
+
+                // تحديث بيانات السكن لجميع الأبناء
+                $housing = Housing::firstOrNew(['orphan_id' => $orphanId]);
+                $housing->current_housing_type = $request->housing_type;
+                $housing->housing_condition = $request->housing_condition;
+                $housing->damage_description = $request->housing_damage_details;
+                $housing->original_city = $request->original_city;
+                $housing->current_displacement_destination = $request->current_displacement_destination;
+                $housing->detailed_current_address = $request->current_address_details;
+                $housing->guardian_id = $guardian->id;
+                $housing->orphan_id = $orphanId;
+                $housing->save();
+
+                // تحديث البيانات المالية لجميع الأبناء
+                $financial = financial_data::firstOrNew(['orphan_id' => $orphanId]);
+                $financial->official_receiving_entity = $request->financial_entity;
+                $financial->account_holder_name = $request->account_holder_name;
+                $financial->bank_account_or_iban = $request->iban_or_account_number;
+                $statusMap = [
+                    'حالة ضعيفة'  => 'weak',
+                    'حالة متوسطة' => 'medium',
+                    'حالة جيدة'   => 'good',
+                    'weak'        => 'weak',
+                    'medium'      => 'medium',
+                    'good'        => 'good',
+                ];
+                $financial->family_financial_status = $statusMap[$request->family_financial_rating] ?? 'weak';
+                $financial->orphan_id = $orphanId;
+                $financial->save();
+            }
 
             DB::commit();
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action'  => 'تعديل بيانات طفل',
-                'details' => 'تم تحديث بيانات الطفل ' . $orphan->name,
+                'action'  => 'تعديل بيانات طفل وعائلته',
+                'details' => 'تم تحديث بيانات الطفل ' . $orphan->name . ' وتحديث بيانات العائلة ككل.',
             ]);
 
             return redirect()->route('children')->with('success', 'تم تحديث بيانات اليتيم وعائلته بنجاح.');
@@ -544,7 +590,14 @@ class GuardiansController extends Controller
             $financial->account_holder_name = $request->account_holder_name;
             $financial->bank_account_or_iban = $request->iban_or_account_number;
 
-            $statusMap = ['حالة ضعيفة' => 'weak', 'حالة متوسطة' => 'medium', 'حالة جيدة' => 'good'];
+            $statusMap = [
+                'حالة ضعيفة'  => 'weak',
+                'حالة متوسطة' => 'medium',
+                'حالة جيدة'   => 'good',
+                'weak'        => 'weak',
+                'medium'      => 'medium',
+                'good'        => 'good',
+            ];
             $financial->family_financial_status = $statusMap[$request->family_financial_rating] ?? 'weak';
             $financial->save();
 
