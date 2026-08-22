@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ContactMail;
 use App\Models\orphans;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -21,39 +22,37 @@ class HomeController extends Controller
             ->latest()
             ->take(3)
             ->get();
-    
-        return view('index', compact('sponsoredCount', 'citiesCount', 'orphans'));
+
+        // جلب بيانات التواصل (روابط السوشيال ميديا، الهواتف، الإيميلات)
+        // المخزّنة من لوحة الإعدادات لعرضها في الفوتر بالصفحة الرئيسية
+        $settings = Setting::pluck('value', 'key')->toArray();
+
+        return view('index', compact('sponsoredCount', 'citiesCount', 'orphans', 'settings'));
     }
 
     public function orphans(Request $request)
     {
-        // 1. بدء الاستعلام واستثناء غير المقبولين
         $query = orphans::query()
             ->where('status', '!=', 'بانتظار القبول')
             ->where('status', '!=', 'مرفوض')
             ->where('status', '!=', 'مكفول');
 
-        // أو إذا كانت الحالات المقبولة محددة بوضوح استخدم whereIn:
         // ->whereIn('status', ['بانتظار الكفالة']);
 
-        // 2. البحث باسم اليتيم
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // 3. فلترة الدولة
         if ($request->filled('country') && $request->country !== 'all') {
             $query->where('country', $request->country);
         }
 
-        // 4. فلترة الجنس
         if ($request->filled('gender') && $request->gender !== 'all') {
             $query->where('gender', $request->gender);
         }
 
-        $data = $query->get(); // أو paginate(12)
+        $data = $query->get();
 
-        // إذا كان الطلب AJAX (عند البحث والتصفية)
         if ($request->ajax()) {
             return view('orphans-list', compact('data'))->render();
         }

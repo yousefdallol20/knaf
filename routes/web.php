@@ -20,10 +20,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/knaf', function () {
-//     return view('index');
-// })->name('knaf');
 Route::get('/knaf', [HomeController::class, 'knaf'])->name('knaf');
+Route::get('/step', function () {
+    return view('step');
+})->name('step');
 
 Route::get('/orphans', [HomeController::class, 'orphans'])->name('orphans');
 Route::get('/orphans_details/{id}', [HomeController::class, 'orphans_details'])->name('orphans_details');

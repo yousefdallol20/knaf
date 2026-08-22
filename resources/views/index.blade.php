@@ -212,7 +212,7 @@
                             <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="sponsorship/step1.html" id="nav-link-steps">خطوات الكفالة</a>
+                            <a class="nav-link" href="{{ route('step') }}" id="nav-link-steps">خطوات الكفالة</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('contact') }}" id="nav-link-contact">اتصل بنا</a>
@@ -234,8 +234,8 @@
     <main>
         <section class="hero-container">
             <!-- Parallax child emotional image background -->
-            <img src="{{ asset('assets/images/salah-darwish-gDk-wVG43pI-unsplash.jpg') }}" alt="طفل يتطلع بابتسامة وأمل"
-                class="hero-bg-img" id="hero-parallax-bg">
+            <img src="{{ asset('assets/images/salah-darwish-gDk-wVG43pI-unsplash.jpg') }}"
+                alt="طفل يتطلع بابتسامة وأمل" class="hero-bg-img" id="hero-parallax-bg">
             <div class="hero-gradient"></div>
 
             <div class="container py-5 hero-content">
@@ -835,17 +835,40 @@
                             الأكثر احتياجاً
                             لمتابعة حالتهم وتحقيق الكفالة الشاملة بكل شفافية وحب.</p>
                         <div class="d-flex gap-2 mt-4 text-white">
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-twitter-x"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-facebook"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-instagram"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-linkedin"></i></a>
+                            @if (!empty($settings['social_facebook']))
+                                <a href="https://facebook.com/{{ $settings['social_facebook'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-facebook"></i></a>
+                            @endif
+                            @if (!empty($settings['social_instagram']))
+                                <a href="https://instagram.com/{{ $settings['social_instagram'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-instagram"></i></a>
+                            @endif
+                            @if (!empty($settings['social_x']))
+                                <a href="https://x.com/{{ $settings['social_x'] }}" target="_blank" rel="noopener"
+                                    class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-twitter-x"></i></a>
+                            @endif
+                            @if (!empty($settings['social_youtube']))
+                                <a href="https://youtube.com/{{ $settings['social_youtube'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-youtube"></i></a>
+                            @endif
+                            @if (!empty($settings['social_whatsapp']))
+                                <a href="https://wa.me/{{ $settings['social_whatsapp'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-whatsapp"></i></a>
+                            @endif
+                            @if (!empty($settings['social_telegram']))
+                                <a href="https://t.me/{{ $settings['social_telegram'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-telegram"></i></a>
+                            @endif
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
@@ -853,7 +876,7 @@
                         </li>
                         <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
                                 للبحث</a></li>
-                        <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
+                        <li><a href=" {{ route('step') }}" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
                         <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
                                 المستخدمين</a></li>
@@ -862,12 +885,14 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">اللوحات الخاصة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="sponsor/dashboard.html" class="text-white text-decoration-none">بوابة الكافل
+                        <li><a href="{{ route('dashboard_sponsor') }}" class="text-white text-decoration-none">بوابة
+                                الكافل
                                 المشترك</a></li>
-                        <li><a href="guardian/dashboard.html" class="text-white text-decoration-none">بوابة الأوصياء
+                        <li><a href="{{ route('dashboard') }}" class="text-white text-decoration-none">بوابة الأوصياء
                                 والأمهات</a>
                         </li>
-                        <li><a href="admin/dashboard.html" class="text-white text-decoration-none">لوحة الإدارة
+                        <li><a href="{{ route('dashboard_admin') }}" class="text-white text-decoration-none">لوحة
+                                الإدارة
                                 الشاملة</a></li>
                     </ul>
                 </div>

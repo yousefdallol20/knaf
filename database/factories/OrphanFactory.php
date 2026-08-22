@@ -14,8 +14,17 @@ class OrphanFactory extends Factory
         $gender = $this->faker->randomElement(['ذكر', 'أنثى']);
         $age = $this->faker->numberBetween(2, 17);
 
-        $firstName = $gender == 'ذكر' ? $this->faker->firstName('male') : $this->faker->firstName('female');
-        $fullName = $gender == 'ذكر' ? $this->faker->name('male') : $this->faker->name('female');
+        $arabicMaleNames = ['أحمد', 'محمد', 'عمر', 'يوسف', 'خالد', 'محمود', 'علي', 'حسين', 'إبراهيم', 'مصطفى'];
+        $arabicFemaleNames = ['فاطمة', 'عائشة', 'مريم', 'زينب', 'سارة', 'نور', 'أبرار', 'جنى', 'شهد', 'سلمى'];
+        $arabicLastNames = ['النابلسي', 'المصري', 'الشهابي', 'النجار', 'الحاج', 'البرغوثي', 'الخليل', 'صالح', 'العمري'];
+
+        $firstName = $gender === 'ذكر'
+            ? $this->faker->randomElement($arabicMaleNames)
+            : $this->faker->randomElement($arabicFemaleNames);
+
+        $fatherName = $this->faker->randomElement($arabicMaleNames);
+        $lastName = $this->faker->randomElement($arabicLastNames);
+        $fullName = "{$firstName} {$fatherName} {$lastName}";
 
         return [
             'first_name' => $firstName,
@@ -30,7 +39,7 @@ class OrphanFactory extends Factory
             'is_double_orphan' => $this->faker->boolean(20),
             'is_sole_breadwinner' => $this->faker->boolean(10),
             'is_critically_needy' => $this->faker->boolean(60),
-            'is_war_injured' => $this->faker->boolean(15), // أضيف بناءً على الـ migration[cite: 18]
+            'is_war_injured' => $this->faker->boolean(15),
             'has_chronic_disease' => $this->faker->boolean(15),
 
             'health_status' => $this->faker->randomElement(['سليم', 'مستقر', 'بحاجة لمتابعة مستمرة', 'حرجة']),
@@ -39,11 +48,10 @@ class OrphanFactory extends Factory
             'birth_certificate_path' => 'cert_' . $this->faker->numberBetween(1000, 9999) . '.pdf',
             'personal_photo_path' => 'orphan_' . $this->faker->numberBetween(1, 10) . '.jpg',
 
-            'data_acknowledgement' => true, // أضيف بناءً على الـ migration[cite: 18]
+            'data_acknowledgement' => true,
             'country' => 'فلسطين',
             'city' => $this->faker->randomElement(['غزة', 'خانيونس', 'رفح', 'دير البلح', 'شمال غزة']),
 
-            // حل المشكلة: اختيار قيمة نصية صحيحة من الـ enum المعرف في الميجريشن[cite: 18]
             'status' => $this->faker->randomElement(['بانتظار القبول']),
             'urgency_level' => $this->faker->randomElement(['متوسطة', 'حرجة', 'عاجلة جداً']),
             'required_amount' => $this->faker->randomElement([50.00, 75.00, 100.00, 150.00]),

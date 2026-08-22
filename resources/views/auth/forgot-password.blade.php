@@ -15,8 +15,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4"
-                    href="{{ route('knaf') }}">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110"
                         id="nav-brand-logo" style="object-fit:contain;">
                 </a>
@@ -165,7 +164,7 @@
                         <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
                                 للبحث</a>
                         </li>
-                        <li><a href="../sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
+                        <li><a href="../ {{ route('step') }}" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
                         <li><a href="{{ route('login') }}" class="text-white text-decoration-none">دخول
                                 المستخدمين</a></li>
@@ -174,12 +173,14 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">اللوحات الخاصة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="../sponsor/dashboard.html" class="text-white text-decoration-none">بوابة الكافل
+                        <li><a href="../{{ route('dashboard_sponsor') }}"
+                                class="text-white text-decoration-none">بوابة الكافل
                                 المشترك</a></li>
-                        <li><a href="../guardian/dashboard.html" class="text-white text-decoration-none">بوابة
+                        <li><a href="../{{ route('dashboard') }}" class="text-white text-decoration-none">بوابة
                                 الأوصياء
                                 والأمهات</a></li>
-                        <li><a href="../admin/dashboard.html" class="text-white text-decoration-none">لوحة الإدارة
+                        <li><a href="../{{ route('dashboard_admin') }}" class="text-white text-decoration-none">لوحة
+                                الإدارة
                                 الشاملة</a></li>
                     </ul>
                 </div>

@@ -11,12 +11,12 @@ class FinancialFactory extends Factory
 
     public function definition(): array
     {
+        $arabicNames = ['محمد أحمد الأحمد', 'محمود عبد الرحمن الخالدي', 'فاطمة الزهراء البكري'];
+
         return [
             'official_receiving_entity' => $this->faker->randomElement(['بنك فلسطين', 'شركة صرافة محلية', 'محفظة جوال بي']),
-            'account_holder_name' => $this->faker->name,
+            'account_holder_name' => $this->faker->randomElement($arabicNames),
             'bank_account_or_iban' => $this->faker->bankAccountNumber,
-
-            // حل قيد الـ enum المالي المحدد بـ ['weak', 'medium', 'good'] في الميجريشن[cite: 22]
             'family_financial_status' => $this->faker->randomElement(['weak', 'medium', 'good']),
         ];
     }

@@ -16,10 +16,8 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => static::$password ??= Hash::make('12345678'),
             'remember_token' => Str::random(10),
-
-            // حل المشكلة: توليد رقم هاتف عشوائي لتخطي قيد قاعدة البيانات
             'phone' => $this->faker->unique()->numerify('059#######'),
         ];
     }

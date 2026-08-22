@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\guardian;
-use App\Models\User; // تأكد من استدعاء موديل المستخدمين في الأعلى
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GuardianFactory extends Factory
@@ -12,11 +12,14 @@ class GuardianFactory extends Factory
 
     public function definition(): array
     {
-        return [
-            // حل المشكلة: توليد مستخدم جديد تلقائياً وربطه بالوصي لتخطي القيد
-            'user_id' => User::factory(),
+        $arabicNames = [
+            'خديجة عبد الله النابلسي', 'سميرة محمود العلي', 'وفاء إبراهيم النجّار',
+            'كمال حسن المصري', 'أحمد محمود البرغوثي', 'مريم خالد الشهابي'
+        ];
 
-            'name' => $this->faker->name,
+        return [
+            'user_id' => User::factory(),
+            'name' => $this->faker->randomElement($arabicNames),
             'national_id' => $this->faker->unique()->regexify('[0-9]{9}'),
             'birth_date' => $this->faker->date('Y-m-d', '-30 years'),
             'kinship_relation' => $this->faker->randomElement(['أم', 'عم', 'خال', 'جد', 'جدة']),

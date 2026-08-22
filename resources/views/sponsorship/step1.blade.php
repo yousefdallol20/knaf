@@ -32,7 +32,7 @@
                             <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="sponsorship/step1.html" id="nav-link-steps">خطوات الكفالة</a>
+                            <a class="nav-link" href=" {{ route('step') }}" id="nav-link-steps">خطوات الكفالة</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('contact') }}" id="nav-link-contact">اتصل بنا</a>
@@ -108,7 +108,6 @@
                                             الحالة الصحية: {{ $orphan->health_status }}
                                         </p>
                                         <div class="d-flex flex-wrap gap-1 justify-content-center my-2">
-
                                             <span
                                                 class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2">
                                                 يتيم الأبوين
@@ -196,7 +195,7 @@
                         <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
                                 للبحث</a>
                         </li>
-                        <li><a href="sponsorship/step1.html" class="text-white text-decoration-none">خطوات وبدء
+                        <li><a href=" {{ route('step') }}" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
                         <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول
                                 المستخدمين</a></li>
@@ -205,12 +204,14 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">اللوحات الخاصة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="sponsor/dashboard.html" class="text-white text-decoration-none">بوابة الكافل
+                        <li><a href="{{ route('dashboard_sponsor') }}" class="text-white text-decoration-none">بوابة
+                                الكافل
                                 المشترك</a></li>
-                        <li><a href="guardian/dashboard.html" class="text-white text-decoration-none">بوابة الأوصياء
+                        <li><a href="{{ route('dashboard') }}" class="text-white text-decoration-none">بوابة الأوصياء
                                 والأمهات</a>
                         </li>
-                        <li><a href="admin/dashboard.html" class="text-white text-decoration-none">لوحة الإدارة
+                        <li><a href="{{ route('dashboard_admin') }}" class="text-white text-decoration-none">لوحة
+                                الإدارة
                                 الشاملة</a></li>
                     </ul>
                 </div>
