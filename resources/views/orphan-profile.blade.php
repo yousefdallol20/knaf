@@ -245,25 +245,47 @@
                             الأكثر احتياجاً
                             لمتابعة حالتهم وتحقيق الكفالة الشاملة بكل شفافية وحب.</p>
                         <div class="d-flex gap-2 mt-4 text-white">
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-twitter-x"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-facebook"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-instagram"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-linkedin"></i></a>
+                            @if (!empty($settings['social_facebook']))
+                                <a href="https://facebook.com/{{ $settings['social_facebook'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-facebook"></i></a>
+                            @endif
+                            @if (!empty($settings['social_instagram']))
+                                <a href="https://instagram.com/{{ $settings['social_instagram'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-instagram"></i></a>
+                            @endif
+                            @if (!empty($settings['social_x']))
+                                <a href="https://x.com/{{ $settings['social_x'] }}" target="_blank" rel="noopener"
+                                    class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-twitter-x"></i></a>
+                            @endif
+                            @if (!empty($settings['social_youtube']))
+                                <a href="https://youtube.com/{{ $settings['social_youtube'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-youtube"></i></a>
+                            @endif
+                            @if (!empty($settings['social_whatsapp']))
+                                <a href="https://wa.me/{{ $settings['social_whatsapp'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-whatsapp"></i></a>
+                            @endif
+                            @if (!empty($settings['social_telegram']))
+                                <a href="https://t.me/{{ $settings['social_telegram'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-telegram"></i></a>
+                            @endif
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
                         <li><a href="{{ route('knaf') }}" class="text-white text-decoration-none">الصفحة الرئيسية</a>
                         </li>
                         <li><a href="{{ route('orphans') }}" class="text-white text-decoration-none">قائمة الأيتام
-                                للبحث</a>
-                        </li>
+                                للبحث</a></li>
                         <li><a href=" {{ route('step') }}" class="text-white text-decoration-none">خطوات وبدء
                                 الكفالة</a></li>
                         <li><a href=" {{ route('login') }}" class="text-white text-decoration-none">دخول

@@ -23,21 +23,30 @@ class ResetPasswordController extends Controller
         $request->validate([
             'token'    => 'required',
             'email'    => 'required|email|exists:users,email',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ], [
             'password.required'  => 'يرجى إدخال كلمة المرور الجديدة.',
-            'password.min'       => 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
+            'password.min'       => 'يجب ألا تقل كلمة المرور عن 8 أحرف.',
             'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
         ]);
 
-        // التحقق من صحة الـ Token في قاعدة البيانات
-        $resetRecord = DB::table('password_reset_tokens')
+        // جلب السجلات الخاصة بالبريد الإلكتروني
+        $resetRecords = DB::table('password_reset_tokens')
             ->where('email', $request->email)
-            ->where('token', $request->token)
-            ->first();
+            ->get();
 
-        if (!$resetRecord) {
-            return back()->withErrors(['email' => 'رابط إعادة التعيين غير صالحة أو منتهي الصلاحية.']);
+        $validRecord = null;
+
+        foreach ($resetRecords as $record) {
+            // التحقق مما إذا كان التوكن مطابقاً للنص العادي أو تشفير SHA-256
+            if ($record->token === $request->token || hash_equals($record->token, hash('sha256', $request->token))) {
+                $validRecord = $record;
+                break;
+            }
+        }
+
+        if (!$validRecord) {
+            return back()->withErrors(['email' => 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية.']);
         }
 
         // تحديث كلمة المرور للمستخدم
