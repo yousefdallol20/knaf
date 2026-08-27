@@ -122,7 +122,7 @@
                             <a class="nav-link" href=" {{ route('step') }}" id="nav-link-steps">خطوات الكفالة</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('contact') }}" id="nav-link-contact">اتصل بنا</a>
+                            <a class="nav-link active" href="{{ route('contact') }}" id="nav-link-contact">اتصل بنا</a>
                         </li>
                     </ul>
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
@@ -456,7 +456,7 @@
                     <div class="input-group">
                         <input type="email" class="form-control text-small" style="text-align: right;"
                             placeholder="بريدك الإلكتروني" aria-label="البريد">
-                        <button class="btn btn-secondary text-small" type="button">اشترك</button>
+                        <button class="btn btn-secondary text-sm    all" type="button">اشترك</button>
                     </div>
                 </div>
             </div>

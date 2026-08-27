@@ -206,7 +206,7 @@
                 <div class="collapse navbar-collapse" id="navMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1" id="nav-menu-list">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('knaf') }}" id="nav-link-home">الرئيسية</a>
+                            <a class="nav-link active" href="{{ route('knaf') }}" id="nav-link-home">الرئيسية</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>

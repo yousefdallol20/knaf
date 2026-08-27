@@ -126,5 +126,14 @@
         </div>
     </div>
 @empty
-    {{-- يتم التحكم بعرض الـ Empty State عبر الجافاسكريبت أو يُترك فارغاً --}}
+    <div class="col-12 py-5 text-center">
+        <div class="p-5 rounded-4 bg-light shadow-sm d-inline-block border border-dashed border-2"
+            style="max-width: 500px; border-color: #e0e0e0 !important;">
+            <div class="mb-3">
+                <i class="bi bi-heart-fill text-muted opacity-25" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">لا توجد قلوب تحتاج للكفالة في الوقت الحالي</h4>
+            <p class="text-muted small mb-0">جميع الأطفال المتاحين تم شملهم برعايتكم الكريمة، شكراً لعطائكم.</p>
+        </div>
+    </div>
 @endforelse

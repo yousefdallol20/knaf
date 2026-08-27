@@ -89,7 +89,8 @@
                             <a class="nav-link" href="{{ route('knaf') }}" id="nav-link-home">الرئيسية</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>
+                            <a class="nav-link active" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة
+                                الأيتام</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href=" {{ route('step') }}" id="nav-link-steps">خطوات الكفالة</a>

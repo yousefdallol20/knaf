@@ -2,93 +2,932 @@
 <html lang="ar" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة كَنَفْ | لكفالة الأيتام</title>
-
-    <!-- Bootstrap 5 RTL CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Tajawal Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>كنف | ابدأ رحلة الكفالة</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.rtl.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-green: #1b5e20;
-            --primary-green-hover: #134217;
-            --secondary-gold: #ffc107;
-            --warm-bg: #fdfbf7;
+            --primary: #1b6b43;
+            --primary-dark: #0e6858;
+            --accent: #d39b1f;
+            --accent-dark: #c58f17;
+            --bg: #fcfbf9;
+            --text: #18382e;
+            --muted: #6c7b78;
+            --card: #ffffff;
+            --line: #e5eeea;
+            --white: #ffffff;
+            --shadow: 0 18px 50px rgba(20, 70, 60, 0.09);
         }
 
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #ffffff;
-            color: #333333;
+        /* =========================================================
+   Bootstrap Override
+   ========================================================= */
+
+        /* Prevent Bootstrap .badge from affecting our hero badge */
+        .hero .badge {
+            display: inline-block;
+            width: auto;
+            height: auto;
+            padding: 7px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
         }
 
-        /* Custom Utility Classes */
-        .bg-warm {
-            background-color: var(--warm-bg) !important;
+        /* Prevent Bootstrap .nav from affecting hero navigation */
+        .hero .nav {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0;
         }
 
-        .text-primary-green {
-            color: var(--primary-green) !important;
+        /* =========================================================
+   Navbar
+   ========================================================= */
+
+        .kanaf-navbar {
+            background: #2c7751 !important;
         }
 
-        .bg-primary-green {
-            background-color: var(--primary-green) !important;
+        .kanaf-navbar .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            transition: 0.25s ease;
         }
 
-        .bg-secondary-gold {
-            background-color: var(--secondary-gold) !important;
+        .kanaf-navbar .nav-link:hover {
+            color: #ffffff;
         }
 
-        .btn-primary-green {
-            background-color: var(--primary-green);
-            color: #fff;
-            border: none;
+        .kanaf-navbar .nav-link.active {
+            color: var(--accent) !important;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
         }
 
-        .btn-primary-green:hover {
-            background-color: var(--primary-green-hover);
-            color: #fff;
+        .kanaf-navbar .btn-secondary {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            color: #1a1a1a !important;
         }
 
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .kanaf-navbar .btn-secondary:hover {
+            background: var(--accent-dark) !important;
+            border-color: var(--accent-dark) !important;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+        /* =========================================================
+   Hero
+   ========================================================= */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 42px 0 88px;
+            background: linear-gradient(135deg,
+                    #2C7751 0%,
+                    #13492E 52%,
+                    #0E3621 100%) !important;
+            color: #ffffff;
         }
 
-        .navbar-brand {
-            font-weight: 900;
-            font-size: 1.8rem;
-            color: var(--primary-green);
+        .hero::before,
+        .hero::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
         }
 
-        .hero-section {
-            padding: 100px 0 80px;
-            background: linear-gradient(135deg, var(--warm-bg) 0%, #ffffff 100%);
+        .hero::before {
+            width: 420px;
+            height: 420px;
+            left: -150px;
+            top: -180px;
+            background: rgba(255, 255, 255, 0.055);
+        }
+
+        .hero::after {
+            width: 280px;
+            height: 280px;
+            right: -100px;
+            bottom: -120px;
+            background: rgba(255, 255, 255, 0.045);
+        }
+
+        /* =========================================================
+   Hero Top
+   ========================================================= */
+
+        .hero .brand {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: #ffffff;
+        }
+
+        .hero .badge {
+            font-size: 13px;
+            padding: 7px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+
+        /* =========================================================
+   Hero Grid
+   ========================================================= */
+
+        .hero-grid {
+            position: relative;
+            z-index: 1;
+
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+
+            gap: 55px;
+            align-items: center;
+
+            padding-top: 60px;
+        }
+
+        /* =========================================================
+   Hero Content
+   ========================================================= */
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 7px 15px;
+
+            background: rgba(211, 155, 31, 0.14) !important;
+            border: 1px solid rgba(211, 155, 31, 0.48) !important;
+            border-radius: 999px;
+
+            color: #f5d77a !important;
+            font-size: 14px;
+        }
+
+        .hero h1 {
+            margin: 20px 0 16px;
+
+            font-size: clamp(34px, 5vw, 58px);
+            line-height: 1.3;
+            font-weight: 800;
+
+            color: #ffffff;
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: 0 0 28px;
+
+            color: #e4f0ed;
+            font-size: 18px;
+        }
+
+        /* =========================================================
+   Hero Buttons
+   ========================================================= */
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /*
+   We intentionally keep .btn here because
+   the HTML already uses Bootstrap .btn.
+*/
+
+        .hero .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            padding: 14px 24px;
+
+            border-radius: 14px;
+            font-weight: 700;
+            text-decoration: none;
+
+            transition: 0.25s ease;
+        }
+
+        .hero .btn-primary {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            color: #1a1a1a !important;
+
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .hero .btn-primary:hover {
+            background: var(--accent-dark) !important;
+            border-color: var(--accent-dark) !important;
+            color: #1a1a1a !important;
+
+            transform: translateY(-2px);
+        }
+
+        .hero .btn-outline {
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.38) !important;
+            background: transparent !important;
+        }
+
+        .hero .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* =========================================================
+   Hero Card
+   ========================================================= */
+
+        .hero-card {
+            position: relative;
+            z-index: 2;
+
+            width: 100%;
+            min-height: 300px;
+            height: auto;
+
+            padding: 30px;
+
+            background: rgba(255, 255, 255, 0.10) !important;
+
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            border-radius: 30px;
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+
+            overflow: visible !important;
+        }
+
+        .hero-card h3 {
+            margin: 0 0 25px;
+
+            color: #ffffff;
+
+            font-size: 26px;
+            font-weight: 800;
+
+            text-align: center;
+        }
+
+        /* =========================================================
+   IMPORTANT:
+   Bootstrap has .progress.
+   We override it completely here.
+   ========================================================= */
+
+        .hero .progress {
+            /* Override Bootstrap */
+            display: flex !important;
+
+            flex-direction: column !important;
+            align-items: stretch !important;
+
+            gap: 13px !important;
+
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+
+            margin: 0 !important;
+            padding: 0 !important;
+
+            background: transparent !important;
+
+            border-radius: 0 !important;
+
+            overflow: visible !important;
+        }
+
+        /* =========================================================
+   Progress Items
+   ========================================================= */
+
+        .hero .progress-item {
+            display: flex;
+
+            align-items: center;
+
+            width: 100%;
+
+            gap: 12px;
+
+            padding: 10px 12px;
+
+            background: rgba(255, 255, 255, 0.07);
+
+            border: 1px solid rgba(255, 255, 255, 0.05);
+
+            border-radius: 14px;
+
+            color: #ffffff;
+
+            transition: 0.25s ease;
+        }
+
+        .hero .progress-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+
+            transform: translateX(-3px);
+        }
+
+        /* =========================================================
+   Number Circle
+   ========================================================= */
+
+        .hero .progress-item .num {
+            display: flex !important;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 40px !important;
+            min-width: 40px !important;
+            height: 40px !important;
+
+            padding: 0 !important;
+            margin: 0 !important;
+
+            border-radius: 50% !important;
+
+            background: var(--accent) !important;
+
+            color: #2b2110 !important;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            line-height: 1;
+        }
+
+        /* =========================================================
+   Progress Text
+   ========================================================= */
+
+        .hero .progress-item span {
+            display: block;
+
+            flex: 1;
+
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+   Main Sections
+   ========================================================= */
+
+        .section {
+            padding: 85px 0;
+        }
+
+        .section-head {
+            max-width: 700px;
+
+            margin: 0 auto 45px;
+
+            text-align: center;
+        }
+
+        .section-head h2 {
+            margin: 0 0 8px;
+
+            color: var(--text);
+
+            font-size: 34px;
+            font-weight: 800;
+        }
+
+        .section-head p {
+            margin: 0;
+
+            color: var(--muted);
+        }
+
+        /* =========================================================
+   Steps
+   ========================================================= */
+
+        .steps {
+            display: grid;
+
+            grid-template-columns: repeat(5, 1fr);
+
+            gap: 16px;
+        }
+
+        .step {
+            position: relative;
+
+            padding: 22px;
+
+            background: var(--card);
+
+            border: 1px solid var(--line);
+            border-radius: 20px;
+
+            box-shadow: 0 8px 30px rgba(28, 77, 66, 0.04);
+
+            transition: 0.25s ease;
+        }
+
+        .step:hover {
+            transform: translateY(-4px);
+
+            box-shadow: 0 15px 35px rgba(28, 77, 66, 0.08);
+        }
+
+        .step .step-no {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            color: var(--primary) !important;
+
+            background: #e9f4ee !important;
+
+            border-radius: 999px;
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .step h3 {
+            margin: 15px 0 7px;
+
+            color: var(--text);
+
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .step p {
+            margin: 0;
+
+            color: var(--muted);
+
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        /* =========================================================
+   Information Section
+   ========================================================= */
+
+        .important {
+            background: #ffffff;
+        }
+
+        .info-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 24px;
+        }
+
+        .info-card {
+            padding: 30px;
+
+            background: #ffffff;
+
+            border: 1px solid var(--line);
+            border-radius: 24px;
+
+            box-shadow: 0 8px 25px rgba(28, 77, 66, 0.03);
+        }
+
+        .info-card h3 {
+            margin: 0 0 16px;
+
+            color: var(--text);
+
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+   Check List
+   ========================================================= */
+
+        .check-list {
+            display: grid;
+
+            gap: 13px;
+
+            margin: 0;
+            padding: 0;
+
+            list-style: none;
+        }
+
+        .check-list li {
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 10px;
+
+            color: #50615d;
+        }
+
+        .check {
+            display: grid;
+
+            place-items: center;
+
+            flex: 0 0 25px;
+
+            width: 25px;
+            height: 25px;
+
+            background: #e9f5f1;
+
+            border-radius: 8px;
+
+            color: var(--primary);
+
+            font-weight: 800;
+        }
+
+        /* =========================================================
+   Tip
+   ========================================================= */
+
+        .tip {
+            background: linear-gradient(135deg,
+                    #f3f8f4,
+                    #fff9ed) !important;
+
+            border-color: #e8ece1;
+        }
+
+        .tip p {
+            color: #5e6966;
+        }
+
+        /* =========================================================
+   FAQ
+   ========================================================= */
+
+        .faq {
+            display: grid;
+
+            gap: 12px;
+
+            max-width: 800px;
+
+            margin: auto;
+        }
+
+        .faq details {
+            padding: 17px 20px;
+
+            background: #ffffff;
+
+            border: 1px solid var(--line);
+            border-radius: 16px;
+
+            transition: 0.2s ease;
+        }
+
+        .faq details:hover {
+            border-color: #d5e4dd;
+        }
+
+        .faq summary {
+            cursor: pointer;
+
+            color: var(--text);
+
+            font-weight: 700;
+        }
+
+        .faq p {
+            margin: 12px 0 0;
+
+            color: var(--muted);
+
+            font-size: 14px;
+        }
+
+        /* =========================================================
+   CTA
+   ========================================================= */
+
+        .cta {
+            padding: 0 0 85px;
+        }
+
+        .cta-box {
+            padding: 55px 7%;
+
+            background: linear-gradient(135deg,
+                    #0e3521 0%,
+                    #154e31 100%) !important;
+
+            border-radius: 28px;
+
+            color: #ffffff;
+
+            text-align: center;
+        }
+
+        .cta-box h2 {
+            margin: 0 0 8px;
+
+            color: #ffffff;
+
+            font-size: 36px;
+            font-weight: 800;
+        }
+
+        .cta-box p {
+            margin: 0 0 24px;
+
+            color: #dcebe7;
+        }
+
+        .cta-box .btn-primary {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+
+            color: #1a1a1a !important;
+        }
+
+        .cta-box .btn-primary:hover {
+            background: var(--accent-dark) !important;
+            border-color: var(--accent-dark) !important;
+        }
+
+        /* =========================================================
+   Footer
+   ========================================================= */
+
+        .kanaf-footer {
+            background: #0e3521 !important;
+
+            color: #ffffff !important;
+        }
+
+        .kanaf-footer p,
+        .kanaf-footer h5,
+        .kanaf-footer h6,
+        .kanaf-footer li,
+        .kanaf-footer a {
+            color: #ffffff !important;
+        }
+
+        .kanaf-footer a {
+            transition: 0.2s ease;
+        }
+
+        .kanaf-footer a:hover {
+            color: #d39b1f !important;
+        }
+
+        .kanaf-footer hr {
+            opacity: 0.2;
+        }
+
+        /* =========================================================
+   Desktop Improvements
+   ========================================================= */
+
+        @media (min-width: 951px) {
+            .hero-card {
+                max-width: 520px;
+                margin-right: auto;
+            }
+        }
+
+        /* =========================================================
+   Tablet
+   ========================================================= */
+
+        @media (max-width: 950px) {
+
+            .hero {
+                padding-bottom: 60px;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+
+                gap: 35px;
+
+                padding-top: 45px;
+            }
+
+            .hero-card {
+                max-width: 600px;
+
+                margin: 0 auto;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* =========================================================
+   Mobile
+   ========================================================= */
+
+        @media (max-width: 560px) {
+
+            .container {
+                width: 92%;
+            }
+
+            .hero {
+                padding: 30px 0 50px;
+            }
+
+            .hero .nav {
+                gap: 12px;
+            }
+
+            .hero .brand {
+                font-size: 23px;
+            }
+
+            .hero .badge {
+                padding: 6px 10px;
+
+                font-size: 11px;
+            }
+
+            .hero-grid {
+                padding-top: 35px;
+
+                gap: 25px;
+            }
+
+            .hero h1 {
+                margin-top: 18px;
+
+                font-size: 35px;
+
+                line-height: 1.35;
+            }
+
+            .hero p {
+                font-size: 15px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .hero .btn {
+                width: 100%;
+            }
+
+            .hero-card {
+                padding: 20px;
+
+                border-radius: 22px;
+
+                min-height: auto;
+            }
+
+            .hero-card h3 {
+                margin-bottom: 20px;
+
+                font-size: 21px;
+            }
+
+            .hero .progress-item {
+                padding: 9px;
+
+                gap: 10px;
+            }
+
+            .hero .progress-item .num {
+                width: 36px !important;
+                min-width: 36px !important;
+                height: 36px !important;
+            }
+
+            .hero .progress-item span {
+                font-size: 12px;
+            }
+
+            .section {
+                padding: 60px 0;
+            }
+
+            .section-head {
+                margin-bottom: 30px;
+            }
+
+            .section-head h2 {
+                font-size: 28px;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card {
+                padding: 22px;
+            }
+
+            .cta {
+                padding-bottom: 60px;
+            }
+
+            .cta-box {
+                padding: 40px 20px;
+
+                border-radius: 22px;
+            }
+
+            .cta-box h2 {
+                font-size: 29px;
+            }
+        }
+
+        /* =========================================================
+   Very Small Screens
+   ========================================================= */
+
+        @media (max-width: 380px) {
+
+            .hero .nav {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .hero .badge {
+                align-self: flex-start;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .hero-card {
+                padding: 16px;
+            }
+
+            .hero-card h3 {
+                font-size: 19px;
+            }
+
+            .hero .progress-item span {
+                font-size: 11px;
+            }
         }
     </style>
 </head>
 
 <body>
-
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark kanaf-navbar py-3 sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{{ route('knaf') }}">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="index.html">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="شعار كنف" height="50" width="110"
                         id="nav-brand-logo" style="object-fit:contain;">
-                    <!-- <span id="nav-brand-text">منصة كَنَفْ</span> -->
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
                     aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,7 +942,7 @@
                             <a class="nav-link" href="{{ route('orphans') }}" id="nav-link-orphans">قائمة الأيتام</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('step') }}" id="nav-link-steps">خطوات الكفالة</a>
+                            <a class="nav-link active" href="{{ route('step') }}" id="nav-link-steps">خطوات الكفالة</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('contact') }}" id="nav-link-contact">اتصل بنا</a>
@@ -121,214 +960,135 @@
             </div>
         </nav>
     </header>
-
-    <!-- 2. قسم الهيرو (Hero Section) -->
-    <section class="hero-section border-bottom">
+    <header class="hero">
         <div class="container">
-            <div class="row align-items-center gy-5">
-                <div class="col-lg-6 text-center text-lg-start">
-                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
-                        <i class="bi bi-star-fill me-1"></i> منصة موثوقة لكفالة الأيتام
-                    </span>
-                    <h1 class="display-4 fw-bold text-primary-green mb-4 lh-base">
-                        كن كافلاً... وكن معي في الجنة
-                    </h1>
-                    <p class="lead text-muted mb-4 lh-lg">
-                        تتيح لك منصة **كَنَفْ** كفالة الأيتام بطريقة رسمية ومباشرة، مع توفير تقارير دورية تضمن لك متابعة
-                        كافة احتياجاتهم التعليمية والصحية والرعاية الكاملة.
-                    </p>
-                    <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
-                        <a href="#orphans-section"
-                            class="btn btn-primary-green btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm">
-                            اختر يتيماً لكفالته <i class="bi bi-arrow-left ms-2"></i>
-                        </a>
-                        <a href="#sponsorship-steps-section"
-                            class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill fw-bold">
-                            كيف تعمل المنصة؟
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-6 text-center">
-                    <div class="position-relative d-inline-block">
-                        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop"
-                            class="img-fluid rounded-4 shadow-lg" alt="رعاية الأيتام">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3. قسم خطوات الكفالة -->
-    <section class="py-5 bg-warm border-bottom" id="sponsorship-steps-section">
-        <div class="container py-4">
-            <div class="text-center mb-5">
-                <span class="badge bg-secondary-gold text-dark mb-2 px-3 py-2 fw-bold rounded-pill">
-                    <i class="bi bi-diagram-3-fill me-1"></i> دليل الكفالة الميسر
-                </span>
-                <h2 class="fw-bold text-primary-green display-6 mb-3">كيف تكفل يتيماً في 3 خطوات؟</h2>
-                <p class="text-muted mx-auto" style="max-width: 600px;">
-                    رحلة عطاء سلسة وموثقة تبدأ باختيار الطفل وتنتهي بتوثيق الكفالة وتلقي التقارير الدورية.
-                </p>
-            </div>
-
-            <div class="row g-4 justify-content-center">
-                <!-- خطوة 1 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-white">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-primary-green rounded-circle p-3 mb-3 mx-auto"
-                            style="width: 70px; height: 70px;">
-                            <i class="bi bi-person-check-fill fs-2"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">1. اختيار اليتيم</h5>
-                        <p class="text-muted small lh-lg mb-0">
-                            تصفح قائمة الأيتام واستعرض حالاتهم الصحية والدراسية ومدى الاحتياج، ثم حدد الطفل المختار.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- خطوة 2 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-white">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-dark rounded-circle p-3 mb-3 mx-auto"
-                            style="width: 70px; height: 70px;">
-                            <i class="bi bi-card-heading fs-2 text-warning"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">2. إدخال بيانات الكافل</h5>
-                        <p class="text-muted small lh-lg mb-0">
-                            سجل بيانات التواصل الأساسية لتمكيننا من توثيق عقد الكفالة ومراسلتك بالتقارير الدورية.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- خطوة 3 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-white">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-info-subtle text-info-emphasis rounded-circle p-3 mb-3 mx-auto"
-                            style="width: 70px; height: 70px;">
-                            <i class="bi bi-credit-card-2-front-fill fs-2"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">3. الدفع وتأكيد الكفالة</h5>
-                        <p class="text-muted small lh-lg mb-0">
-                            اختر طريقة الدفع المناسبة لتقديم الدفعة الأولى لتتم عملية الاعتماد وتنشيط الكفالة فوراً.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. قسم الأيتام المتاحين للكفالة -->
-    <section class="py-5" id="orphans-section">
-        <div class="container py-4">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5">
+            <nav class="nav">
+                <div class="brand">كنف</div>
+                <div class="badge">رحلة كفالة واضحة وآمنة</div>
+            </nav>
+            <div class="hero-grid">
                 <div>
-                    <h2 class="fw-bold text-primary-green display-6 mb-2">أيتام بانتظار كفالتك</h2>
-                    <p class="text-muted mb-0">ساهم في تغيير حياة طفل ووفر له العيش الكريم</p>
+                    <div class="eyebrow">معك خطوة بخطوة 🤍</div>
+                    <h1>ابدأ رحلة الكفالة<br>بكل سهولة واطمئنان</h1>
+                    <p>قبل البدء، تعرّف على جميع خطوات الكفالة وما تحتاج إليه، ثم انتقل إلى النموذج لإتمام طلبك بطريقة
+                        بسيطة ومنظمة.</p>
+                    <div class="actions"><a class="btn btn-primary" href="{{ route('register') }}">ابدأ الكفالة الآن ←</a><a
+                            class="btn btn-outline" href="#how">تعرّف على الخطوات</a></div>
                 </div>
-                <a href="#" class="btn btn-outline-success rounded-pill fw-bold mt-3 mt-md-0">عرض جميع
-                    الحالات</a>
-            </div>
-
-            <div class="row g-4">
-                <!-- كرت يتيم 1 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=500&auto=format&fit=crop"
-                            class="card-img-top" alt="طفل" style="height: 220px; object-fit: cover;">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-light text-dark border">عمر: 8 سنوات</span>
-                                <span class="badge bg-danger-subtle text-danger">شدد الاحتياج</span>
-                            </div>
-                            <h5 class="fw-bold text-dark mb-2">أحمد محمد</h5>
-                            <p class="text-muted small mb-3"><i class="bi bi-geo-alt text-muted me-1"></i> غزة، فلسطين
-                            </p>
-                            <div class="bg-light p-3 rounded-3 mb-3">
-                                <div class="d-flex justify-content-between text-small fw-bold mb-1">
-                                    <span>مبلغ الكفالة الشهري:</span>
-                                    <span class="text-primary-green">150 شيكل</span>
-                                </div>
-                            </div>
-                            <a href="#" class="btn btn-primary-green w-100 rounded-pill fw-bold py-2">تكفل
-                                الآن</a>
+                <aside class="hero-card">
+                    <h3>رحلة الكفالة في 5 خطوات</h3>
+                    <div class="progress">
+                        <div class="progress-item">
+                            <div class="num">1</div><span>اختيار الطفل المطلوب</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="num">2</div><span>إدخال البيانات المطلوبة</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="num">3</div><span>مراجعة التفاصيل</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="num">4</div><span>إتمام الدفع بطريقة آمنة</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="num">5</div><span>تأكيد الكفالة واستلام الإشعار</span>
                         </div>
                     </div>
-                </div>
-
-                <!-- كرت يتيم 2 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?q=80&w=500&auto=format&fit=crop"
-                            class="card-img-top" alt="طفلة" style="height: 220px; object-fit: cover;">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-light text-dark border">عمر: 6 سنوات</span>
-                                <span class="badge bg-warning-subtle text-dark">يتيمة الأبوين</span>
-                            </div>
-                            <h5 class="fw-bold text-dark mb-2">مريم خالد</h5>
-                            <p class="text-muted small mb-3"><i class="bi bi-geo-alt text-muted me-1"></i> غزة، فلسطين
-                            </p>
-                            <div class="bg-light p-3 rounded-3 mb-3">
-                                <div class="d-flex justify-content-between text-small fw-bold mb-1">
-                                    <span>مبلغ الكفالة الشهري:</span>
-                                    <span class="text-primary-green">200 شيكل</span>
-                                </div>
-                            </div>
-                            <a href="#" class="btn btn-primary-green w-100 rounded-pill fw-bold py-2">تكفل
-                                الآن</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- كرت يتيم 3 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?q=80&w=500&auto=format&fit=crop"
-                            class="card-img-top" alt="طفل" style="height: 220px; object-fit: cover;">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-light text-dark border">عمر: 10 سنوات</span>
-                                <span class="badge bg-success-subtle text-success">طالب علم</span>
-                            </div>
-                            <h5 class="fw-bold text-dark mb-2">يوسف محمود</h5>
-                            <p class="text-muted small mb-3"><i class="bi bi-geo-alt text-muted me-1"></i> غزة، فلسطين
-                            </p>
-                            <div class="bg-light p-3 rounded-3 mb-3">
-                                <div class="d-flex justify-content-between text-small fw-bold mb-1">
-                                    <span>مبلغ الكفالة الشهري:</span>
-                                    <span class="text-primary-green">150 شيكل</span>
-                                </div>
-                            </div>
-                            <a href="#" class="btn btn-primary-green w-100 rounded-pill fw-bold py-2">تكفل
-                                الآن</a>
-                        </div>
-                    </div>
-                </div>
+                </aside>
             </div>
         </div>
-    </section>
-
-    <!-- 5. قسم الأرقام والإحصائيات -->
-    <section class="py-5 bg-primary-green text-white">
-        <div class="container py-3">
-            <div class="row g-4 text-center">
-                <div class="col-md-4">
-                    <h2 class="display-5 fw-bold text-warning">+1,200</h2>
-                    <p class="fs-5 mb-0">يتيم مكفول</p>
+    </header>
+    <main>
+        <section class="section" id="how">
+            <div class="container">
+                <div class="section-head">
+                    <h2>كيف تتم عملية الكفالة؟</h2>
+                    <p>صممنا الرحلة لتكون واضحة من البداية حتى التأكيد النهائي.</p>
                 </div>
-                <div class="col-md-4">
-                    <h2 class="display-5 fw-bold text-warning">+850</h2>
-                    <p class="fs-5 mb-0">كافل مسجل</p>
-                </div>
-                <div class="col-md-4">
-                    <h2 class="display-5 fw-bold text-warning">100%</h2>
-                    <p class="fs-5 mb-0">شفافية وتوثيق دوري</p>
+                <div class="steps">
+                    <div class="step"><span class="step-no">الخطوة 01</span>
+                        <h3>اختر الطفل</h3>
+                        <p>قم باختيار الطفل الذي تحبه .</p>
+                    </div>
+                    <div class="step"><span class="step-no">الخطوة 02</span>
+                        <h3>أدخل بياناتك</h3>
+                        <p>قم بتعبئة بياناتك ومعلومات التواصل المطلوبة.</p>
+                    </div>
+                    <div class="step"><span class="step-no">الخطوة 03</span>
+                        <h3>راجع التفاصيل</h3>
+                        <p>تأكد من صحة المعلومات قبل الانتقال للمرحلة التالية.</p>
+                    </div>
+                    <div class="step"><span class="step-no">الخطوة 04</span>
+                        <h3>أكمل الدفع</h3>
+                        <p>اختر طريقة الدفع المناسبة وأتمم العملية.</p>
+                    </div>
+                    <div class="step"><span class="step-no">الخطوة 05</span>
+                        <h3>تأكيد الكفالة</h3>
+                        <p>احصل على تأكيد طلبك وابدأ متابعة كفالتك.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- 6. الفوتر (Footer) -->
+        </section>
+        <section class="section important">
+            <div class="container">
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h3>ماذا تحتاج قبل البدء؟</h3>
+                        <ul class="check-list">
+                            <li><span class="check">✓</span><span>البيانات الشخصية الأساسية.</span></li>
+                            <li><span class="check">✓</span><span>رقم هاتف ووسيلة تواصل فعالة.</span></li>
+                            <li><span class="check">✓</span><span>اختيار نوع الكفالة المناسب لك.</span></li>
+                            <li><span class="check">✓</span><span>وسيلة الدفع التي تفضّل استخدامها.</span></li>
+                        </ul>
+                    </div>
+                    <div class="info-card tip">
+                        <h3>معلومات مهمة</h3>
+                        <ul class="check-list">
+                            <li><span class="check">✓</span><span>تستغرق العملية بضع دقائق فقط.</span></li>
+                            <li><span class="check">✓</span><span>يمكنك مراجعة بياناتك قبل التأكيد النهائي.</span>
+                            </li>
+                            <li><span class="check">✓</span><span>يتم التعامل مع بياناتك بسرية وأمان.</span></li>
+                            <li><span class="check">✓</span><span>تظهر لك الخطوات بشكل متسلسل وواضح.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section" id="faq">
+            <div class="container">
+                <div class="section-head">
+                    <h2>أسئلة قد تساعدك قبل البدء</h2>
+                    <p>كل ما تحتاج معرفته قبل الانتقال إلى نموذج الكفالة.</p>
+                </div>
+                <div class="faq">
+                    <details open>
+                        <summary>هل يمكنني تعديل بياناتي قبل التأكيد؟</summary>
+                        <p>نعم، يمكنك مراجعة البيانات والتأكد منها قبل الانتقال إلى الإتمام النهائي حسب خطوات النموذج.
+                        </p>
+                    </details>
+                    <details>
+                        <summary>كم تستغرق عملية التسجيل؟</summary>
+                        <p>تم تصميم العملية لتكون سريعة، ويمكنك إتمام الخطوات الأساسية خلال بضع دقائق عند تجهيز
+                            المعلومات المطلوبة.</p>
+                    </details>
+                    <details>
+                        <summary>ماذا يحدث بعد إتمام الكفالة؟</summary>
+                        <p>بعد إتمام الخطوات، يتم تأكيد الطلب وفق إجراءات المنصة وستتمكن من متابعة تفاصيل الكفالة من
+                            خلال النظام.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+        <section class="cta">
+            <div class="container">
+                <div class="cta-box">
+                    <h2>جاهز لبدء رحلة الكفالة؟</h2>
+                    <p>اضغط على الزر للانتقال إلى الخطوة الأولى والبدء في تعبئة طلب الكفالة.</p><a
+                        class="btn btn-primary" href="{{ route('register') }}">ابدأ الكفالة الآن ←</a>
+                </div>
+            </div>
+        </section>
+    </main>
     <footer class="kanaf-footer py-5 mt-5 pb-0">
         <div class="container py-4">
             <div class="row g-4">
@@ -342,17 +1102,40 @@
                             الأكثر احتياجاً
                             لمتابعة حالتهم وتحقيق الكفالة الشاملة بكل شفافية وحب.</p>
                         <div class="d-flex gap-2 mt-4 text-white">
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-twitter-x"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-facebook"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-instagram"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary text-white"><i
-                                    class="bi bi-linkedin"></i></a>
+                            @if (!empty($settings['social_facebook']))
+                                <a href="https://facebook.com/{{ $settings['social_facebook'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-facebook"></i></a>
+                            @endif
+                            @if (!empty($settings['social_instagram']))
+                                <a href="https://instagram.com/{{ $settings['social_instagram'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-instagram"></i></a>
+                            @endif
+                            @if (!empty($settings['social_x']))
+                                <a href="https://x.com/{{ $settings['social_x'] }}" target="_blank" rel="noopener"
+                                    class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-twitter-x"></i></a>
+                            @endif
+                            @if (!empty($settings['social_youtube']))
+                                <a href="https://youtube.com/{{ $settings['social_youtube'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-youtube"></i></a>
+                            @endif
+                            @if (!empty($settings['social_whatsapp']))
+                                <a href="https://wa.me/{{ $settings['social_whatsapp'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-whatsapp"></i></a>
+                            @endif
+                            @if (!empty($settings['social_telegram']))
+                                <a href="https://t.me/{{ $settings['social_telegram'] }}" target="_blank"
+                                    rel="noopener" class="btn btn-sm btn-outline-secondary text-white"><i
+                                        class="bi bi-telegram"></i></a>
+                            @endif
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">روابط مساعدة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
@@ -398,12 +1181,7 @@
             </div>
         </div>
     </footer>
-
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-
-
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -11,6 +11,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\sponsorshipController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // ===================================================
@@ -50,7 +51,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
 });
-
+// Route::get('/force-logout', function () {
+//     Auth::logout();
+//     request()->session()->invalidate();
+//     request()->session()->regenerateToken();
+//     return redirect()->route('login');
+// });
 // ===================================================
 // ================= Protected Routes ================
 // ===================================================

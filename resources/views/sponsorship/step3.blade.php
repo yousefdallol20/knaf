@@ -41,7 +41,7 @@
                     <div class="d-flex gap-2 align-items-center flex-wrap" id="nav-auth-buttons">
                         <a href=" {{ route('login') }}" class="btn btn-outline-light px-4 rounded-pill"
                             id="nav-btn-login">تسجيل الدخول</a>
-                        <a href=" {{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold"
+                        <a href="{{ route('register') }}" class="btn btn-secondary px-4 rounded-pill fw-bold"
                             id="nav-btn-register">ابدأ الكفالة الآن</a>
                     </div>
                 </div>
