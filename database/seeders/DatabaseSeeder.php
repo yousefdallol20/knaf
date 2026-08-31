@@ -59,7 +59,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             AdminSeeder::class,
-            SponsorSeeder::class,
         ]);
     }
 }
