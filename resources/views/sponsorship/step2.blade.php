@@ -231,13 +231,13 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">اللوحات الخاصة</h6>
                     <ul class="list-unstyled text-small text-white d-flex flex-column gap-2 mb-0">
-                        <li><a href="{{ route('dashboard_sponsor') }}" class="text-white text-decoration-none">بوابة
+                        <li><a href="{{ route('login') }}" class="text-white text-decoration-none">بوابة
                                 الكافل
                                 المشترك</a></li>
-                        <li><a href="{{ route('dashboard') }}" class="text-white text-decoration-none">بوابة الأوصياء
+                        <li><a href="{{ route('login') }}" class="text-white text-decoration-none">بوابة الأوصياء
                                 والأمهات</a>
                         </li>
-                        <li><a href="{{ route('dashboard_admin') }}" class="text-white text-decoration-none">لوحة
+                        <li><a href="{{ route('login') }}" class="text-white text-decoration-none">لوحة
                                 الإدارة
                                 الشاملة</a></li>
                     </ul>
