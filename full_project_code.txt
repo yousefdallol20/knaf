@@ -75,7 +75,7 @@ class LoginController extends Controller
     {
         return view('auth.login');
     }
-    
+
     public function login(Request $request)
     {
         // 1. التحقق من صحة المدخلات
@@ -1918,7 +1918,7 @@ class HomeController extends Controller
             ->latest()
             ->take(3)
             ->get();
-    
+
         return view('index', compact('sponsoredCount', 'citiesCount', 'orphans'));
     }
 
@@ -3766,7 +3766,7 @@ class AuditLog extends Model
     protected $table = 'audit_logs';
 
     protected $guarded = [];
-    
+
 
     // علاقة السجل بالمستخدم الذي نفذ العملية
     public function user()
@@ -7608,7 +7608,7 @@ FILE: C:\xampp\htdocs\Archive\resources\views\admin\notifications.blade.php
         </div>
     </div>
 
-    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 
 </html>
@@ -9051,7 +9051,7 @@ FILE: C:\xampp\htdocs\Archive\resources\views\admin\orphans.blade.php
     </div>
 
 
-    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 
 </body>
 
@@ -9653,7 +9653,7 @@ FILE: C:\xampp\htdocs\Archive\resources\views\admin\permissions.blade.php
         </div>
     </div>
 
-    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 
 </html>
@@ -17693,7 +17693,7 @@ FILE: C:\xampp\htdocs\Archive\resources\views\sponsor\payments.blade.php
                             <input type="number" step="0.01" name="amount_paid" class="form-control"
                                 value="{{ $orphans->first()?->orphan?->required_amount ?? '' }}"
                                 placeholder="أدخل مبلغ الكفالة" required>
-                        </div>  
+                        </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">وسيلة الدفع</label>
                             <select name="payment_method" class="form-select" required>
